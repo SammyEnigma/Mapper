@@ -70,22 +70,21 @@ namespace Mapper
                     else if (Types.IsNullable(inType) && inType.GetGenericArguments()[0] == outType)
                     {
                         value = Expression.Condition(
-                            Expression.Property(value, typeof(Nullable<>).GetProperty("HasValue")), 
-                            Expression.Property(value, typeof(Nullable<>).GetProperty("Value")), 
+                            Expression.Property(value, inType.GetProperty("HasValue")), 
+                            Expression.Property(value, inType.GetProperty("Value")), 
                             Expression.Default(outType),
                             outType);
                     }
                     else if (Types.IsNullable(inType) && Types.CanBeCast(inType.GetGenericArguments()[0], outType)) 
                     {
                         value = Expression.Condition(
-                            Expression.Property(value, typeof(Nullable<>).GetProperty("HasValue")),
-                            Expression.Convert(Expression.Property(value, typeof(Nullable<>).GetProperty("Value")), outType),
+                            Expression.Property(value, inType.GetProperty("HasValue")),
+                            Expression.Convert(Expression.Property(value, inType.GetProperty("Value")), outType),
                             Expression.Default(outType),
                             outType);
                     }
                     else 
                         continue;                    
-                    // it can be assigned, try to cast it
                 }
                 lines.Add(Expression.Assign(Expression.PropertyOrField(result, outPF.Name), value));
             }

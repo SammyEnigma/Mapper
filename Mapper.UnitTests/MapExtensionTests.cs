@@ -149,6 +149,14 @@ namespace Mapper.UnitTests
         }
 
         [Test]
+        public void can_map_nullable_int_to_int()
+        {
+            var input = new SingleProp<int?> { Value = 1 };
+            var output = input.Map<SingleProp<int?>, SingleProp<int>>();
+            Assert.AreEqual(1, output.Value);
+        }
+
+        [Test]
         public void can_map_long_to_nullable_long() {
             var input = new SingleProp<long> { Value = 1 };
             var output = input.Map<SingleProp<long>, SingleProp<long?>>();
@@ -173,7 +181,7 @@ namespace Mapper.UnitTests
         public void can_map_nullable_int_to_long() {
             var input = new SingleProp<int?> { Value = 1 };
             var output = input.Map<SingleProp<int?>, SingleProp<long>>();
-            Assert.AreEqual(input.Value.Value, output.Value);
+            Assert.AreEqual(1, output.Value);
         }
 
         [Test]
