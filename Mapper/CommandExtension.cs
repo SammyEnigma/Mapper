@@ -207,7 +207,7 @@ namespace Mapper
                     lines.Add(Expression.Assign(Expression.Property(dataParam, "DbType"), Expression.Constant(TypeMap[prop.PropertyType])));
                 }
 
-                if (Types.IsNullable(prop.PropertyType))
+                if (Types.CanBeNull(prop.PropertyType))
                 {
                     lines.Add(Expression.IfThenElse(
                         Expression.Equal(Expression.Property(parameters, prop.Name), Expression.Constant(null)),

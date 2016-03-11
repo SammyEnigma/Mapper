@@ -5,7 +5,7 @@ using NUnit.Framework;
 namespace Mapper.UnitTests
 {
     [TestFixture]
-    public class CopierTests
+    public class MapExtensionTests
     {
         [Test]
         public void can_clone_string_property()
@@ -148,6 +148,40 @@ namespace Mapper.UnitTests
             Assert.AreEqual((TestEnum)input.Value, output.Value);
         }
 
+        [Test]
+        public void can_map_long_to_nullable_long() {
+            var input = new SingleProp<long> { Value = 1 };
+            var output = input.Map<SingleProp<long>, SingleProp<long?>>();
+            Assert.AreEqual(input.Value, output.Value);
+        }
+
+        [Test]
+        public void can_map_nullable_long_to_long() {
+            var input = new SingleProp<long?> { Value = 1 };
+            var output = input.Map<SingleProp<long?>, SingleProp<long>>();
+            Assert.AreEqual(input.Value.Value, output.Value);
+        }
+
+        [Test]
+        public void can_map_null_nullable_long_to_default() {
+            var input = new SingleProp<long?> { Value = null };
+            var output = input.Map<SingleProp<long?>, SingleProp<long>>();
+            Assert.AreEqual(0, output.Value);
+        }
+
+        [Test]
+        public void can_map_nullable_int_to_long() {
+            var input = new SingleProp<int?> { Value = 1 };
+            var output = input.Map<SingleProp<int?>, SingleProp<long>>();
+            Assert.AreEqual(input.Value.Value, output.Value);
+        }
+
+        [Test]
+        public void can_map_null_nullable_int_to_long() {
+            var input = new SingleProp<int?> { Value = null };
+            var output = input.Map<SingleProp<int?>, SingleProp<long>>();
+            Assert.AreEqual(0, output.Value);
+        }
     }
 
     public class SingleProp<T>

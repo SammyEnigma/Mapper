@@ -28,13 +28,17 @@ namespace Mapper
             return ((FieldInfo) member).FieldType;
         }
 
-        public static bool IsNullable(Type type)
+        public static bool CanBeNull(Type type)
         {
             if (type.IsPrimitive) return false;
-            if (type.IsConstructedGenericType && type.GetGenericTypeDefinition() == typeof (Nullable<>)) return true;
+            if (IsNullable(type)) return true;
             if (type.IsEnum) return false;
             if (!type.IsClass) return false;
             return true;
+        }
+
+        public static bool IsNullable(Type type) {
+            return type.IsConstructedGenericType && type.GetGenericTypeDefinition() == typeof(Nullable<>);
         }
 
         public static bool IsStructured(Type type)
