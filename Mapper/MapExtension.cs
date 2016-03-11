@@ -69,19 +69,11 @@ namespace Mapper
                     }
                     else if (Types.IsNullable(inType) && inType.GetGenericArguments()[0] == outType)
                     {
-                        value = Expression.Condition(
-                            Expression.Property(value, inType.GetProperty("HasValue")), 
-                            Expression.Property(value, inType.GetProperty("Value")), 
-                            Expression.Default(outType),
-                            outType);
+                        value = Expression.Call(value, inType.GetMethod("GetValueOrDefault", Type.EmptyTypes));
                     }
-                    else if (Types.IsNullable(inType) && Types.CanBeCast(inType.GetGenericArguments()[0], outType)) 
+                    else if (Types.IsNullable(inType) && Types.CanBeCast(inType.GetGenericArguments()[0], outType))
                     {
-                        value = Expression.Condition(
-                            Expression.Property(value, inType.GetProperty("HasValue")),
-                            Expression.Convert(Expression.Property(value, inType.GetProperty("Value")), outType),
-                            Expression.Default(outType),
-                            outType);
+                        value = Expression.Convert(Expression.Call(value, inType.GetMethod("GetValueOrDefault", Type.EmptyTypes)), outType);
                     }
                     else 
                         continue;                    
