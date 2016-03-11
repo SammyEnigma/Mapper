@@ -54,9 +54,11 @@ namespace Mapper
             var outByName = WritablePropertiesAndFields<TOut>();
             var inByName = ReadablePropertiesAndFields<TIn>();
 
-            foreach (var inPF in inByName.Where(pair => outByName.ContainsKey(pair.Key)).Select(pair => pair.Value))
+            foreach (var inPF in inByName.Select(pair => pair.Value))
             {
-                var outPF = outByName[inPF.Name];
+                var outPF = FindOutPropertyOrField(outByName, inPF);
+                if (outPF == null) continue;
+                
                 var outType = Types.PropertyOrFieldType(outPF);
                 var inType = Types.PropertyOrFieldType(inPF);
                 Expression value = Expression.PropertyOrField(input, inPF.Name);
@@ -83,6 +85,19 @@ namespace Mapper
             lines.Add(result); // the return value
             var block = Expression.Block(new[] { result }, lines);
             return Expression.Lambda<Func<TIn, TOut>>(block, input).Compile();
+        }
+
+        private static MemberInfo FindOutPropertyOrField(IDictionary<string, MemberInfo> outByName, MemberInfo inPF)
+        {
+            Contract.Requires(outByName != null);
+            Contract.Requires(inPF != null);
+            foreach (var name in Names.CandidateNames(inPF.Name, Types.PropertyOrFieldType(inPF)))
+            {
+                MemberInfo outPF;
+                if (outByName.TryGetValue(name, out outPF)) // names match
+                    return outPF;
+            }
+            return null;
         }
 
         private static Dictionary<string, MemberInfo> WritablePropertiesAndFields<T>()

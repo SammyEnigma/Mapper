@@ -196,9 +196,7 @@ namespace Mapper
 
         private static bool NameMatches(Column col, string name)
         {
-            if (string.Equals(col.Name, name, StringComparison.OrdinalIgnoreCase)) return true;
-            if (string.Equals(col.Name.Replace("_", ""), name, StringComparison.OrdinalIgnoreCase)) return true;
-            return false;
+            return Names.CandidateNames(col.Name, col.Type).Any(cand => string.Equals(cand, name, StringComparison.OrdinalIgnoreCase));
         }
 
         private static BlockExpression CreateMapBlock(Type type, Dictionary<MemberInfo, Column> map, ParameterExpression reader, ParameterExpression result)

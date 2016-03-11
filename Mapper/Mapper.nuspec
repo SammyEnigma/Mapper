@@ -1,0 +1,13 @@
+<?xml version="1.0"?>
+<package >
+  <metadata>
+    <id>Mapper</id>
+    <version>1.0.0.1</version>
+    <authors>BusterWood</authors>
+    <description>A convention-based object cloner, object-object mapper (like AutoMapper), IDataReader to object mapper, object to IDbDataParameter mapper, etc.</description>
+    <projectUrl>https://github.com/busterwood/mapper</projectUrl>
+  </metadata>
+  <files>
+    <file src="Bin\Debug\Mapper.dll" target="lib\net45"/>
+  </files>
+</package>

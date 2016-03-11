@@ -42,9 +42,48 @@ namespace Mapper
             return type.IsConstructedGenericType && type.GetGenericTypeDefinition() == typeof(Nullable<>);
         }
 
+        public static bool IsPrimitiveOrEnum(this Type type)
+        {
+            Contract.Requires(type != null);
+            return type.IsPrimitive || type.IsEnum;
+        }
+
         public static bool IsStructured(Type type)
         {
+            Contract.Requires(type != null);
             return typeof (IEnumerable<SqlDataRecord>).IsAssignableFrom(type);
+        }
+
+        public static Type NullableOf(this Type type)
+        {
+            Contract.Requires(type != null);
+            Contract.Requires(type.IsGenericType);
+            Contract.Requires(type.GetGenericTypeDefinition() == typeof(Nullable<>));
+            return type.GetGenericArguments()[0];
+        }
+    }
+
+    public static class Names
+    {
+        public static List<string> CandidateNames(string name, Type type)
+        {
+            var names = new List<string>(4) { name };
+
+            // special handling of xxxId to xxx for primitive types (int, long, etc)
+            if (name.EndsWith("Id", StringComparison.OrdinalIgnoreCase))
+            {
+                if (type.IsPrimitiveOrEnum() || (Types.IsNullable(type) && type.NullableOf().IsPrimitiveOrEnum()))
+                    names.Add(name.Substring(0, name.Length - 2));
+            }
+
+            // see if we need to replace underscores
+            int max = names.Count;
+            for (int i = 0; i < max; i++)
+            {
+                if (names[i].IndexOf('_') >= 0)
+                    names.Add(names[i].Replace("_", ""));
+            }
+            return names;
         }
     }
 }
