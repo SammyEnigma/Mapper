@@ -29,6 +29,15 @@ namespace Mapper
             return map(input);
         }
 
+
+        /// <summary>creates copies of all input objects, copying all properties and fields with matching names and compatible types</summary>
+        public static IEnumerable<TOut> Map<TIn, TOut>(this IEnumerable<TIn> input) {
+            Contract.Requires(input != null);
+            Contract.Ensures(Contract.Result<IEnumerable<TOut>>() != null);
+            var map = (Func<TIn, TOut>)MapMethods.GetOrAdd(new TypePair(typeof(TIn), typeof(TOut)), _ => CreateMapDelegate<TIn, TOut>());
+            return input.Select(map);
+        }
+
         /// <summary>
         /// Fast copying code that generates a method that does the copy from one type to another
         /// </summary>
