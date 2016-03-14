@@ -190,11 +190,58 @@ namespace Mapper.UnitTests
             var output = input.Map<SingleProp<int?>, SingleProp<long>>();
             Assert.AreEqual(0, output.Value);
         }
+
+        [Test]
+        public void can_map_name_ending_in_id_to_name_without_id() {
+            var input = new SingleId<int> { ValueId = 1 };
+            var output = input.Map<SingleId<int>, SingleProp<int>>();
+            Assert.AreEqual(1, output.Value);
+        }
+
+        [Test]
+        public void can_map_nullable_name_ending_in_id_to_name_without_id()
+        {
+            var input = new SingleId<int?> { ValueId = 1 };
+            var output = input.Map<SingleId<int?>, SingleProp<int>>();
+            Assert.AreEqual(1, output.Value);
+        }
+
+        [Test]
+        public void can_map_name_ending_in_id_to_name_without_id_enum()
+        {
+            var input = new SingleId<int> { ValueId = 1 };
+            var output = input.Map<SingleId<int>, SingleProp<TestEnum>>();
+            Assert.AreEqual(TestEnum.Something, output.Value);
+        }
+
+        [Test]
+        public void can_map_name_with_underscores_to_name_without_underscores()
+        {
+            var input = new WithUnderscore {SOME_VALUE = 1};
+            var output = input.Map<WithUnderscore, WithoutUnderscore>();
+            Assert.AreEqual(1, output.SomeValue);
+        }
+
     }
 
+    public class WithUnderscore
+    {
+        public int SOME_VALUE { get; set; }
+
+    }
+    public class WithoutUnderscore
+    {
+        public int SomeValue { get; set; }
+
+    }
     public class SingleProp<T>
     {
         public T Value { get; set; }
+    }
+
+    public class SingleId<T>
+    {
+        public T ValueId { get; set; }
     }
 
     public enum TestEnum

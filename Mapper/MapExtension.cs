@@ -65,8 +65,8 @@ namespace Mapper
 
             var lines = new List<Expression> { Expression.Assign(result, Expression.New(typeof(TOut).GetConstructor(Type.EmptyTypes))) };
 
-            var outByName = WritablePropertiesAndFields<TOut>();
-            var inByName = ReadablePropertiesAndFields<TIn>();
+            var outByName = Types.WritablePropertiesAndFields<TOut>();
+            var inByName = Types.ReadablePropertiesAndFields<TIn>();
 
             foreach (var inPF in inByName.Select(pair => pair.Value))
             {
@@ -112,30 +112,6 @@ namespace Mapper
                     return outPF;
             }
             return null;
-        }
-
-        private static Dictionary<string, MemberInfo> WritablePropertiesAndFields<T>()
-        {
-            var map = typeof (T).GetProperties(BindingFlags.Instance | BindingFlags.Public).Where(p => p.CanWrite)
-                .Cast<MemberInfo>()
-                .ToDictionary(p => p.Name, p => p, StringComparer.OrdinalIgnoreCase);
-            foreach (var field in typeof (T).GetFields(BindingFlags.Instance | BindingFlags.Public).Where(f => !f.IsInitOnly))
-            {
-                map[field.Name] = field;
-            }
-            return map;
-        }
-
-        private static Dictionary<string, MemberInfo> ReadablePropertiesAndFields<T>()
-        {
-            var map = typeof (T).GetProperties(BindingFlags.Instance | BindingFlags.Public).Where(p => p.CanRead)
-                .Cast<MemberInfo>()
-                .ToDictionary(p => p.Name, p => p, StringComparer.OrdinalIgnoreCase);
-            foreach (var field in typeof (T).GetFields(BindingFlags.Instance | BindingFlags.Public))
-            {
-                map[field.Name] = field;
-            }
-            return map;
         }
 
         struct TypePair : IEquatable<TypePair>
