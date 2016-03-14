@@ -25,7 +25,7 @@ Dictionary<int, Order> list = connection.QueryDictionary<int, Order>("select * f
 
 Select a key to multiple value `ILookup`
 ```
-ILookup<int, Order> list = connection.QueryDictionary<int, Order>("select * from dbo.[Order] where order_date > @OrderDate", new { OrderDate = new DateTime(2016, 8, 1) }, order => order.Status);
+ILookup<int, Order> list = connection.QueryLookup<int, Order>("select * from dbo.[Order] where order_date > @OrderDate", new { OrderDate = new DateTime(2016, 8, 1) }, order => order.Status);
 ```
 
 ## Composability
