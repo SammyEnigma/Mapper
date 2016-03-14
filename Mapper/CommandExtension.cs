@@ -16,49 +16,6 @@ namespace Mapper
     {
         private static readonly MostlyReadDictionary<Type, Delegate> Methods = new MostlyReadDictionary<Type, Delegate>();
 
-        private static readonly Dictionary<Type, DbType> TypeMap;
-
-        static CommandExtension()
-        {
-            TypeMap = new Dictionary<Type, DbType>
-            {
-                [typeof (byte)] = DbType.Byte,
-                [typeof (sbyte)] = DbType.SByte,
-                [typeof (short)] = DbType.Int16,
-                [typeof (ushort)] = DbType.UInt16,
-                [typeof (int)] = DbType.Int32,
-                [typeof (uint)] = DbType.UInt32,
-                [typeof (long)] = DbType.Int64,
-                [typeof (ulong)] = DbType.UInt64,
-                [typeof (float)] = DbType.Single,
-                [typeof (double)] = DbType.Double,
-                [typeof (decimal)] = DbType.Decimal,
-                [typeof (bool)] = DbType.Boolean,
-                [typeof (string)] = DbType.String,
-                [typeof (char)] = DbType.StringFixedLength,
-                [typeof (Guid)] = DbType.Guid,
-                [typeof (DateTime)] = DbType.DateTime,
-                [typeof (DateTimeOffset)] = DbType.DateTimeOffset,
-                [typeof (byte[])] = DbType.Binary,
-                [typeof (byte?)] = DbType.Byte,
-                [typeof (sbyte?)] = DbType.SByte,
-                [typeof (short?)] = DbType.Int16,
-                [typeof (ushort?)] = DbType.UInt16,
-                [typeof (int?)] = DbType.Int32,
-                [typeof (uint?)] = DbType.UInt32,
-                [typeof (long?)] = DbType.Int64,
-                [typeof (ulong?)] = DbType.UInt64,
-                [typeof (float?)] = DbType.Single,
-                [typeof (double?)] = DbType.Double,
-                [typeof (decimal?)] = DbType.Decimal,
-                [typeof (bool?)] = DbType.Boolean,
-                [typeof (char?)] = DbType.StringFixedLength,
-                [typeof (Guid?)] = DbType.Guid,
-                [typeof (DateTime?)] = DbType.DateTime,
-                [typeof (DateTimeOffset?)] = DbType.DateTimeOffset
-            };
-        }
-
         /// <summary>Executes the <paramref name="cmd"/> reading exactly one item</summary>
         /// <exception cref="InvalidOperationException"> when zero values read or more than one value can be read</exception>
         public static T Single<T>(this IDbCommand cmd)
@@ -186,7 +143,7 @@ namespace Mapper
             var createParameter = typeof(IDbCommand).GetMethod("CreateParameter", Type.EmptyTypes);
             foreach (var prop in type.GetProperties(BindingFlags.Public | BindingFlags.Instance))
             {
-                if (!TypeMap.ContainsKey(prop.PropertyType)) continue;
+                if (!Types.TypeToDbType.ContainsKey(prop.PropertyType)) continue;
                 lines.Add(Expression.Assign(dataParam, Expression.Call(cmd, createParameter)));
                 lines.Add(Expression.Assign(Expression.Property(dataParam, "ParameterName"), Expression.Constant("@" + prop.Name)));
 
@@ -204,7 +161,7 @@ namespace Mapper
                 }
                 else
                 {
-                    lines.Add(Expression.Assign(Expression.Property(dataParam, "DbType"), Expression.Constant(TypeMap[prop.PropertyType])));
+                    lines.Add(Expression.Assign(Expression.Property(dataParam, "DbType"), Expression.Constant(Types.TypeToDbType[prop.PropertyType])));
                 }
 
                 if (Types.CanBeNull(prop.PropertyType))

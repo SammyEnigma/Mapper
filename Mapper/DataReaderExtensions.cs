@@ -217,19 +217,10 @@ namespace Mapper
 
         private static ConditionalExpression AssignDefaultOrValue(ParameterExpression reader, Column col, MemberInfo member, ParameterExpression result)
         {
-            return Expression.IfThenElse(IsDbNull(reader, col), WhenNull(member, result), AssignValue(member, col, result, reader));
-        }
-
-        private static UnaryExpression IsDbNull(ParameterExpression readerParam, Column col)
-        {
-            var isDbNull = typeof(IDataRecord).GetMethod("IsDBNull", new[] { typeof(int) });
-            Contract.Assert(isDbNull != null);
-            return Expression.IsTrue(Expression.Call(readerParam, isDbNull, Expression.Constant(col.Ordinal)));
-        }
-
-        private static Expression WhenNull(MemberInfo member, ParameterExpression result)
-        {
-            return Expression.Assign(Expression.PropertyOrField(result, member.Name), Expression.Default(PropertyOrFieldType(member)));
+            return Expression.IfThenElse(
+                Expression.IsTrue(Expression.Call(reader, typeof(IDataRecord).GetMethod("IsDBNull", new[] { typeof(int) }), Expression.Constant(col.Ordinal))), 
+                Expression.Assign(Expression.PropertyOrField(result, member.Name), Expression.Default(PropertyOrFieldType(member))), 
+                AssignValue(member, col, result, reader));
         }
 
         private static Type PropertyOrFieldType(MemberInfo member)
