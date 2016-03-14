@@ -241,5 +241,90 @@ namespace Mapper.UnitTests
             Assert.AreEqual(input.Value, recs[0].GetValue(0));
             Assert.AreEqual(1, recs[0].FieldCount);
         }
+
+        [Test]
+        public void can_map_nullable_datetime()
+        {
+            var input = new SingleProp<DateTime?> { Value = DateTime.Now };
+            var meta = new[] { new SqlMetaData("VALUE", SqlDbType.DateTime) };
+            var recs = new[] { input }.ToDataRecords(meta).ToList();
+            Assert.AreEqual(1, recs.Count, "Count");
+            Assert.AreEqual(input.Value.Value, recs[0].GetValue(0));
+            Assert.AreEqual(1, recs[0].FieldCount);
+        }
+
+        [Test]
+        public void can_map_null_datetime()
+        {
+            var input = new SingleProp<DateTime?> { Value = null };
+            var meta = new[] { new SqlMetaData("VALUE", SqlDbType.DateTime) };
+            var recs = new[] { input }.ToDataRecords(meta).ToList();
+            Assert.AreEqual(1, recs.Count, "Count");
+            Assert.AreEqual(true, recs[0].IsDBNull(0));
+            Assert.AreEqual(1, recs[0].FieldCount);
+        }
+
+        [Test]
+        public void cannot_map_custom_type_so_null_value_instead()
+        {
+            var input = new SingleProp<Stuff> { Value = new Stuff() };
+            var meta = new[] { new SqlMetaData("VALUE", SqlDbType.Int) };
+            var recs = new[] { input }.ToDataRecords(meta).ToList();
+            Assert.AreEqual(1, recs.Count, "Count");
+            Assert.AreEqual(1, recs[0].FieldCount);
+            Assert.IsTrue(recs[0].IsDBNull(0));
+        }
+
+        [Test]
+        public void can_map_multiple_properties()
+        {
+            var input = new MultipleProperties { Int = 1, Long=2, Boolean=true};
+            var meta = new[] {
+                new SqlMetaData("int", SqlDbType.Int),
+                new SqlMetaData("LOng", SqlDbType.BigInt),
+                new SqlMetaData("BOOLEAN", SqlDbType.Bit),
+            };
+            var recs = new[] { input }.ToDataRecords(meta).ToList();
+            Assert.AreEqual(1, recs.Count, "Count");
+            Assert.AreEqual(1, recs[0].GetValue(0));
+            Assert.AreEqual(2, recs[0].GetValue(1));
+            Assert.AreEqual(true, recs[0].GetValue(2));
+            Assert.AreEqual(3, recs[0].FieldCount);
+        }
+
+        [Test]
+        public void can_map_multiple_recs()
+        {
+            var input = new[] {
+                new MultipleProperties { Int = 1, Long = 10, Boolean = true },
+                new MultipleProperties { Int = 2, Long = 20, Boolean = false },
+            };
+            var meta = new[] {
+                new SqlMetaData("int", SqlDbType.Int),
+                new SqlMetaData("LOng", SqlDbType.BigInt),
+                new SqlMetaData("BOOLEAN", SqlDbType.Bit),
+            };
+            var recs = input.ToDataRecords(meta).ToList();
+            Assert.AreEqual(2, recs.Count, "Count");
+
+            Assert.AreEqual(1, recs[0].GetValue(0));
+            Assert.AreEqual(10, recs[0].GetValue(1));
+            Assert.AreEqual(true, recs[0].GetValue(2));
+            Assert.AreEqual(3, recs[0].FieldCount);
+
+            Assert.AreEqual(2, recs[1].GetValue(0));
+            Assert.AreEqual(20, recs[1].GetValue(1));
+            Assert.AreEqual(false, recs[1].GetValue(2));
+            Assert.AreEqual(3, recs[1].FieldCount);
+        }
+
+        class MultipleProperties
+        {
+            public int Int { get; set; }
+            public long Long { get; set; }
+            public bool Boolean { get; set; }
+        }
+
+        class Stuff { }
     }
 }
