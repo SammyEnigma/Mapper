@@ -133,10 +133,15 @@ namespace Mapper
 
         public static Dictionary<string, MemberInfo> ReadablePropertiesAndFields<T>()
         {
-            var map = typeof (T).GetProperties(BindingFlags.Instance | BindingFlags.Public).Where(p => p.CanRead)
+            return ReadablePropertiesAndFields(typeof(T));
+        }
+
+        public static Dictionary<string, MemberInfo> ReadablePropertiesAndFields(Type typeT)
+        {
+            var map = typeT.GetProperties(BindingFlags.Instance | BindingFlags.Public).Where(p => p.CanRead)
                 .Cast<MemberInfo>()
                 .ToDictionary(p => p.Name, p => p, StringComparer.OrdinalIgnoreCase);
-            foreach (var field in typeof (T).GetFields(BindingFlags.Instance | BindingFlags.Public))
+            foreach (var field in typeT.GetFields(BindingFlags.Instance | BindingFlags.Public))
             {
                 map[field.Name] = field;
             }

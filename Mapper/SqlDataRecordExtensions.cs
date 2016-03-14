@@ -18,48 +18,73 @@ namespace Mapper
             Contract.Requires(items != null);
             Contract.Requires(metaData != null);
             Contract.Ensures(Contract.Result<IEnumerable<SqlDataRecord>>() != null);
-
-            var key = new TypeAndMetaData(typeof (T), metaData);
-            var map = (Func<SqlMetaData[], T, SqlDataRecord>)Methods.GetOrAdd(key, data => CreateMappingFunc<T>(data.MetaData));
+            var key = new TypeAndMetaData(typeof(T), metaData);
+            var typeT = typeof(T);
+            var map = (Func<SqlMetaData[], T, SqlDataRecord>)GetOrAddFunc(key, typeT);
             return items.Select(item => map(metaData, item));
         }
 
-        private static Func<SqlMetaData[], T, SqlDataRecord> CreateMappingFunc<T>(SqlMetaData[] metaData)
+        private static Delegate GetOrAddFunc(TypeAndMetaData key, Type typeT)
+        {
+            return Methods.GetOrAdd(key, data => CreateMappingFunc(typeT, data.MetaData));
+        }
+
+        private static Delegate CreateMappingFunc(Type typeT, SqlMetaData[] metaData)
         {
             var result = Expression.Parameter(typeof (SqlDataRecord), "rec");
             var metaDataParam = Expression.Parameter(typeof (SqlMetaData[]), "metaData");
-            var item = Expression.Parameter(typeof (T), "item");
+            var item = Expression.Parameter(typeT, "item");
             var constructorInfo = typeof (SqlDataRecord).GetConstructor(new[] {typeof (SqlMetaData[])});
             var lines = new List<Expression>
             {
                 Expression.Assign(result, Expression.New(constructorInfo, metaDataParam))
             };
-            var propertiesAndFields = Types.ReadablePropertiesAndFields<T>();
+            var propertiesAndFields = Types.ReadablePropertiesAndFields(typeT);
 
-            var getDbNullMethod = typeof(SqlDataRecord).GetMethod("SetDbNull", new[] { typeof(int) });
-            Contract.Assert(getDbNullMethod != null);
+            var setNullMethod = typeof(SqlDataRecord).GetMethod("SetDBNull", new[] { typeof(int) });
+            Contract.Assert(setNullMethod != null);
             for (int i = 0; i < metaData.Length; i++)
             {
                 var col = metaData[i];
-                var colType = Types.DBTypeToType[col.DbType];
-                var member = FindMember(col, colType, propertiesAndFields);
-                if (member == null) continue;
-                var sourceType = Types.PropertyOrFieldType(member);
-                if (Types.CanBeNull(sourceType))
+                var outType = Types.DBTypeToType[col.DbType];
+                var member = FindMember(col, outType, propertiesAndFields);
+                if (member == null)
+                    continue;
+                var inType = Types.PropertyOrFieldType(member);
+                Expression value = Expression.PropertyOrField(item, member.Name);
+                if (outType != inType)
+                {
+                    // type if not the same, can it be assigned?
+                    if (Types.CanBeCast(inType, outType))
+                        value = Expression.Convert(value, outType);
+                    else if (Types.IsNullable(inType) && inType.GetGenericArguments()[0] == outType)
+                        value = Expression.Convert(value, outType);
+                    else if (Types.IsNullable(inType) && Types.CanBeCast(inType.GetGenericArguments()[0], outType))
+                        value = Expression.Convert(value, outType);
+                    else
+                        continue;
+                }
+                var setValueExp = SetValue(result, outType, i, item, member);
+                if (setValueExp == null)
+                    continue;
+
+                if (Types.CanBeNull(inType))
                 {
                     lines.Add(Expression.IfThenElse(
                                 Expression.Equal(Expression.PropertyOrField(item, member.Name), Expression.Constant(null)),
-                                Expression.Call(result, getDbNullMethod, Expression.Constant(i)),
-                                SetValue(result, colType, i, item, member.Name)
+                                Expression.Call(result, setNullMethod, Expression.Constant(i)),
+                                setValueExp
                             ));
                 }
                 else
                 {
-                    lines.Add(SetValue(result, colType, i, item, member.Name));
+                    lines.Add(setValueExp);
                 }
             }
+            lines.Add(result);
             var block = Expression.Block(new[] {result}, lines);
-            return Expression.Lambda<Func<SqlMetaData[], T, SqlDataRecord>>(block, metaDataParam, item).Compile();
+            var func = typeof(Func<,,>).MakeGenericType(typeof(SqlMetaData[]), typeT, typeof(SqlDataRecord));
+            return Expression.Lambda(func, block, metaDataParam, item).Compile();
         }
 
         private static MemberInfo FindMember(SqlMetaData col, Type colType, IDictionary<string, MemberInfo> propertiesAndFields)
@@ -73,18 +98,40 @@ namespace Mapper
             return null;
         }
 
-        private static MethodCallExpression SetValue(ParameterExpression result, Type colType, int ordinal, ParameterExpression item, string propertyOrFieldName)
+        private static MethodCallExpression SetValue(ParameterExpression result, Type colType, int ordinal, ParameterExpression item, MemberInfo member)
         {
-            if (colType == typeof (byte[]))
+            var inType = Types.PropertyOrFieldType(member);
+            Expression value = Expression.PropertyOrField(item, member.Name);
+            if (colType != inType)
             {
-                var setBytes = typeof (SqlDataRecord).GetMethod("SetBytes", new[] {typeof(int), typeof(long), typeof(byte[]), typeof(int), typeof(int) });
-                Contract.Assert(setBytes != null);
-                return Expression.Call(result, setBytes, Expression.Constant(ordinal), Expression.Constant(0L), Expression.PropertyOrField(item, propertyOrFieldName), Expression.Constant(0), Expression.PropertyOrField(Expression.PropertyOrField(item, propertyOrFieldName), "Length"));
+                // type if not the same, can it be assigned?
+                if (Types.CanBeCast(inType, colType))
+                    value = Expression.Convert(value, colType);
+                else if (Types.IsNullable(inType) && inType.GetGenericArguments()[0] == colType)
+                    value = Expression.Convert(value, colType);
+                else if (Types.IsNullable(inType) && Types.CanBeCast(inType.GetGenericArguments()[0], colType))
+                    value = Expression.Convert(value, colType);
+                else
+                    return null;
             }
 
-            var setMethod = typeof (SqlDataRecord).GetMethod("Set" + colType.Name, new[] {typeof (int), colType});
+            if (colType == typeof(byte[]))
+            {
+                var setBytes = typeof(SqlDataRecord).GetMethod("SetBytes", new[] { typeof(int), typeof(long), typeof(byte[]), typeof(int), typeof(int) });
+                Contract.Assert(setBytes != null);
+                return Expression.Call(result, setBytes, Expression.Constant(ordinal), Expression.Constant(0L), value, Expression.Constant(0), Expression.PropertyOrField(value, "Length"));
+            }
+
+            var setMethod = typeof(SqlDataRecord).GetMethod(SetMethodName(colType), new[] { typeof(int), colType });
             Contract.Assert(setMethod != null);
-            return Expression.Call(result, setMethod, Expression.Constant(ordinal), Expression.PropertyOrField(item, propertyOrFieldName));
+            return Expression.Call(result, setMethod, Expression.Constant(ordinal), value);
+        }
+
+        private static string SetMethodName(Type colType)
+        {
+            if (Types.IsNullable(colType)) colType = colType.GetGenericArguments()[0];
+            if (colType == typeof(Single)) return "SetFloat";
+            return "Set" + colType.Name;
         }
     }
 
