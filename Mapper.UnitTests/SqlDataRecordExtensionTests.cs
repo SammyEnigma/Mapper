@@ -265,6 +265,17 @@ namespace Mapper.UnitTests
         }
 
         [Test]
+        public void can_map_enum_to_int()
+        {
+            var input = new SingleProp<TestEnum> { Value = TestEnum.Something };
+            var meta = new[] { new SqlMetaData("VALUE", SqlDbType.Int) };
+            var recs = new[] { input }.ToDataRecords(meta).ToList();
+            Assert.AreEqual(1, recs.Count, "Count");
+            Assert.AreEqual(1, recs[0].GetInt32(0));
+            Assert.AreEqual(1, recs[0].FieldCount);
+        }
+
+        [Test]
         public void cannot_map_custom_type_so_null_value_instead()
         {
             var input = new SingleProp<Stuff> { Value = new Stuff() };
