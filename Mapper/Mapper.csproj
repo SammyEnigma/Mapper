@@ -228,6 +228,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Names.cs" />
     <Compile Include="SqlDataRecordExtensions.cs" />
     <Compile Include="CommandExtension.cs" />
     <Compile Include="ConnectionExtension.cs" />

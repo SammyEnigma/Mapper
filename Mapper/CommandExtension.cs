@@ -143,14 +143,14 @@ namespace Mapper
             var createParameter = typeof(IDbCommand).GetMethod("CreateParameter", Type.EmptyTypes);
             foreach (var prop in type.GetProperties(BindingFlags.Public | BindingFlags.Instance))
             {
-                if (!Types.TypeToDbType.ContainsKey(prop.PropertyType)) continue;
+                if (!Types.IsStructured(prop.PropertyType) && !Types.TypeToDbType.ContainsKey(prop.PropertyType)) continue;
                 lines.Add(Expression.Assign(dataParam, Expression.Call(cmd, createParameter)));
                 lines.Add(Expression.Assign(Expression.Property(dataParam, "ParameterName"), Expression.Constant("@" + prop.Name)));
 
                 if (Types.IsStructured(prop.PropertyType))
                 {
                     if (prop.PropertyType != typeof(TableType))
-                        throw new NotSupportedException($"Parameter {dataParam.Name} implements {nameof(IEnumerable<SqlDataRecord>)} but type name is unknown.  Please wrap parameter by calling {nameof(EnumerableExtension.WithTypeName)}");
+                        throw new NotSupportedException($"Parameter {dataParam.Name} implements {nameof(IEnumerable<SqlDataRecord>)} but type name is unknown.  Please wrap parameter by calling {nameof(SqlDataRecordExtensions.WithTypeName)}");
 
                     lines.Add(Expression.IfThen(
                         Expression.Not(Expression.TypeIs(cmd, typeof(SqlCommand))), 
@@ -190,41 +190,4 @@ namespace Mapper
 
     }
 
-    static class EnumerableExtension
-    {
-        /// <summary>
-        /// Used to add the SQL Server Table Type name to a parameter
-        /// </summary>
-        public static TableType WithTypeName(this IEnumerable<SqlDataRecord> records, string typeName)
-        {
-            Contract.Requires(records != null);
-            Contract.Requires(typeName != null);
-            Contract.Ensures(Contract.Result<IEnumerable<SqlDataRecord>>() != null);
-            return new TableType(typeName, records);
-        }
-    }
-
-    public class TableType : IEnumerable<SqlDataRecord>
-    {
-        public string TypeName { get; }
-        public IEnumerable<SqlDataRecord> Records { get; }
-
-        public TableType(string typeName, IEnumerable<SqlDataRecord> records)
-        {
-            Contract.Requires(typeName != null);
-            Contract.Requires(records != null);
-            TypeName = typeName;
-            Records = records;
-        }
-
-        public IEnumerator<SqlDataRecord> GetEnumerator()
-        {
-            return Records.GetEnumerator();
-        }
-
-        IEnumerator IEnumerable.GetEnumerator()
-        {
-            return ((IEnumerable) Records).GetEnumerator();
-        }
-    }
 }

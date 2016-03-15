@@ -307,8 +307,8 @@ namespace Mapper.UnitTests
         public void can_map_multiple_recs()
         {
             var input = new[] {
-                new MultipleProperties { Int = 1, Long = 10, Boolean = true },
-                new MultipleProperties { Int = 2, Long = 20, Boolean = false },
+                new MultipleProperties { Int = 1, Long = 10L, Boolean = true },
+                new MultipleProperties { Int = 2, Long = 20L, Boolean = false },
             };
             var meta = new[] {
                 new SqlMetaData("int", SqlDbType.Int),
@@ -327,6 +327,48 @@ namespace Mapper.UnitTests
             Assert.AreEqual(20, recs[1].GetValue(1));
             Assert.AreEqual(false, recs[1].GetValue(2));
             Assert.AreEqual(3, recs[1].FieldCount);
+        }
+
+        [Test]
+        public void can_map_multiple_properties_with_action()
+        {
+            var input = new[] {
+                new MultipleProperties { Int = 1, Long = 10L },
+                new MultipleProperties { Int = 2, Long = 20L },
+            };
+            var meta = new[] {
+                new SqlMetaData("Seq", SqlDbType.Int),
+                new SqlMetaData("Long", SqlDbType.BigInt),
+            };
+            var recs = input.ToTableType(meta, "SomeType", (record, properties) => record.SetInt32(0, properties.Int)).ToList();
+            Assert.AreEqual(2, recs.Count, "Count");
+
+            Assert.AreEqual(1, recs[0].GetValue(0));
+            Assert.AreEqual(10L, recs[0].GetValue(1));
+
+            Assert.AreEqual(2, recs[1].GetValue(0));
+            Assert.AreEqual(20L, recs[1].GetValue(1));
+        }
+
+        [Test]
+        public void can_map_multiple_properties_with_action_and_index()
+        {
+            var input = new[] {
+                new MultipleProperties { Long = 10L },
+                new MultipleProperties { Long = 20L },
+            };
+            var meta = new[] {
+                new SqlMetaData("Seq", SqlDbType.Int),
+                new SqlMetaData("Long", SqlDbType.BigInt),
+            };
+            var recs = input.ToTableType(meta, "SomeType", (record, properties, i) => record.SetInt32(0, i)).ToList();
+            Assert.AreEqual(2, recs.Count, "Count");
+
+            Assert.AreEqual(0, recs[0].GetValue(0));
+            Assert.AreEqual(10L, recs[0].GetValue(1));
+
+            Assert.AreEqual(1, recs[1].GetValue(0));
+            Assert.AreEqual(20L, recs[1].GetValue(1));
         }
 
         class MultipleProperties

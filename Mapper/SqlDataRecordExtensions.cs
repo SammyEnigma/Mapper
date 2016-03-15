@@ -13,7 +13,7 @@ namespace Mapper
     {
         private static readonly MostlyReadDictionary<TypeAndMetaData, Delegate> Methods = new MostlyReadDictionary<TypeAndMetaData, Delegate>();
 
-        public static IEnumerable<SqlDataRecord> ToDataRecords<T>(this IEnumerable<T> items, SqlMetaData[] metaData)
+        internal static IEnumerable<SqlDataRecord> ToDataRecords<T>(this IEnumerable<T> items, SqlMetaData[] metaData)
         {
             Contract.Requires(items != null);
             Contract.Requires(metaData != null);
@@ -22,6 +22,76 @@ namespace Mapper
             var typeT = typeof(T);
             var map = (Func<SqlMetaData[], T, SqlDataRecord>)GetOrAddFunc(key, typeT);
             return items.Select(item => map(metaData, item));
+        }
+
+        public static TableType ToTableType<T>(this IEnumerable<T> items, SqlMetaData[] metaData, string tableTypeName)
+        {
+            Contract.Requires(items != null);
+            Contract.Requires(metaData != null);
+            Contract.Requires(tableTypeName != null);
+            Contract.Ensures(Contract.Result<IEnumerable<SqlDataRecord>>() != null);
+            var key = new TypeAndMetaData(typeof(T), metaData);
+            var typeT = typeof(T);
+            var map = (Func<SqlMetaData[], T, SqlDataRecord>)GetOrAddFunc(key, typeT);
+            return new TableType(tableTypeName, items.Select(item => map(metaData, item)));
+        }
+
+        public static TableType ToTableType<T>(this IEnumerable<T> items, SqlMetaData[] metaData, string tableTypeName, Action<SqlDataRecord, T> extraAction)
+        {
+            Contract.Requires(items != null);
+            Contract.Requires(metaData != null);
+            Contract.Requires(tableTypeName != null);
+            Contract.Ensures(Contract.Result<IEnumerable<SqlDataRecord>>() != null);
+            var key = new TypeAndMetaData(typeof(T), metaData);
+            var typeT = typeof(T);
+            var map = (Func<SqlMetaData[], T, SqlDataRecord>)GetOrAddFunc(key, typeT);
+            return new TableType(tableTypeName, Records(items, metaData, map, extraAction));
+        }
+
+        private static IEnumerable<SqlDataRecord> Records<T>(IEnumerable<T> items, SqlMetaData[] metaData, Func<SqlMetaData[], T, SqlDataRecord> map, Action<SqlDataRecord, T> extraAction)
+        {
+            foreach (var item in items)
+            {
+                var record = map(metaData, item);
+                extraAction(record, item);
+                yield return record;
+            }
+        }
+
+        public static TableType ToTableType<T>(this IEnumerable<T> items, SqlMetaData[] metaData, string tableTypeName, Action<SqlDataRecord, T, int> extraAction)
+        {
+            Contract.Requires(items != null);
+            Contract.Requires(metaData != null);
+            Contract.Requires(tableTypeName != null);
+            Contract.Requires(extraAction != null);
+            Contract.Ensures(Contract.Result<IEnumerable<SqlDataRecord>>() != null);
+            var key = new TypeAndMetaData(typeof(T), metaData);
+            var typeT = typeof(T);
+            var map = (Func<SqlMetaData[], T, SqlDataRecord>)GetOrAddFunc(key, typeT);
+            return new TableType(tableTypeName, Records(items, metaData, map, extraAction));
+        }
+
+        private static IEnumerable<SqlDataRecord> Records<T>(IEnumerable<T> items, SqlMetaData[] metaData, Func<SqlMetaData[], T, SqlDataRecord> map, Action<SqlDataRecord, T, int> extraAction)
+        {
+            int i = 0;
+            foreach (var item in items)
+            {
+                var record = map(metaData, item);
+                extraAction(record, item, i);
+                yield return record;
+                i++;
+            }
+        }
+
+        /// <summary>
+        /// Used to add the SQL Server Table Type name to a parameter
+        /// </summary>
+        public static TableType WithTypeName(this IEnumerable<SqlDataRecord> records, string typeName)
+        {
+            Contract.Requires(records != null);
+            Contract.Requires(typeName != null);
+            Contract.Ensures(Contract.Result<IEnumerable<SqlDataRecord>>() != null);
+            return new TableType(typeName, records);
         }
 
         private static Delegate GetOrAddFunc(TypeAndMetaData key, Type typeT)
@@ -163,6 +233,30 @@ namespace Mapper
             {
                 return ((Type?.GetHashCode() ?? 0)*397) ^ (MetaData?.GetHashCode() ?? 0);
             }
+        }
+    }
+
+    public class TableType : IEnumerable<SqlDataRecord>
+    {
+        public string TypeName { get; }
+        public IEnumerable<SqlDataRecord> Records { get; }
+
+        public TableType(string typeName, IEnumerable<SqlDataRecord> records)
+        {
+            Contract.Requires(typeName != null);
+            Contract.Requires(records != null);
+            TypeName = typeName;
+            Records = records;
+        }
+
+        public IEnumerator<SqlDataRecord> GetEnumerator()
+        {
+            return Records.GetEnumerator();
+        }
+
+        IEnumerator IEnumerable.GetEnumerator()
+        {
+            return ((IEnumerable)Records).GetEnumerator();
         }
     }
 
