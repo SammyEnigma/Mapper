@@ -64,6 +64,7 @@
     <Compile Include="Entity.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="SqlDataRecordExtensionTests.cs" />
+    <Compile Include="TypeAndMetaDataTests.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Mapper\Mapper.csproj">
