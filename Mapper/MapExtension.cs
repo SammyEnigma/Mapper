@@ -12,9 +12,9 @@ namespace Mapper
         private static readonly MostlyReadDictionary<TypePair, Delegate> MapMethods = new MostlyReadDictionary<TypePair, Delegate>();
 
         /// <summary>Create an output object using the parameter-less constructor and setting public fields and properties</summary>
-        public static T Clone<T>(this T input)
+        public static T CloneSingle<T>(this T input)
         {
-            return Map<T, T>(input);
+            return MapSingle<T, T>(input);
         }
 
         /// <summary>Create shallow copies of the <paramref name="input"/> objects using the parameter-less constructor and setting public fields and properties</summary>
@@ -38,7 +38,7 @@ namespace Mapper
         }
 
         /// <summary>Create an output object and copies all properties and fields where the property name and types match</summary>
-        public static TOut Map<TIn, TOut>(this TIn input)
+        public static TOut MapSingle<TIn, TOut>(this TIn input)
         {
             Contract.Requires(input != null);
             Contract.Ensures(Contract.Result<TOut>() != null);
