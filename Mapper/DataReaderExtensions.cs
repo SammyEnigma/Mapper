@@ -131,23 +131,39 @@ namespace Mapper
         }
 
         /// <summary>Reads all the records in the lookup, group by key, using the supplied <paramref name="keyFunc"/> to generate the key</summary>
-        public static ILookup<TKey, TValue> ToLookup<TKey, TValue>(this IDataReader reader, Func<TValue, TKey> keyFunc)
-        {
-            return reader.ToEnumerable<TValue>().ToLookup(keyFunc);
-        }
-
-        /// <summary>Reads all the records in the reader</summary>
-        private static IEnumerable<T> ToEnumerable<T>(this IDataReader reader)
+        public static Lookup<TKey, TValue> ToLookup<TKey, TValue>(this IDataReader reader, Func<TValue, TKey> keyFunc)
         {
             Contract.Requires(reader != null);
+            Contract.Requires(keyFunc != null);
             Contract.Requires(reader.IsClosed == false);
-            Contract.Ensures(Contract.Result<IEnumerable<T>>() != null);
-            var map = GetMappingFunc<T>(reader);
+            var map = GetMappingFunc<TValue>(reader);
+            var lookup = new Lookup<TKey, TValue>();
             while (reader.Read())
             {
-                yield return map(reader);
+                TValue value = map(reader);
+                TKey key = keyFunc(value);
+                lookup.Add(key, value);
             }
+            return lookup;
         }
+
+        /// <summary>Reads all the records in the lookup, group by key, using the supplied <paramref name="keyFunc"/> to generate the key</summary>
+        public static async Task<Lookup<TKey, TValue>> ToLookupAsync<TKey, TValue>(this SqlDataReader reader, Func<TValue, TKey> keyFunc)
+        {
+            Contract.Requires(reader != null);
+            Contract.Requires(keyFunc != null);
+            Contract.Requires(reader.IsClosed == false);
+            var map = GetMappingFunc<TValue>(reader);
+            var lookup = new Lookup<TKey, TValue>();
+            while (await reader.ReadAsync())
+            {
+                TValue value = map(reader);
+                TKey key = keyFunc(value);
+                lookup.Add(key, value);
+            }
+            return lookup;
+        }
+
 
         private static Func<IDataReader, T> GetMappingFunc<T>(IDataReader reader)
         {
