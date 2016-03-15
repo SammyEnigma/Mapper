@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Data;
 using System.Data.SqlClient;
+using Microsoft.SqlServer.Server;
 using NUnit.Framework;
 
 namespace Mapper.UnitTests
@@ -162,6 +163,19 @@ namespace Mapper.UnitTests
             Assert.AreEqual("@When", cmd.Parameters[0].ParameterName);
             Assert.AreEqual(DbType.DateTime, cmd.Parameters[0].DbType);
             Assert.AreEqual(DBNull.Value, cmd.Parameters[0].Value);
+        }
+
+        [Test]
+        public void can_add_null_TableType()
+        {
+            var input = new[] {new {First = 1m},};
+            var md = new [] {new SqlMetaData("first", SqlDbType.Decimal)};
+            SqlCommand cmd = new SqlCommand();
+            cmd.AddParameters(new { Res = input.ToTableType(md, "SOME_TYPE") });
+            Assert.AreEqual(1, cmd.Parameters.Count);
+            Assert.AreEqual("@Res", cmd.Parameters[0].ParameterName);
+            Assert.AreEqual(SqlDbType.Structured, cmd.Parameters[0].SqlDbType);
+            Assert.AreEqual("SOME_TYPE", cmd.Parameters[0].TypeName);
         }
     }
 }
