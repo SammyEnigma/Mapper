@@ -13,6 +13,9 @@ namespace Mapper
     {
         private static readonly MostlyReadDictionary<TypeAndMetaData, Delegate> Methods = new MostlyReadDictionary<TypeAndMetaData, Delegate>();
 
+        /// <summary>
+        /// Converts a sequence of <paramref name="items"/> into a sequence of <see cref="SqlDataRecord"/> using the supplied <paramref name="metaData"/>
+        /// </summary>
         internal static IEnumerable<SqlDataRecord> ToDataRecords<T>(this IEnumerable<T> items, SqlMetaData[] metaData)
         {
             Contract.Requires(items != null);
@@ -24,6 +27,9 @@ namespace Mapper
             return items.Select(item => map(metaData, item));
         }
 
+        /// <summary>
+        /// Converts a sequence of <paramref name="items"/> into a <see cref="TableType"/> containing a sequence of <see cref="SqlDataRecord"/> using the supplied <paramref name="metaData"/>
+        /// </summary>
         public static TableType ToTableType<T>(this IEnumerable<T> items, SqlMetaData[] metaData, string tableTypeName)
         {
             Contract.Requires(items != null);
@@ -36,6 +42,10 @@ namespace Mapper
             return new TableType(tableTypeName, items.Select(item => map(metaData, item)));
         }
 
+        /// <summary>
+        /// Converts a sequence of <paramref name="items"/> into a <see cref="TableType"/> containing a sequence of <see cref="SqlDataRecord"/> using the supplied <paramref name="metaData"/>
+        /// </summary>
+        /// <remarks><paramref name="extraAction"/> can be used to set additional values on each <see cref="SqlDataRecord"/></remarks>
         public static TableType ToTableType<T>(this IEnumerable<T> items, SqlMetaData[] metaData, string tableTypeName, Action<SqlDataRecord, T> extraAction)
         {
             Contract.Requires(items != null);
@@ -58,6 +68,10 @@ namespace Mapper
             }
         }
 
+        /// <summary>
+        /// Converts a sequence of <paramref name="items"/> into a <see cref="TableType"/> containing a sequence of <see cref="SqlDataRecord"/> using the supplied <paramref name="metaData"/>
+        /// </summary>
+        /// <remarks><paramref name="extraAction"/> can be used to set additional values on each <see cref="SqlDataRecord"/> and gets passed the index of the record</remarks>
         public static TableType ToTableType<T>(this IEnumerable<T> items, SqlMetaData[] metaData, string tableTypeName, Action<SqlDataRecord, T, int> extraAction)
         {
             Contract.Requires(items != null);
@@ -120,25 +134,12 @@ namespace Mapper
                 var member = FindMember(col, outType, propertiesAndFields);
                 if (member == null)
                     continue;
-                var inType = Types.PropertyOrFieldType(member);
-                Expression value = Expression.PropertyOrField(item, member.Name);
-                if (outType != inType)
-                {
-                    // type if not the same, can it be assigned?
-                    if (Types.CanBeCast(inType, outType))
-                        value = Expression.Convert(value, outType);
-                    else if (Types.IsNullable(inType) && inType.GetGenericArguments()[0] == outType)
-                        value = Expression.Convert(value, outType);
-                    else if (Types.IsNullable(inType) && Types.CanBeCast(inType.GetGenericArguments()[0], outType))
-                        value = Expression.Convert(value, outType);
-                    else
-                        continue;
-                }
+
                 var setValueExp = SetValue(result, outType, i, item, member);
                 if (setValueExp == null)
                     continue;
 
-                if (Types.CanBeNull(inType))
+                if (Types.CanBeNull(Types.PropertyOrFieldType(member)))
                 {
                     lines.Add(Expression.IfThenElse(
                                 Expression.Equal(Expression.PropertyOrField(item, member.Name), Expression.Constant(null)),
@@ -205,7 +206,7 @@ namespace Mapper
         }
     }
 
-    struct TypeAndMetaData : IEquatable<TypeAndMetaData>
+    internal struct TypeAndMetaData : IEquatable<TypeAndMetaData>
     {
         public readonly Type Type;
         public readonly SqlMetaData[] MetaData;
@@ -218,7 +219,17 @@ namespace Mapper
 
         public bool Equals(TypeAndMetaData other)
         {
-            return Type == other.Type && StructuralComparisons.StructuralEqualityComparer.Equals(MetaData, other.MetaData);
+            if (Type != other.Type) return false;
+            if (MetaData.Length != other.MetaData.Length) return false;
+            for (int i = 0; i < MetaData.Length; i++)
+            {
+                var left = MetaData[i];
+                var right = other.MetaData[i];
+                if (left.Name != right.Name) return false;
+                if (left.SqlDbType != right.SqlDbType) return false;
+                if (left.MaxLength != right.MaxLength) return false;
+            }
+            return true;
         }
 
         public override bool Equals(object obj)
@@ -231,7 +242,7 @@ namespace Mapper
         {
             unchecked
             {
-                return ((Type?.GetHashCode() ?? 0)*397) ^ (MetaData?.GetHashCode() ?? 0);
+                return ((Type?.GetHashCode() ?? 0)*397) ^ MetaData.Length;
             }
         }
     }

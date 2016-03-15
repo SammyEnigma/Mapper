@@ -379,5 +379,9 @@ namespace Mapper.UnitTests
         }
 
         class Stuff { }
+
+
     }
+
+
 }
