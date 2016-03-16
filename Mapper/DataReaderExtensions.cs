@@ -131,13 +131,13 @@ namespace Mapper
         }
 
         /// <summary>Reads all the records in the lookup, group by key, using the supplied <paramref name="keyFunc"/> to generate the key</summary>
-        public static Lookup<TKey, TValue> ToLookup<TKey, TValue>(this IDataReader reader, Func<TValue, TKey> keyFunc)
+        public static HashLookup<TKey, TValue> ToLookup<TKey, TValue>(this IDataReader reader, Func<TValue, TKey> keyFunc)
         {
             Contract.Requires(reader != null);
             Contract.Requires(keyFunc != null);
             Contract.Requires(reader.IsClosed == false);
             var map = GetMappingFunc<TValue>(reader);
-            var lookup = new Lookup<TKey, TValue>();
+            var lookup = new HashLookup<TKey, TValue>();
             while (reader.Read())
             {
                 TValue value = map(reader);
@@ -148,13 +148,13 @@ namespace Mapper
         }
 
         /// <summary>Reads all the records in the lookup, group by key, using the supplied <paramref name="keyFunc"/> to generate the key</summary>
-        public static async Task<Lookup<TKey, TValue>> ToLookupAsync<TKey, TValue>(this SqlDataReader reader, Func<TValue, TKey> keyFunc)
+        public static async Task<HashLookup<TKey, TValue>> ToLookupAsync<TKey, TValue>(this SqlDataReader reader, Func<TValue, TKey> keyFunc)
         {
             Contract.Requires(reader != null);
             Contract.Requires(keyFunc != null);
             Contract.Requires(reader.IsClosed == false);
             var map = GetMappingFunc<TValue>(reader);
-            var lookup = new Lookup<TKey, TValue>();
+            var lookup = new HashLookup<TKey, TValue>();
             while (await reader.ReadAsync())
             {
                 TValue value = map(reader);

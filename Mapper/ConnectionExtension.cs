@@ -185,13 +185,13 @@ namespace Mapper
         }
 
         /// <summary>Executes a command using the <paramref name="sql"/> and reads all the records into a lookup</summary>
-        public static async Task<Lookup<TKey, TValue>> QueryLookupAsync<TKey, TValue>(this SqlConnection cnn, string sql, Func<TValue, TKey> keyFunc)
+        public static async Task<HashLookup<TKey, TValue>> QueryLookupAsync<TKey, TValue>(this SqlConnection cnn, string sql, Func<TValue, TKey> keyFunc)
         {
             Contract.Requires(cnn != null);
             Contract.Requires(cnn.State == ConnectionState.Open);
             Contract.Requires(!string.IsNullOrWhiteSpace(sql));
             Contract.Requires(keyFunc != null);
-            Contract.Ensures(Contract.Result<Lookup<TKey, TValue>>() != null);
+            Contract.Ensures(Contract.Result<HashLookup<TKey, TValue>>() != null);
             using (var cmd = cnn.CreateCommand())
             {
                 SetupCommand(cmd, cnn, sql, null);
@@ -200,14 +200,14 @@ namespace Mapper
         }
 
         /// <summary>Executes a command using the <paramref name="sql"/> and <paramref name="parameters"/> and reads all the records into a lookup</summary>
-        public static async Task<Lookup<TKey, TValue>> QueryLookupAsync<TKey, TValue>(this SqlConnection cnn, string sql, object parameters, Func<TValue, TKey> keyFunc)
+        public static async Task<HashLookup<TKey, TValue>> QueryLookupAsync<TKey, TValue>(this SqlConnection cnn, string sql, object parameters, Func<TValue, TKey> keyFunc)
         {
             Contract.Requires(cnn != null);
             Contract.Requires(cnn.State == ConnectionState.Open);
             Contract.Requires(!string.IsNullOrWhiteSpace(sql));
             Contract.Requires(parameters != null);
             Contract.Requires(keyFunc != null);
-            Contract.Ensures(Contract.Result<Lookup<TKey, TValue>>() != null);
+            Contract.Ensures(Contract.Result<HashLookup<TKey, TValue>>() != null);
             using (var cmd = cnn.CreateCommand())
             {
                 SetupCommand(cmd, cnn, sql, parameters);
