@@ -168,7 +168,7 @@ namespace Mapper
         private static Func<IDataReader, T> GetMappingFunc<T>(IDataReader reader)
         {
             var columns = CreateColumnList(reader);
-            return (Func<IDataReader, T>) Methods.GetOrAdd(new MetaData(columns), md => CreateMapFunc<T>(md.Columns));
+            return (Func<IDataReader, T>) Methods.GetOrAdd(new MetaData(typeof(T), columns), md => CreateMapFunc<T>(md.Columns));
         }
 
         private static Column[] CreateColumnList(IDataReader reader)
@@ -324,15 +324,18 @@ namespace Mapper
 
         struct MetaData : IEquatable<MetaData>
         {
-            public IReadOnlyList<Column> Columns { get; }
+            public readonly Type Target;
+            public readonly IReadOnlyList<Column> Columns;
 
-            public MetaData(IReadOnlyList<Column> columns)
+            public MetaData(Type target, IReadOnlyList<Column> columns)
             {
                 Columns = columns;
+                Target = target;
             }
 
             public bool Equals(MetaData other)
             {
+                if (Target != other.Target) return false;
                 if (!Equals(Columns?.Count, other.Columns?.Count)) return false;
                 for (int i = 0; i < Columns.Count; i++)
                 {
@@ -349,8 +352,9 @@ namespace Mapper
 
             public override int GetHashCode()
             {
-                if (Columns == null) return 0;
-                int hash = Columns.Count;
+                int hash = Target.GetHashCode();
+                if (Columns == null || Columns.Count == 0) return hash;
+                hash *= Columns.Count;
                 hash *= Columns[0].Name.GetHashCode();
                 hash *= Columns[Columns.Count - 1].Name.GetHashCode();
                 return hash;
