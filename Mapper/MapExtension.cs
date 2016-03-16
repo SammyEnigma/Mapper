@@ -12,33 +12,33 @@ namespace Mapper
         private static readonly MostlyReadDictionary<TypePair, Delegate> MapMethods = new MostlyReadDictionary<TypePair, Delegate>();
 
         /// <summary>Create an output object using the parameter-less constructor and setting public fields and properties</summary>
-        public static T CloneSingle<T>(this T input)
+        public static T Clone<T>(this T input)
         {
-            return MapSingle<T, T>(input);
+            return Map<T, T>(input);
         }
 
         /// <summary>Create shallow copies of the <paramref name="input"/> objects using the parameter-less constructor and setting public fields and properties</summary>
-        public static IEnumerable<T> Clone<T>(this IEnumerable<T> input)
+        public static IEnumerable<T> CloneSome<T>(this IEnumerable<T> input)
         {
-            return Map<T,T>(input);
-        }
-
-        /// <summary>Create shallow copies of the <paramref name="input"/> objects using the parameter-less constructor and setting public fields and properties</summary>
-        /// <remarks><paramref name="extraAction"/> can be used to set additional values on each cloned objects</remarks>
-        public static IEnumerable<T> Clone<T>(this IEnumerable<T> input, Action<T,T> extraAction)
-        {
-            return Map(input, extraAction);
+            return MapSome<T,T>(input);
         }
 
         /// <summary>Create shallow copies of the <paramref name="input"/> objects using the parameter-less constructor and setting public fields and properties</summary>
         /// <remarks><paramref name="extraAction"/> can be used to set additional values on each cloned objects</remarks>
-        public static IEnumerable<T> Clone<T>(this IEnumerable<T> input, Action<T,T, int> extraAction)
+        public static IEnumerable<T> CloneSome<T>(this IEnumerable<T> input, Action<T,T> extraAction)
         {
-            return Map(input, extraAction);
+            return MapSome(input, extraAction);
+        }
+
+        /// <summary>Create shallow copies of the <paramref name="input"/> objects using the parameter-less constructor and setting public fields and properties</summary>
+        /// <remarks><paramref name="extraAction"/> can be used to set additional values on each cloned objects</remarks>
+        public static IEnumerable<T> CloneSome<T>(this IEnumerable<T> input, Action<T,T, int> extraAction)
+        {
+            return MapSome(input, extraAction);
         }
 
         /// <summary>Create an output object and copies all properties and fields where the property name and types match</summary>
-        public static TOut MapSingle<TIn, TOut>(this TIn input)
+        public static TOut Map<TIn, TOut>(this TIn input)
         {
             Contract.Requires(input != null);
             Contract.Ensures(Contract.Result<TOut>() != null);
@@ -47,7 +47,7 @@ namespace Mapper
         }
 
         /// <summary>creates copies of all input objects, copying all properties and fields with matching names and compatible types</summary>
-        public static IEnumerable<TOut> Map<TIn, TOut>(this IEnumerable<TIn> input) {
+        public static IEnumerable<TOut> MapSome<TIn, TOut>(this IEnumerable<TIn> input) {
             Contract.Requires(input != null);
             Contract.Ensures(Contract.Result<IEnumerable<TOut>>() != null);
             var map = (Func<TIn, TOut>)MapMethods.GetOrAdd(new TypePair(typeof(TIn), typeof(TOut)), _ => CreateMapDelegate<TIn, TOut>());
@@ -56,7 +56,7 @@ namespace Mapper
 
         /// <summary>creates copies of all input objects, copying all properties and fields with matching names and compatible types</summary>
         /// <remarks><paramref name="extraAction"/> can be used to set additional values on each mapped objects</remarks>
-        public static IEnumerable<TOut> Map<TIn, TOut>(this IEnumerable<TIn> input, Action<TIn, TOut> extraAction) {
+        public static IEnumerable<TOut> MapSome<TIn, TOut>(this IEnumerable<TIn> input, Action<TIn, TOut> extraAction) {
             Contract.Requires(input != null);
             Contract.Requires(extraAction != null);
             Contract.Ensures(Contract.Result<IEnumerable<TOut>>() != null);
@@ -71,7 +71,7 @@ namespace Mapper
 
         /// <summary>creates copies of all input objects, copying all properties and fields with matching names and compatible types</summary>
         /// <remarks><paramref name="extraAction"/> can be used to set additional values on each mapped objects, passing the index (sequence number) of the item being mapped</remarks>
-        public static IEnumerable<TOut> Map<TIn, TOut>(this IEnumerable<TIn> input, Action<TIn, TOut, int> extraAction) {
+        public static IEnumerable<TOut> MapSome<TIn, TOut>(this IEnumerable<TIn> input, Action<TIn, TOut, int> extraAction) {
             Contract.Requires(input != null);
             Contract.Requires(extraAction != null);
             Contract.Ensures(Contract.Result<IEnumerable<TOut>>() != null);
