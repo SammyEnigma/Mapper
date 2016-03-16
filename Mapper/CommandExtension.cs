@@ -155,13 +155,14 @@ namespace Mapper
             var createParameter = typeof(IDbCommand).GetMethod("CreateParameter", Type.EmptyTypes);
             foreach (var prop in type.GetProperties(BindingFlags.Public | BindingFlags.Instance))
             {
-                if (!Types.IsStructured(prop.PropertyType) && !Types.TypeToDbType.ContainsKey(prop.PropertyType)) continue;
+                var propertyType = prop.PropertyType;
+                if (!IsSupportedType(propertyType)) continue;
                 lines.Add(Expression.Assign(dataParam, Expression.Call(cmd, createParameter)));
                 lines.Add(Expression.Assign(Expression.Property(dataParam, "ParameterName"), Expression.Constant("@" + prop.Name)));
 
-                if (Types.IsStructured(prop.PropertyType))
+                if (Types.IsStructured(propertyType))
                 {
-                    if (prop.PropertyType != typeof(TableType))
+                    if (propertyType != typeof(TableType))
                         throw new NotSupportedException($"Parameter {dataParam.Name} implements {nameof(IEnumerable<SqlDataRecord>)} but type name is unknown.  Please wrap parameter by calling {nameof(SqlDataRecordExtensions.WithTypeName)}");
 
                     lines.Add(Expression.IfThen(
@@ -171,12 +172,16 @@ namespace Mapper
                     lines.Add(Expression.Assign(Expression.Property(Expression.Convert(dataParam, typeof (SqlParameter)), "SqlDbType"), Expression.Constant(SqlDbType.Structured)));
                     lines.Add(Expression.Assign(Expression.Property(Expression.Convert(dataParam, typeof (SqlParameter)), "TypeName"), Expression.Property(Expression.Property(parameters, prop.Name), "TypeName")));
                 }
+                else if (propertyType.IsEnum)
+                {
+                    lines.Add(Expression.Assign(Expression.Property(dataParam, "DbType"), Expression.Constant(DbType.Int32)));
+                }
                 else
                 {
-                    lines.Add(Expression.Assign(Expression.Property(dataParam, "DbType"), Expression.Constant(Types.TypeToDbType[prop.PropertyType])));
+                    lines.Add(Expression.Assign(Expression.Property(dataParam, "DbType"), Expression.Constant(Types.TypeToDbType[propertyType])));
                 }
 
-                if (Types.CanBeNull(prop.PropertyType))
+                if (Types.CanBeNull(propertyType))
                 {
                     lines.Add(Expression.IfThenElse(
                         Expression.Equal(Expression.Property(parameters, prop.Name), Expression.Constant(null)),
@@ -195,9 +200,19 @@ namespace Mapper
             return Expression.Lambda<Action<IDbCommand, object>>(block, cmd, obj).Compile();
         }
 
+        private static bool IsSupportedType(Type propertyType)
+        {
+            return Types.IsStructured(propertyType) || Types.TypeToDbType.ContainsKey(propertyType) || propertyType.IsEnum;
+        }
+
         private static UnaryExpression PropertyValue(ParameterExpression obj, PropertyInfo prop)
         {
-            return Expression.Convert(Expression.Property(obj, prop.Name), typeof(object));
+            Expression value = Expression.Property(obj, prop.Name);
+            if (prop.PropertyType.IsEnum)
+            {
+                value = Expression.Convert(value, typeof(int));
+            }
+            return Expression.Convert(value, typeof(object));
         }
 
     }
