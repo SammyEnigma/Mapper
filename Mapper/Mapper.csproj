@@ -230,7 +230,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Grouping.cs" />
-    <Compile Include="Lookup.cs" />
+    <Compile Include="HashLookup.cs" />
     <Compile Include="Names.cs" />
     <Compile Include="SqlDataRecordExtensions.cs" />
     <Compile Include="CommandExtension.cs" />

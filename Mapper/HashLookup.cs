@@ -13,7 +13,7 @@ namespace Mapper
     /// <summary>
     /// A key to many value dictionary data type
     /// </summary>
-    public class Lookup<TKey, TElement> : ILookup<TKey, TElement>
+    public class HashLookup<TKey, TElement> : ILookup<TKey, TElement>
     {
         private static readonly TElement[] Empty = new TElement[0];
         private readonly IEqualityComparer<TKey> _comparer;
@@ -21,17 +21,42 @@ namespace Mapper
         private Grouping<TKey, TElement> _lastGrouping;
         private int _count;
 
-        public Lookup(IEqualityComparer<TKey> comparer = null)
+        public HashLookup(IEqualityComparer<TKey> comparer = null)
         {
             _comparer = comparer ?? EqualityComparer<TKey>.Default;
             _groupings = new Grouping<TKey, TElement>[7];
         }
 
+        /// <summary>Gets the number of groupings (unique keys) in the <see cref="HashLookup{TKey,TElement}"/>.</summary>
+        /// <remarks>Does NOT return the number of items in the lookup</remarks>
         public int Count => _count;
 
-        public void Add(TKey key, TElement item)
+        /// <summary>
+        /// Add an <paramref name="element"/> to the lookup using supplied <paramref name="key"/>
+        /// </summary>
+        public void Add(TKey key, TElement element)
         {
-            GetGrouping(key, create: true).Add(item);
+            GetOrAddGrouping(key).Add(element);
+        }
+
+        /// <summary>
+        /// Add some <paramref name="items"/> to the lookup using the <paramref name="keyFunc"/> to get the key for each element
+        /// </summary>
+        public void AddRange(IEnumerable<TElement> items, Func<TElement, TKey> keyFunc)
+        {
+            Contract.Requires(items != null);
+            Contract.Requires(keyFunc != null);
+
+            TKey lastKey = default(TKey);
+            Grouping<TKey, TElement> grouping = null;
+            foreach (var element in items)
+            {
+                var key = keyFunc(element);
+                if (grouping == null || _comparer.Equals(key, lastKey) == false)
+                    grouping = GetOrAddGrouping(key);
+                grouping.Add(element);
+                lastKey = key;
+            }
         }
 
         /// <summary>Gets the <see cref="T:System.Collections.Generic.IEnumerable`1"/> sequence of values indexed by a specified key.</summary>
@@ -42,14 +67,20 @@ namespace Mapper
         {
             get
             {
-                Grouping<TKey, TElement> grouping = GetGrouping(key, create: false);
+                Contract.Ensures(Contract.Result<IEnumerable<TElement>>() != null);
+                int hashCode = InternalGetHashCode(key);
+                Grouping<TKey, TElement> grouping = FindGrouping(key, hashCode);
                 return grouping ?? (IEnumerable<TElement>) Empty;
             }
         }
 
+        /// <summary>
+        /// Determines whether a specified key exists in the <see cref="HashLookup{TKey,TElement}"/>.
+        /// </summary>
         public bool Contains(TKey key)
         {
-            return GetGrouping(key, create: false) != null;
+            int hashCode = InternalGetHashCode(key);
+            return FindGrouping(key, hashCode) != null;
         }
 
         public IEnumerator<IGrouping<TKey, TElement>> GetEnumerator()
@@ -77,20 +108,27 @@ namespace Mapper
             return (key == null) ? 0 : _comparer.GetHashCode(key) & 0x7FFFFFFF;
         }
 
-        internal Grouping<TKey, TElement> GetGrouping(TKey key, bool create)
+        internal Grouping<TKey, TElement> GetOrAddGrouping(TKey key)
         {
             int hashCode = InternalGetHashCode(key);
-            for (Grouping<TKey, TElement> grouping = _groupings[hashCode % _groupings.Length]; grouping != null; grouping = grouping._hashNext)
+            var grouping = FindGrouping(key, hashCode);
+            return grouping ?? AddGrouping(key, hashCode);
+        }
+
+        private Grouping<TKey, TElement> FindGrouping(TKey key, int hashCode)
+        {
+            for (Grouping<TKey, TElement> grouping = _groupings[hashCode%_groupings.Length]; grouping != null; grouping = grouping._hashNext)
             {
                 if (grouping._hashCode == hashCode && _comparer.Equals(grouping._key, key))
                 {
                     return grouping;
                 }
             }
+            return null;
+        }
 
-            if (!create)
-                return null;
-
+        private Grouping<TKey, TElement> AddGrouping(TKey key, int hashCode)
+        {
             if (_count == _groupings.Length)
             {
                 Resize();

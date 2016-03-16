@@ -109,11 +109,11 @@ namespace Mapper
         }
 
         /// <summary>Executes the <paramref name="cmd"/> and reads all the records in a lookup, grouped by key, using the supplied <paramref name="keyFunc"/> to generate the key</summary>
-        public static Lookup<TKey, TValue> ToLookup<TKey, TValue>(this IDbCommand cmd, Func<TValue, TKey> keyFunc)
+        public static HashLookup<TKey, TValue> ToLookup<TKey, TValue>(this IDbCommand cmd, Func<TValue, TKey> keyFunc)
         {
             Contract.Requires(cmd != null);
             Contract.Requires(keyFunc != null);
-            Contract.Ensures(Contract.Result<Lookup<TKey, TValue>>() != null);
+            Contract.Ensures(Contract.Result<HashLookup<TKey, TValue>>() != null);
             using (var reader = cmd.ExecuteReader())
             {
                 return reader.ToLookup(keyFunc);
@@ -121,11 +121,11 @@ namespace Mapper
         }
 
         /// <summary>Executes the <paramref name="cmd"/> and reads all the records in a lookup, grouped by key, using the supplied <paramref name="keyFunc"/> to generate the key</summary>
-        public static async Task<Lookup<TKey, TValue>> ToLookupAsync<TKey, TValue>(this SqlCommand cmd, Func<TValue, TKey> keyFunc)
+        public static async Task<HashLookup<TKey, TValue>> ToLookupAsync<TKey, TValue>(this SqlCommand cmd, Func<TValue, TKey> keyFunc)
         {
             Contract.Requires(cmd != null);
             Contract.Requires(keyFunc != null);
-            Contract.Ensures(Contract.Result<Lookup<TKey, TValue>>() != null);
+            Contract.Ensures(Contract.Result<HashLookup<TKey, TValue>>() != null);
             using (var reader = await cmd.ExecuteReaderAsync())
             {
                 return await reader.ToLookupAsync(keyFunc);
