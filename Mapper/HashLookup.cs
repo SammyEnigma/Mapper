@@ -15,7 +15,7 @@ namespace Mapper
     /// </summary>
     public class HashLookup<TKey, TElement> : ILookup<TKey, TElement>
     {
-        private static readonly TElement[] Empty = new TElement[0];
+        private static readonly List<TElement> Empty = new List<TElement>();
         private readonly IEqualityComparer<TKey> _comparer;
         private Grouping<TKey, TElement>[] _groupings;
         private Grouping<TKey, TElement> _lastGrouping;
@@ -63,7 +63,7 @@ namespace Mapper
         /// <returns>The <see cref="T:System.Collections.Generic.IEnumerable`1"/> sequence of values indexed by the specified key.</returns>
         /// <param name="key">The key of the desired sequence of values.</param>
         /// <remarks>Returns an empty sequence if the key is not present</remarks>
-        public IEnumerable<TElement> this[TKey key]
+        IEnumerable<TElement> ILookup<TKey, TElement>.this[TKey key]
         {
             get
             {
@@ -71,6 +71,21 @@ namespace Mapper
                 int hashCode = InternalGetHashCode(key);
                 Grouping<TKey, TElement> grouping = FindGrouping(key, hashCode);
                 return grouping ?? (IEnumerable<TElement>) Empty;
+            }
+        }
+
+        /// <summary>Gets the <see cref="T:System.Collections.Generic.IEnumerable`1"/> sequence of values indexed by a specified key.</summary>
+        /// <returns>The <see cref="T:System.Collections.Generic.IEnumerable`1"/> sequence of values indexed by the specified key.</returns>
+        /// <param name="key">The key of the desired sequence of values.</param>
+        /// <remarks>Returns an empty sequence if the key is not present</remarks>
+        public IReadOnlyCollection<TElement> this[TKey key]
+        {
+            get
+            {
+                Contract.Ensures(Contract.Result<IEnumerable<TElement>>() != null);
+                int hashCode = InternalGetHashCode(key);
+                Grouping<TKey, TElement> grouping = FindGrouping(key, hashCode);
+                return grouping ?? (IReadOnlyCollection<TElement>)Empty;
             }
         }
 

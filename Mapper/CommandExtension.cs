@@ -21,7 +21,7 @@ namespace Mapper
         {
             Contract.Requires(cmd != null);
             Contract.Ensures(Contract.Result<T>() != null);
-            using (var reader = cmd.ExecuteReader())
+            using (var reader = cmd.ExecuteReader(CommandBehavior.SingleRow))
             {
                 return reader.Single<T>();
             }
@@ -33,7 +33,7 @@ namespace Mapper
         {
             Contract.Requires(cmd != null);
             Contract.Ensures(Contract.Result<T>() != null);
-            using (var reader = await cmd.ExecuteReaderAsync())
+            using (var reader = await cmd.ExecuteReaderAsync(CommandBehavior.SingleRow))
             {
                 return await reader.SingleAsync<T>();
             }
@@ -44,7 +44,7 @@ namespace Mapper
         public static T ReadSingleOrDefault<T>(this IDbCommand cmd)
         {
             Contract.Requires(cmd != null);
-            using (var reader = cmd.ExecuteReader())
+            using (var reader = cmd.ExecuteReader(CommandBehavior.SingleRow))
             {
                 return reader.SingleOrDefault<T>();
             }
@@ -55,7 +55,7 @@ namespace Mapper
         public static async Task<T> ReadSingleOrDefaultAsync<T>(this SqlCommand cmd)
         {
             Contract.Requires(cmd != null);
-            using (var reader = await cmd.ExecuteReaderAsync())
+            using (var reader = await cmd.ExecuteReaderAsync(CommandBehavior.SingleRow))
             {
                 return await reader.SingleOrDefaultAsync<T>();
             }
