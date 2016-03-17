@@ -13,6 +13,30 @@ namespace Mapper
     /// </summary>
     public static class ConnectionExtension
     {
+        public static int ExecuteNonQuery(this IDbConnection cnn, string sql, object parameters = null)
+        {
+            Contract.Requires(cnn != null);
+            Contract.Requires(cnn.State == ConnectionState.Open);
+            Contract.Requires(!string.IsNullOrWhiteSpace(sql));
+            using (var cmd = cnn.CreateCommand())
+            {
+                SetupCommand(cmd, cnn, sql, parameters);
+                return cmd.ExecuteNonQuery();
+            }
+        }
+
+        public static Task<int> ExecuteNonQueryAsync(this SqlConnection cnn, string sql, object parameters = null)
+        {
+            Contract.Requires(cnn != null);
+            Contract.Requires(cnn.State == ConnectionState.Open);
+            Contract.Requires(!string.IsNullOrWhiteSpace(sql));
+            using (var cmd = cnn.CreateCommand())
+            {
+                SetupCommand(cmd, cnn, sql, parameters);
+                return cmd.ExecuteNonQueryAsync();
+            }
+        }
+
         public static T QuerySingle<T>(this IDbConnection cnn, string sql, object parameters = null)
         {
             Contract.Requires(cnn != null);

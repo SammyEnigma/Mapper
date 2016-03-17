@@ -9,7 +9,7 @@ using System.Linq;
 
 namespace Mapper
 {
-    internal class Grouping<TKey, TElement> : IGrouping<TKey, TElement>, IList<TElement>
+    internal class Grouping<TKey, TElement> : IGrouping<TKey, TElement>, IList<TElement>, IReadOnlyCollection<TElement>
     {
         internal TKey _key;
         internal int _hashCode;
@@ -50,7 +50,7 @@ namespace Mapper
         /// <returns>The key of the <see cref="T:System.Linq.IGrouping`2"/>.</returns>
         public TKey Key => _key;
 
-        int ICollection<TElement>.Count => _count;
+        public int Count => _count;
 
         bool ICollection<TElement>.IsReadOnly => true;
 
