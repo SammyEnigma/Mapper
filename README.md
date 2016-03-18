@@ -99,6 +99,7 @@ Additionally `SqlCommand` has the same set of methods as `IDbDataReader` but wit
 
 For convenience `Mapper` adds the following extension method to `IDbConnection`:
 
+* `ExecuteNonQuery(string sql, object parameters)` for executing database commands that do not return result sets
 * `QuerySingle<T>()` for executing the command and reading exactly one row
 * `QuerySingleOrDefault<T>()` for executing the command and reading zero or one rows
 * `Queryist<T>()` for executing the command and reading all records into a `List<T>`
