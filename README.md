@@ -1,5 +1,7 @@
 # mapper
-.NET composable mapping library for objects and data (System.Data)
+.NET composable mapping library for objects and data (System.Data).
+
+Sort of a replacement for Dapper (150K) and Automapper (350K) but `Mapper` much is smaller (66K)
 
 ## Cloning
 
@@ -36,7 +38,7 @@ For example, if the source name is `ORDER_ID` then the following names would be 
 
 ## Data extensions
 
-The headline examples is much like Dapper, but methods have stronly typed return values:
+The headline examples is much like Dapper, but methods have strongly typed return values:
 
 Select a list:
 ```
