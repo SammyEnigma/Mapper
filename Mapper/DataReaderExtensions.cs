@@ -16,7 +16,7 @@ namespace Mapper
 
         /// <summary>Reads exactly one item from the reader</summary>
         /// <exception cref="InvalidOperationException"> when zero values read or more than one value can be read</exception>
-        public static T Single<T>(this IDataReader reader)
+        public static T ReadSingle<T>(this IDataReader reader)
         {
             Contract.Requires(reader != null);
             Contract.Requires(reader.IsClosed == false);
@@ -30,7 +30,7 @@ namespace Mapper
 
         /// <summary>Reads exactly one item from the reader</summary>
         /// <exception cref="InvalidOperationException"> when zero values read or more than one value can be read</exception>
-        public static async Task<T> SingleAsync<T>(this SqlDataReader reader)
+        public static async Task<T> ReadSingleAsync<T>(this SqlDataReader reader)
         {
             Contract.Requires(reader != null);
             Contract.Requires(reader.IsClosed == false);
@@ -44,7 +44,7 @@ namespace Mapper
 
         /// <summary>Reads zero or one items from the reader</summary>
         /// <remarks>Returns the default vaue of T if no values be read, i.e may return null</remarks>
-        public static T SingleOrDefault<T>(this IDataReader reader)
+        public static T ReadSingleOrDefault<T>(this IDataReader reader)
         {
             Contract.Requires(reader != null);
             Contract.Requires(reader.IsClosed == false);
@@ -55,7 +55,7 @@ namespace Mapper
 
         /// <summary>Reads zero or one items from the reader</summary>
         /// <remarks>Returns the default vaue of T if no values be read, i.e may return null</remarks>
-        public static async Task<T> SingleOrDefaultAsync<T>(this SqlDataReader reader)
+        public static async Task<T> ReadSingleOrDefaultAsync<T>(this SqlDataReader reader)
         {
             Contract.Requires(reader != null);
             Contract.Requires(reader.IsClosed == false);
@@ -65,7 +65,7 @@ namespace Mapper
         }
 
         /// <summary>Reads all the records in the reader into a list</summary>
-        public static List<T> ToList<T>(this IDataReader reader)
+        public static List<T> ReadList<T>(this IDataReader reader)
         {
             Contract.Requires(reader != null);
             Contract.Requires(reader.IsClosed == false);
@@ -80,7 +80,7 @@ namespace Mapper
         }
 
         /// <summary>Reads all the records in the reader into a list</summary>
-        public static async Task<List<T>> ToListAsync<T>(this SqlDataReader reader)
+        public static async Task<List<T>> ReadListAsync<T>(this SqlDataReader reader)
         {
             Contract.Requires(reader != null);
             Contract.Requires(reader.IsClosed == false);
@@ -95,7 +95,7 @@ namespace Mapper
         }
 
         /// <summary>Reads all the records in the reader into a dictionary, using the supplied <paramref name="keyFunc"/> to generate the key</summary>
-        public static Dictionary<TKey, TValue> ToDictionary<TKey, TValue>(this IDataReader reader, Func<TValue, TKey> keyFunc)
+        public static Dictionary<TKey, TValue> ReadDictionary<TKey, TValue>(this IDataReader reader, Func<TValue, TKey> keyFunc)
         {
             Contract.Requires(reader != null);
             Contract.Requires(keyFunc != null);
@@ -113,7 +113,7 @@ namespace Mapper
         }
 
         /// <summary>Reads all the records in the reader into a dictionary, using the supplied <paramref name="keyFunc"/> to generate the key</summary>
-        public static async Task<Dictionary<TKey, TValue>> ToDictionaryAsync<TKey, TValue>(this SqlDataReader reader, Func<TValue, TKey> keyFunc)
+        public static async Task<Dictionary<TKey, TValue>> ReadDictionaryAsync<TKey, TValue>(this SqlDataReader reader, Func<TValue, TKey> keyFunc)
         {
             Contract.Requires(reader != null);
             Contract.Requires(keyFunc != null);
@@ -131,7 +131,7 @@ namespace Mapper
         }
 
         /// <summary>Reads all the records in the lookup, group by key, using the supplied <paramref name="keyFunc"/> to generate the key</summary>
-        public static HashLookup<TKey, TValue> ToLookup<TKey, TValue>(this IDataReader reader, Func<TValue, TKey> keyFunc)
+        public static HashLookup<TKey, TValue> ReadLookup<TKey, TValue>(this IDataReader reader, Func<TValue, TKey> keyFunc)
         {
             Contract.Requires(reader != null);
             Contract.Requires(keyFunc != null);
@@ -148,7 +148,7 @@ namespace Mapper
         }
 
         /// <summary>Reads all the records in the lookup, group by key, using the supplied <paramref name="keyFunc"/> to generate the key</summary>
-        public static async Task<HashLookup<TKey, TValue>> ToLookupAsync<TKey, TValue>(this SqlDataReader reader, Func<TValue, TKey> keyFunc)
+        public static async Task<HashLookup<TKey, TValue>> ReadLookupAsync<TKey, TValue>(this SqlDataReader reader, Func<TValue, TKey> keyFunc)
         {
             Contract.Requires(reader != null);
             Contract.Requires(keyFunc != null);
@@ -163,7 +163,6 @@ namespace Mapper
             }
             return lookup;
         }
-
 
         private static Func<IDataReader, T> GetMappingFunc<T>(IDataReader reader)
         {

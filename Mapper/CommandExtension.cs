@@ -17,117 +17,117 @@ namespace Mapper
 
         /// <summary>Executes the <paramref name="cmd"/> reading exactly one item</summary>
         /// <exception cref="InvalidOperationException"> when zero values read or more than one value can be read</exception>
-        public static T ReadSingle<T>(this IDbCommand cmd)
+        public static T ExecuteSingle<T>(this IDbCommand cmd)
         {
             Contract.Requires(cmd != null);
             Contract.Ensures(Contract.Result<T>() != null);
             using (var reader = cmd.ExecuteReader(CommandBehavior.SingleRow))
             {
-                return reader.Single<T>();
+                return reader.ReadSingle<T>();
             }
         }
 
         /// <summary>Executes the <paramref name="cmd"/> reading exactly one item</summary>
         /// <exception cref="InvalidOperationException"> when zero values read or more than one value can be read</exception>
-        public static async Task<T> ReadSingleAsync<T>(this SqlCommand cmd)
+        public static async Task<T> ExecuteSingleAsync<T>(this SqlCommand cmd)
         {
             Contract.Requires(cmd != null);
             Contract.Ensures(Contract.Result<T>() != null);
             using (var reader = await cmd.ExecuteReaderAsync(CommandBehavior.SingleRow))
             {
-                return await reader.SingleAsync<T>();
+                return await reader.ReadSingleAsync<T>();
             }
         }
 
         /// <summary>Executes the <paramref name="cmd"/> reading one item</summary>
         /// <remarks>Returns the default vaue of T if no values be read, i.e may return null</remarks>
-        public static T ReadSingleOrDefault<T>(this IDbCommand cmd)
+        public static T ExecuteSingleOrDefault<T>(this IDbCommand cmd)
         {
             Contract.Requires(cmd != null);
             using (var reader = cmd.ExecuteReader(CommandBehavior.SingleRow))
             {
-                return reader.SingleOrDefault<T>();
+                return reader.ReadSingleOrDefault<T>();
             }
         }
 
         /// <summary>Executes the <paramref name="cmd"/> reading one item</summary>
         /// <remarks>Returns the default vaue of T if no values be read, i.e may return null</remarks>
-        public static async Task<T> ReadSingleOrDefaultAsync<T>(this SqlCommand cmd)
+        public static async Task<T> ExecuteSingleOrDefaultAsync<T>(this SqlCommand cmd)
         {
             Contract.Requires(cmd != null);
             using (var reader = await cmd.ExecuteReaderAsync(CommandBehavior.SingleRow))
             {
-                return await reader.SingleOrDefaultAsync<T>();
+                return await reader.ReadSingleOrDefaultAsync<T>();
             }
         }
 
         /// <summary>Executes the <paramref name="cmd"/> and reads all the records into a list</summary>
-        public static List<T> ReadList<T>(this IDbCommand cmd)
+        public static List<T> ExecuteList<T>(this IDbCommand cmd)
         {
             Contract.Requires(cmd != null);
             Contract.Ensures(Contract.Result<List<T>>() != null);
             using (var reader = cmd.ExecuteReader())
             {
-                return reader.ToList<T>();
+                return reader.ReadList<T>();
             }
         }
 
         /// <summary>Executes the <paramref name="cmd"/> and reads all the records into a list</summary>
-        public static async Task<List<T>> ReadListAsync<T>(this SqlCommand cmd)
+        public static async Task<List<T>> ExecuteListAsync<T>(this SqlCommand cmd)
         {
             Contract.Requires(cmd != null);
             Contract.Ensures(Contract.Result<List<T>>() != null);
             using (var reader = await cmd.ExecuteReaderAsync())
             {
-                return await reader.ToListAsync<T>();
+                return await reader.ReadListAsync<T>();
             }
         }
 
         /// <summary>Executes the <paramref name="cmd"/> and reads all the records into a dictionary, using the supplied <paramref name="keyFunc"/> to generate the key</summary>
-        public static Dictionary<TKey, TValue> ReadDictionary<TKey, TValue>(this IDbCommand cmd, Func<TValue, TKey> keyFunc)
+        public static Dictionary<TKey, TValue> ExecuteDictionary<TKey, TValue>(this IDbCommand cmd, Func<TValue, TKey> keyFunc)
         {
             Contract.Requires(cmd != null);
             Contract.Requires(keyFunc != null);
             Contract.Ensures(Contract.Result<Dictionary<TKey, TValue>>() != null);
             using (var reader = cmd.ExecuteReader())
             {
-                return reader.ToDictionary(keyFunc);
+                return reader.ReadDictionary(keyFunc);
             }
         }
 
         /// <summary>Executes the <paramref name="cmd"/> and reads all the records into a dictionary, using the supplied <paramref name="keyFunc"/> to generate the key</summary>
-        public static async Task<Dictionary<TKey, TValue>> ReadDictionaryAsync<TKey, TValue>(this SqlCommand cmd, Func<TValue, TKey> keyFunc)
+        public static async Task<Dictionary<TKey, TValue>> ExecuteDictionaryAsync<TKey, TValue>(this SqlCommand cmd, Func<TValue, TKey> keyFunc)
         {
             Contract.Requires(cmd != null);
             Contract.Requires(keyFunc != null);
             Contract.Ensures(Contract.Result<Dictionary<TKey, TValue>>() != null);
             using (var reader = await cmd.ExecuteReaderAsync())
             {
-                return await reader.ToDictionaryAsync(keyFunc);
+                return await reader.ReadDictionaryAsync(keyFunc);
             }
         }
 
         /// <summary>Executes the <paramref name="cmd"/> and reads all the records in a lookup, grouped by key, using the supplied <paramref name="keyFunc"/> to generate the key</summary>
-        public static HashLookup<TKey, TValue> ReadLookup<TKey, TValue>(this IDbCommand cmd, Func<TValue, TKey> keyFunc)
+        public static HashLookup<TKey, TValue> ExecuteLookup<TKey, TValue>(this IDbCommand cmd, Func<TValue, TKey> keyFunc)
         {
             Contract.Requires(cmd != null);
             Contract.Requires(keyFunc != null);
             Contract.Ensures(Contract.Result<HashLookup<TKey, TValue>>() != null);
             using (var reader = cmd.ExecuteReader())
             {
-                return reader.ToLookup(keyFunc);
+                return reader.ReadLookup(keyFunc);
             }
         }
 
         /// <summary>Executes the <paramref name="cmd"/> and reads all the records in a lookup, grouped by key, using the supplied <paramref name="keyFunc"/> to generate the key</summary>
-        public static async Task<HashLookup<TKey, TValue>> ReadLookupAsync<TKey, TValue>(this SqlCommand cmd, Func<TValue, TKey> keyFunc)
+        public static async Task<HashLookup<TKey, TValue>> ExecuteLookupAsync<TKey, TValue>(this SqlCommand cmd, Func<TValue, TKey> keyFunc)
         {
             Contract.Requires(cmd != null);
             Contract.Requires(keyFunc != null);
             Contract.Ensures(Contract.Result<HashLookup<TKey, TValue>>() != null);
             using (var reader = await cmd.ExecuteReaderAsync())
             {
-                return await reader.ToLookupAsync(keyFunc);
+                return await reader.ReadLookupAsync(keyFunc);
             }
         }
 

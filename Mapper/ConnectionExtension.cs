@@ -46,7 +46,7 @@ namespace Mapper
             using (var cmd = cnn.CreateCommand())
             {
                 SetupCommand(cmd, cnn, sql, parameters);
-                return cmd.ReadSingle<T>();
+                return cmd.ExecuteSingle<T>();
             }
         }
 
@@ -59,7 +59,7 @@ namespace Mapper
             using (var cmd = cnn.CreateCommand())
             {
                 SetupCommand(cmd, cnn, sql, parameters);
-                return cmd.ReadSingleAsync<T>();
+                return cmd.ExecuteSingleAsync<T>();
             }
         }
 
@@ -71,7 +71,7 @@ namespace Mapper
             using (var cmd = cnn.CreateCommand())
             {
                 SetupCommand(cmd, cnn, sql, parameters);
-                return cmd.ReadSingleOrDefault<T>();
+                return cmd.ExecuteSingleOrDefault<T>();
             }
         }
 
@@ -83,7 +83,7 @@ namespace Mapper
             using (var cmd = cnn.CreateCommand())
             {
                 SetupCommand(cmd, cnn, sql, parameters);
-                return cmd.ReadSingleOrDefaultAsync<T>();
+                return cmd.ExecuteSingleOrDefaultAsync<T>();
             }
         }
 
@@ -97,7 +97,7 @@ namespace Mapper
             using (var cmd = cnn.CreateCommand())
             {
                 SetupCommand(cmd, cnn, sql, parameters);
-                return cmd.ReadList<T>();
+                return cmd.ExecuteList<T>();
             }
         }
 
@@ -111,7 +111,7 @@ namespace Mapper
             using (var cmd = cnn.CreateCommand())
             {
                 SetupCommand(cmd, cnn, sql, parameters);
-                return cmd.ReadListAsync<T>();
+                return cmd.ExecuteListAsync<T>();
             }
         }
 
@@ -126,7 +126,7 @@ namespace Mapper
             using (var cmd = cnn.CreateCommand())
             {
                 SetupCommand(cmd, cnn, sql, null);
-                return cmd.ReadDictionary(keyFunc);
+                return cmd.ExecuteDictionary(keyFunc);
             }
         }
 
@@ -141,7 +141,7 @@ namespace Mapper
             using (var cmd = cnn.CreateCommand())
             {
                 SetupCommand(cmd, cnn, sql, null);
-                return cmd.ReadDictionaryAsync(keyFunc);
+                return cmd.ExecuteDictionaryAsync(keyFunc);
             }
         }
 
@@ -157,7 +157,7 @@ namespace Mapper
             using (var cmd = cnn.CreateCommand())
             {
                 SetupCommand(cmd, cnn, sql, parameters);
-                return cmd.ReadDictionary(keyFunc);
+                return cmd.ExecuteDictionary(keyFunc);
             }
         }
 
@@ -173,7 +173,7 @@ namespace Mapper
             using (var cmd = cnn.CreateCommand())
             {
                 SetupCommand(cmd, cnn, sql, parameters);
-                return cmd.ReadDictionaryAsync(keyFunc);
+                return cmd.ExecuteDictionaryAsync(keyFunc);
             }
         }
 
@@ -188,7 +188,7 @@ namespace Mapper
             using (var cmd = cnn.CreateCommand())
             {
                 SetupCommand(cmd, cnn, sql, null);
-                return cmd.ReadLookup(keyFunc);
+                return cmd.ExecuteLookup(keyFunc);
             }
         }
 
@@ -204,7 +204,7 @@ namespace Mapper
             using (var cmd = cnn.CreateCommand())
             {
                 SetupCommand(cmd, cnn, sql, parameters);
-                return cmd.ReadLookup(keyFunc);
+                return cmd.ExecuteLookup(keyFunc);
             }
         }
 
@@ -219,7 +219,7 @@ namespace Mapper
             using (var cmd = cnn.CreateCommand())
             {
                 SetupCommand(cmd, cnn, sql, null);
-                return await cmd.ReadLookupAsync(keyFunc);
+                return await cmd.ExecuteLookupAsync(keyFunc);
             }
         }
 
@@ -235,7 +235,7 @@ namespace Mapper
             using (var cmd = cnn.CreateCommand())
             {
                 SetupCommand(cmd, cnn, sql, parameters);
-                return await cmd.ReadLookupAsync(keyFunc);
+                return await cmd.ExecuteLookupAsync(keyFunc);
             }
         }
 

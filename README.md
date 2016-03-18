@@ -69,11 +69,11 @@ ILookup<int, Order> list = connection.QueryLookup<int, Order>("select * from dbo
 ### IDataReader methods
 `IDataReader` has the following extension methods:
 
-* `Single<T>()` for reading exactly one row
-* `SingleOrDefault<T>()` for reading zero or one rows
-* `ToList<T>()` for reading all records into a `List<T>`
-* `ToDictinary<TKey,TValue>(Func<TKey,TValue> keyFunc)` for reading all records into a `Dictinary<TKey,TValue>` using the supplied function to get work out the key.  Note that the key must be unique.
-* `ToLookup<TKey,TValue>(Func<TKey,TValue> keyFunc)` for reading all records into a `ILookup<TKey,TValue>` using the supplied function to get work out the key.  Each key may have multiple values.
+* `ReadSingle<T>()` for reading exactly one row
+* `ReadSingleOrDefault<T>()` for reading zero or one rows
+* `ReadList<T>()` for reading all records into a `List<T>`
+* `ReadDictinary<TKey,TValue>(Func<TKey,TValue> keyFunc)` for reading all records into a `Dictinary<TKey,TValue>` using the supplied function to get work out the key.  Note that the key must be unique.
+* `ReadLookup<TKey,TValue>(Func<TKey,TValue> keyFunc)` for reading all records into a `ILookup<TKey,TValue>` using the supplied function to get work out the key.  Each key may have multiple values.
 
 ### SqlDataReader async methods
 
@@ -85,11 +85,11 @@ Additionally `SqlDataReader` has the same set of methods as `IDataReader` but wi
 
 For convenience `Mapper` adds the following extension method to `IDbCommand`:
 
-* `ReadSingle<T>()` for exeucting the command and reading exactly one row
-* `ReadSingleOrDefault<T>()` for exeucting the command and reading zero or one rows
-* `ReadList<T>()` for exeucting the command and reading all records into a `List<T>`
-* `ReadDictinary<TKey,TValue>(Func<TKey,TValue> keyFunc)` for exeucting the command and reading all records into a `Dictinary<TKey,TValue>` using the supplied function to get work out the key.  Note that the key must be unique.
-* `ReadLookup<TKey,TValue>(Func<TKey,TValue> keyFunc)` for exeucting the command and reading all records into a `ILookup<TKey,TValue>` using the supplied function to get work out the key.  Each key may have multiple values.
+* `ExecuteSingle<T>()` for exeucting the command and reading exactly one row
+* `ExecuteSingleOrDefault<T>()` for exeucting the command and reading zero or one rows
+* `ExecuteList<T>()` for exeucting the command and reading all records into a `List<T>`
+* `ExecuteDictinary<TKey,TValue>(Func<TKey,TValue> keyFunc)` for exeucting the command and reading all records into a `Dictinary<TKey,TValue>` using the supplied function to get work out the key.  Note that the key must be unique.
+* `ExecuteLookup<TKey,TValue>(Func<TKey,TValue> keyFunc)` for exeucting the command and reading all records into a `ILookup<TKey,TValue>` using the supplied function to get work out the key.  Each key may have multiple values.
 
 ### SqlCommand async methods
 
