@@ -31,12 +31,14 @@ For `Map`, `MapSome` and all the data mappings, the following rules apply when l
 2. if the name ends with 'ID' then try the name without 'ID'  (case insensitive)
 3. the name above names with underscores removed  (case insensitive)
 
-For example, if the source name is `ORDER_ID` then the following names would be considered (shown in perference order):
+For example, if the source name is `ORDER_ID` then the following names would be considered  (shown in perference order):
 
 1. ORDER_ID
 2. ORDER_
 3. ORDERID
 4. ORDER
+
+Note: name comparison is *case insensitive*.
 
 ## Data extensions
 
