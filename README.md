@@ -8,11 +8,14 @@ Performance is "good" as `Mapper` uses the DLR to create and JIT compile methods
 ## Cloning
 
 `Mapper` contains an extension method for all objects called `Clone` which performs a *shallow* clone. The type being cloned *must* have a parameterless contructor, then all public properties and fields are copied.
-`Mapper` can also clone sequences of object via the `MapSome<T>()` extension which takes a `IEnumerable<T>` and returns an `IEnumerable<T>`.
+
+`Mapper` can also clone sequences of object via the `CloneSome<T>()` extension which takes a `IEnumerable<T>` and returns an `IEnumerable<T>`.
 
 ## Mapping
 
 You can copy an object of one type to another type using the `Map<TFrom,TTo>()` extension method.  The type being mapped to *must* have a parameterless contructor, then all readable public properties (and fields) of the source type are copied to properties (or fields) of the target type.  
+
+`Mapper` can also copy sequences of objects via the `MapSome<TFrom,TTo>()` extension which takes a `IEnumerable<TFrom>` and returns an `IEnumerable<TTo>`.
 
 A property (or field) types must be compatible in some sense, the following list the type compatibility rules:
 
