@@ -22,11 +22,13 @@ A property (or field) types must be compatible in some sense, the following list
 ## Name compatibility
 
 For `Map`, `MapSome` and all the data mappings, the following rules apply when looking for candidate names:
+
 1. the source name (case insensitive)
 2. if the name ends with 'ID' then try the name without 'ID'  (case insensitive)
 3. the name above names with underscores removed  (case insensitive)
 
 For example, if the source name is `ORDER_ID` then the following names would be considered (shown in perference order):
+
 1. ORDER_ID
 2. ORDER_
 3. ORDERID
@@ -57,6 +59,7 @@ ILookup<int, Order> list = connection.QueryLookup<int, Order>("select * from dbo
 
 ### IDataReader methods
 `IDataReader` has the following extension methods:
+
 * `Single<T>()` for reading exactly one row
 * `SingleOrDefault<T>()` for reading zero or one rows
 * `ToList<T>()` for reading all records into a `List<T>`
@@ -72,6 +75,7 @@ Additionally `SqlDataReader` has the same set of methods as `IDataReader` but wi
 `Mapper` adds `AddParameters(object parameters)` extension method to `IDbCommand`. `AddParameters` will add a `IDataParameter` to the commands `Parameters` collection for each readable public property (and field) of `parameters`, setting the type and value.
 
 For convenience `Mapper` adds the following extension method to `IDbCommand`:
+
 * `ReadSingle<T>()` for exeucting the command and reading exactly one row
 * `ReadSingleOrDefault<T>()` for exeucting the command and reading zero or one rows
 * `ReadList<T>()` for exeucting the command and reading all records into a `List<T>`
@@ -85,6 +89,7 @@ Additionally `SqlCommand` has the same set of methods as `IDbDataReader` but wit
 ### IDbConnetion methods
 
 For convenience `Mapper` adds the following extension method to `IDbConnection`:
+
 * `QuerySingle<T>()` for executing the command and reading exactly one row
 * `QuerySingleOrDefault<T>()` for executing the command and reading zero or one rows
 * `Queryist<T>()` for executing the command and reading all records into a `List<T>`
