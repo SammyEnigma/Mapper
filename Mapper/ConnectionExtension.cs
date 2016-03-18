@@ -22,7 +22,7 @@ namespace Mapper
             using (var cmd = cnn.CreateCommand())
             {
                 SetupCommand(cmd, cnn, sql, parameters);
-                return cmd.Single<T>();
+                return cmd.ReadSingle<T>();
             }
         }
 
@@ -35,7 +35,7 @@ namespace Mapper
             using (var cmd = cnn.CreateCommand())
             {
                 SetupCommand(cmd, cnn, sql, parameters);
-                return cmd.SingleAsync<T>();
+                return cmd.ReadSingleAsync<T>();
             }
         }
 
@@ -47,7 +47,7 @@ namespace Mapper
             using (var cmd = cnn.CreateCommand())
             {
                 SetupCommand(cmd, cnn, sql, parameters);
-                return cmd.SingleOrDefault<T>();
+                return cmd.ReadSingleOrDefault<T>();
             }
         }
 
@@ -59,7 +59,7 @@ namespace Mapper
             using (var cmd = cnn.CreateCommand())
             {
                 SetupCommand(cmd, cnn, sql, parameters);
-                return cmd.SingleOrDefaultAsync<T>();
+                return cmd.ReadSingleOrDefaultAsync<T>();
             }
         }
 
@@ -73,7 +73,7 @@ namespace Mapper
             using (var cmd = cnn.CreateCommand())
             {
                 SetupCommand(cmd, cnn, sql, parameters);
-                return cmd.ToList<T>();
+                return cmd.ReadList<T>();
             }
         }
 
@@ -87,7 +87,7 @@ namespace Mapper
             using (var cmd = cnn.CreateCommand())
             {
                 SetupCommand(cmd, cnn, sql, parameters);
-                return cmd.ToListAsync<T>();
+                return cmd.ReadListAsync<T>();
             }
         }
 
@@ -102,7 +102,7 @@ namespace Mapper
             using (var cmd = cnn.CreateCommand())
             {
                 SetupCommand(cmd, cnn, sql, null);
-                return cmd.ToDictionary(keyFunc);
+                return cmd.ReadDictionary(keyFunc);
             }
         }
 
@@ -117,7 +117,7 @@ namespace Mapper
             using (var cmd = cnn.CreateCommand())
             {
                 SetupCommand(cmd, cnn, sql, null);
-                return cmd.ToDictionaryAsync(keyFunc);
+                return cmd.ReadDictionaryAsync(keyFunc);
             }
         }
 
@@ -133,7 +133,7 @@ namespace Mapper
             using (var cmd = cnn.CreateCommand())
             {
                 SetupCommand(cmd, cnn, sql, parameters);
-                return cmd.ToDictionary(keyFunc);
+                return cmd.ReadDictionary(keyFunc);
             }
         }
 
@@ -149,7 +149,7 @@ namespace Mapper
             using (var cmd = cnn.CreateCommand())
             {
                 SetupCommand(cmd, cnn, sql, parameters);
-                return cmd.ToDictionaryAsync(keyFunc);
+                return cmd.ReadDictionaryAsync(keyFunc);
             }
         }
 
@@ -164,7 +164,7 @@ namespace Mapper
             using (var cmd = cnn.CreateCommand())
             {
                 SetupCommand(cmd, cnn, sql, null);
-                return cmd.ToLookup(keyFunc);
+                return cmd.ReadLookup(keyFunc);
             }
         }
 
@@ -180,7 +180,7 @@ namespace Mapper
             using (var cmd = cnn.CreateCommand())
             {
                 SetupCommand(cmd, cnn, sql, parameters);
-                return cmd.ToLookup(keyFunc);
+                return cmd.ReadLookup(keyFunc);
             }
         }
 
@@ -195,7 +195,7 @@ namespace Mapper
             using (var cmd = cnn.CreateCommand())
             {
                 SetupCommand(cmd, cnn, sql, null);
-                return await cmd.ToLookupAsync(keyFunc);
+                return await cmd.ReadLookupAsync(keyFunc);
             }
         }
 
@@ -211,7 +211,7 @@ namespace Mapper
             using (var cmd = cnn.CreateCommand())
             {
                 SetupCommand(cmd, cnn, sql, parameters);
-                return await cmd.ToLookupAsync(keyFunc);
+                return await cmd.ReadLookupAsync(keyFunc);
             }
         }
 

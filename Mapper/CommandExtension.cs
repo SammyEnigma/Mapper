@@ -4,7 +4,6 @@ using System.Collections.Generic;
 using System.Data;
 using System.Data.SqlClient;
 using System.Diagnostics.Contracts;
-using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
 using System.Threading.Tasks;
@@ -12,13 +11,13 @@ using Microsoft.SqlServer.Server;
 
 namespace Mapper
 {
-    public static class CommandExtension
+    public static class DbCommandExtensions
     {
         private static readonly MostlyReadDictionary<Type, Delegate> Methods = new MostlyReadDictionary<Type, Delegate>();
 
         /// <summary>Executes the <paramref name="cmd"/> reading exactly one item</summary>
         /// <exception cref="InvalidOperationException"> when zero values read or more than one value can be read</exception>
-        public static T Single<T>(this IDbCommand cmd)
+        public static T ReadSingle<T>(this IDbCommand cmd)
         {
             Contract.Requires(cmd != null);
             Contract.Ensures(Contract.Result<T>() != null);
@@ -30,7 +29,7 @@ namespace Mapper
 
         /// <summary>Executes the <paramref name="cmd"/> reading exactly one item</summary>
         /// <exception cref="InvalidOperationException"> when zero values read or more than one value can be read</exception>
-        public static async Task<T> SingleAsync<T>(this SqlCommand cmd)
+        public static async Task<T> ReadSingleAsync<T>(this SqlCommand cmd)
         {
             Contract.Requires(cmd != null);
             Contract.Ensures(Contract.Result<T>() != null);
@@ -42,7 +41,7 @@ namespace Mapper
 
         /// <summary>Executes the <paramref name="cmd"/> reading one item</summary>
         /// <remarks>Returns the default vaue of T if no values be read, i.e may return null</remarks>
-        public static T SingleOrDefault<T>(this IDbCommand cmd)
+        public static T ReadSingleOrDefault<T>(this IDbCommand cmd)
         {
             Contract.Requires(cmd != null);
             using (var reader = cmd.ExecuteReader())
@@ -53,7 +52,7 @@ namespace Mapper
 
         /// <summary>Executes the <paramref name="cmd"/> reading one item</summary>
         /// <remarks>Returns the default vaue of T if no values be read, i.e may return null</remarks>
-        public static async Task<T> SingleOrDefaultAsync<T>(this SqlCommand cmd)
+        public static async Task<T> ReadSingleOrDefaultAsync<T>(this SqlCommand cmd)
         {
             Contract.Requires(cmd != null);
             using (var reader = await cmd.ExecuteReaderAsync())
@@ -63,7 +62,7 @@ namespace Mapper
         }
 
         /// <summary>Executes the <paramref name="cmd"/> and reads all the records into a list</summary>
-        public static List<T> ToList<T>(this IDbCommand cmd)
+        public static List<T> ReadList<T>(this IDbCommand cmd)
         {
             Contract.Requires(cmd != null);
             Contract.Ensures(Contract.Result<List<T>>() != null);
@@ -74,7 +73,7 @@ namespace Mapper
         }
 
         /// <summary>Executes the <paramref name="cmd"/> and reads all the records into a list</summary>
-        public static async Task<List<T>> ToListAsync<T>(this SqlCommand cmd)
+        public static async Task<List<T>> ReadListAsync<T>(this SqlCommand cmd)
         {
             Contract.Requires(cmd != null);
             Contract.Ensures(Contract.Result<List<T>>() != null);
@@ -85,7 +84,7 @@ namespace Mapper
         }
 
         /// <summary>Executes the <paramref name="cmd"/> and reads all the records into a dictionary, using the supplied <paramref name="keyFunc"/> to generate the key</summary>
-        public static Dictionary<TKey, TValue> ToDictionary<TKey, TValue>(this IDbCommand cmd, Func<TValue, TKey> keyFunc)
+        public static Dictionary<TKey, TValue> ReadDictionary<TKey, TValue>(this IDbCommand cmd, Func<TValue, TKey> keyFunc)
         {
             Contract.Requires(cmd != null);
             Contract.Requires(keyFunc != null);
@@ -97,7 +96,7 @@ namespace Mapper
         }
 
         /// <summary>Executes the <paramref name="cmd"/> and reads all the records into a dictionary, using the supplied <paramref name="keyFunc"/> to generate the key</summary>
-        public static async Task<Dictionary<TKey, TValue>> ToDictionaryAsync<TKey, TValue>(this SqlCommand cmd, Func<TValue, TKey> keyFunc)
+        public static async Task<Dictionary<TKey, TValue>> ReadDictionaryAsync<TKey, TValue>(this SqlCommand cmd, Func<TValue, TKey> keyFunc)
         {
             Contract.Requires(cmd != null);
             Contract.Requires(keyFunc != null);
@@ -109,7 +108,7 @@ namespace Mapper
         }
 
         /// <summary>Executes the <paramref name="cmd"/> and reads all the records in a lookup, grouped by key, using the supplied <paramref name="keyFunc"/> to generate the key</summary>
-        public static HashLookup<TKey, TValue> ToLookup<TKey, TValue>(this IDbCommand cmd, Func<TValue, TKey> keyFunc)
+        public static HashLookup<TKey, TValue> ReadLookup<TKey, TValue>(this IDbCommand cmd, Func<TValue, TKey> keyFunc)
         {
             Contract.Requires(cmd != null);
             Contract.Requires(keyFunc != null);
@@ -121,7 +120,7 @@ namespace Mapper
         }
 
         /// <summary>Executes the <paramref name="cmd"/> and reads all the records in a lookup, grouped by key, using the supplied <paramref name="keyFunc"/> to generate the key</summary>
-        public static async Task<HashLookup<TKey, TValue>> ToLookupAsync<TKey, TValue>(this SqlCommand cmd, Func<TValue, TKey> keyFunc)
+        public static async Task<HashLookup<TKey, TValue>> ReadLookupAsync<TKey, TValue>(this SqlCommand cmd, Func<TValue, TKey> keyFunc)
         {
             Contract.Requires(cmd != null);
             Contract.Requires(keyFunc != null);
