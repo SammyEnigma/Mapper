@@ -166,8 +166,14 @@ namespace Mapper
 
         private static Func<IDataReader, T> GetMappingFunc<T>(IDataReader reader)
         {
+            Delegate func = GetOrCreateMappingFunc(typeof(T), reader);
+            return (Func<IDataReader, T>)func;
+        }
+
+        private static Delegate GetOrCreateMappingFunc(Type typeT, IDataReader reader)
+        {
             var columns = CreateColumnList(reader);
-            return (Func<IDataReader, T>) Methods.GetOrAdd(new MetaData(typeof(T), columns), md => CreateMapFunc<T>(md.Columns));
+            return Methods.GetOrAdd(new MetaData(typeT, columns), md => CreateMapFunc(md.Target, md.Columns));
         }
 
         private static Column[] CreateColumnList(IDataReader reader)
@@ -182,36 +188,42 @@ namespace Mapper
             return columns;
         }
 
-        private static Delegate CreateMapFunc<T>(IReadOnlyCollection<Column> columns)
+        private static Delegate CreateMapFunc(Type typeT, IReadOnlyCollection<Column> columns)
         {
-            var map = CreateMemberToColumnMap(columns, typeof (T));
+            var map = CreateMemberToColumnMap(columns, typeT);
             var readerParam = Expression.Parameter(typeof (IDataReader), "reader");
-            var resultParam = Expression.Parameter(typeof (T), "result");
-            var block = CreateMapBlock(typeof (T), map, readerParam, resultParam);
-            return Expression.Lambda<Func<IDataReader, T>>(block, readerParam).Compile();
+            var resultParam = Expression.Parameter(typeT, "result");
+            var block = CreateMapBlock(typeT, map, readerParam, resultParam);
+            var func = typeof(Func<,>).MakeGenericType(new[] { typeof(IDataReader), typeT });
+            return Expression.Lambda(func, block, new[] { readerParam }).Compile();
         }
 
-        private static Dictionary<MemberInfo, Column> CreateMemberToColumnMap(IReadOnlyCollection<Column> columns, Type type)
+        internal static Dictionary<MemberInfo, Column> CreateMemberToColumnMap(IReadOnlyCollection<Column> columns, Type type)
         {
             var map = new Dictionary<MemberInfo, Column>();
-            foreach (var field in type.GetFields(BindingFlags.Public | BindingFlags.Instance))
+            var bestMatch = NewMatchFunc(columns);
+            foreach (var member in WriteablePublicFieldsAndProperties(type))
             {
-                if (field.IsInitOnly) continue;
-                var col = columns.FirstOrDefault(c => NameMatches(c, field.Name));
-                if (col.Name != null) map.Add(field, col);
-            }
-            foreach (var prop in type.GetProperties(BindingFlags.Public | BindingFlags.Instance))
-            {
-                if (!prop.CanWrite) continue;
-                var col = columns.FirstOrDefault(c => NameMatches(c, prop.Name));
-                if (col.Name != null) map.Add(prop, col);
+                var col = bestMatch(member.Name);
+                if (col.Name != null) map.Add(member, col);
             }
             return map;
         }
 
-        private static bool NameMatches(Column col, string name)
+        private static Func<string, Column> NewMatchFunc(IReadOnlyCollection<Column> columns)
         {
-            return Names.CandidateNames(col.Name, col.Type).Any(cand => string.Equals(cand, name, StringComparison.OrdinalIgnoreCase));
+            var nameToColumns = columns
+                .SelectMany(col => Names.CandidateNames(col.Name, col.Type), (col, name) => new { col, name })
+                .OrderByDescending(x => x.col.Name.Length) // make sure columns with the longest names match first
+                .ToLookup(x => x.name, x => x.col, StringComparer.OrdinalIgnoreCase);
+            return name => nameToColumns[name].FirstOrDefault();
+        }
+
+        private static IEnumerable<MemberInfo> WriteablePublicFieldsAndProperties(Type type)
+        {
+            const BindingFlags PublicInstance = BindingFlags.Public | BindingFlags.Instance;
+            return type.GetFields(PublicInstance).Where(field => !field.IsInitOnly).Cast<MemberInfo>()
+                   .Concat(type.GetProperties(PublicInstance).Where(prop => prop.CanWrite).Cast<MemberInfo>());
         }
 
         private static BlockExpression CreateMapBlock(Type type, Dictionary<MemberInfo, Column> map, ParameterExpression reader, ParameterExpression result)
@@ -306,21 +318,6 @@ namespace Mapper
             throw new NotSupportedException(columnType.ToString());
         }
 
-        struct Column
-        {
-            public int Ordinal { get; }
-            public string Name { get; }
-            public Type Type { get; }
-            
-            public Column(int ordinal, string name, Type type)
-            {
-                Ordinal = ordinal;
-                Name = name;
-                Type = type;
-            }
-        }
-
-
         struct MetaData : IEquatable<MetaData>
         {
             public readonly Type Target;
@@ -335,7 +332,8 @@ namespace Mapper
             public bool Equals(MetaData other)
             {
                 if (Target != other.Target) return false;
-                if (!Equals(Columns?.Count, other.Columns?.Count)) return false;
+                if (Columns == null || Columns.Count == 0) return other.Columns == null || other.Columns.Count == 0;
+                if (Columns.Count != other.Columns.Count) return false;
                 for (int i = 0; i < Columns.Count; i++)
                 {
                     if (!Columns[i].Equals(other.Columns[i])) return false;
@@ -358,17 +356,42 @@ namespace Mapper
                 hash *= Columns[Columns.Count - 1].Name.GetHashCode();
                 return hash;
             }
-
-            public static bool operator ==(MetaData left, MetaData right)
-            {
-                return left.Equals(right);
-            }
-
-            public static bool operator !=(MetaData left, MetaData right)
-            {
-                return !left.Equals(right);
-            }
+            
         }
 
     }
+
+    struct Column : IEquatable<Column>
+    {
+        public int Ordinal { get; }
+        public string Name { get; }
+        public Type Type { get; }
+
+        public Column(int ordinal, string name, Type type)
+        {
+            Ordinal = ordinal;
+            Name = name;
+            Type = type;
+        }
+
+        public override bool Equals(object obj)
+        {
+            if (obj == null) return false;
+            return obj is Column && Equals((Column) obj);
+        }
+
+        public bool Equals(Column other)
+        {
+            return Ordinal == other.Ordinal
+                && Name == other.Name
+                && Type == other.Type;
+        }
+
+        public override int GetHashCode()
+        {
+            return Ordinal;
+        }
+
+    }
+
 }
