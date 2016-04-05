@@ -15,7 +15,10 @@ Performance is "good" as `Mapper` uses the DLR to create and JIT compile methods
 
 You can copy an object of one type to another type using the `Map<TFrom,TTo>()` extension method.  The type being mapped to *must* have a parameterless contructor, then all readable public properties (and fields) of the source type are copied to properties (or fields) of the target type.  
 
-`Mapper` can also copy sequences of objects via the `MapSome<TFrom,TTo>()` extension which takes a `IEnumerable<TFrom>` and returns an `IEnumerable<TTo>`.
+`Mapper` can also copy sequences of objects via the `MapSome<TFrom,TTo>()` extension which takes a `IEnumerable<TFrom>` and returns an `IEnumerable<TTo>`.  `MapSome<TFrom,TTo>()` has overloads that allow the mapping to be customized:
+
+* `MapSome<TFrom,TTo>(Func<TFrom,TTo>)` calls the supplied function for each mapped object
+* `MapSome<TFrom,TTo>(Func<TFrom,TTo, int>)` calls the supplied function for each mapped object passing the zero based index of the object 
 
 A property (or field) types must be compatible in some sense, the following list the type compatibility rules:
 
