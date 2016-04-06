@@ -133,6 +133,14 @@ namespace Mapper.UnitTests
         }
 
         [Test]
+        public void can_map_enum_to_another_enum()
+        {
+            var input = new SingleProp<TestEnum> { Value = TestEnum.Something };
+            var output = input.Map<SingleProp<TestEnum>, SingleProp<TestEnum2>>();
+            Assert.AreEqual((int)input.Value, (int)output.Value);
+        }
+
+        [Test]
         public void can_map_int_to_enum()
         {
             var input = new SingleProp<int> { Value = 1};
@@ -245,6 +253,12 @@ namespace Mapper.UnitTests
     }
 
     public enum TestEnum
+    {
+        Undefined = 0,
+        Something = 1
+    }
+
+    public enum TestEnum2
     {
         Undefined = 0,
         Something = 1

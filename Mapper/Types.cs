@@ -76,6 +76,7 @@ namespace Mapper
                 || (inType.IsPrimitiveOrEnum() && IsNullable(outType) && outType.GetGenericArguments()[0].IsPrimitiveOrEnum())
                    || (inType.IsPrimitive && outType.IsPrimitive)
                    || (outType.IsEnum && inType.IsPrimitive) // enum assignment is not handled in "IsAssignableFrom"
+                   || (outType.IsEnum && inType.IsEnum) 
                    || (outType.IsPrimitive && inType.IsEnum);
         }
 
