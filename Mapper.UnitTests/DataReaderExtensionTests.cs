@@ -1,5 +1,4 @@
 ﻿using NUnit.Framework;
-using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -69,6 +68,36 @@ namespace Mapper.UnitTests
             Assert.IsNotNull(pair.Key);
             Assert.AreEqual(col, pair.Value);
         }
+
+        [Test]
+        public void can_read_int_into_int()
+        {
+            var stubDataReader = new StubDataReader
+            {
+                Names = new []{ "ORDER_ID"},
+                Types = new []{ typeof(int)},
+                Values = new object[] {1},
+            };
+            var func = DataReaderExtensions.GetMappingFunc<TestPropertyId>(stubDataReader);
+            var result = func(stubDataReader);
+            Assert.IsNotNull(result);
+            Assert.AreEqual(1, result.OrderId);
+        }
+
+        [Test]
+        public void can_read_long_into_nullable_long()
+        {
+            var stubDataReader = new StubDataReader
+            {
+                Names = new []{ "ID"},
+                Types = new []{ typeof(long)},
+                Values = new object[] {1L},
+            };
+            var func = DataReaderExtensions.GetMappingFunc<NullableLong>(stubDataReader);
+            var result = func(stubDataReader);
+            Assert.IsNotNull(result);
+            Assert.AreEqual(1L, result.Id);
+        }
     }
 
     class TestPropertyId
@@ -89,5 +118,10 @@ namespace Mapper.UnitTests
     class TestField
     {
         public int Order;
+    }
+
+    class NullableLong
+    {
+        public long? Id { get; set; }
     }
 }

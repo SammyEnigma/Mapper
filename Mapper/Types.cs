@@ -73,6 +73,7 @@ namespace Mapper
         public static bool CanBeCast(Type inType, Type outType)
         {
             return outType.IsAssignableFrom(inType)
+                || (inType.IsPrimitiveOrEnum() && IsNullable(outType) && outType.GetGenericArguments()[0].IsPrimitiveOrEnum())
                    || (inType.IsPrimitive && outType.IsPrimitive)
                    || (outType.IsEnum && inType.IsPrimitive) // enum assignment is not handled in "IsAssignableFrom"
                    || (outType.IsPrimitive && inType.IsEnum);

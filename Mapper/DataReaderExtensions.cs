@@ -164,7 +164,7 @@ namespace Mapper
             return lookup;
         }
 
-        private static Func<IDataReader, T> GetMappingFunc<T>(IDataReader reader)
+        internal static Func<IDataReader, T> GetMappingFunc<T>(IDataReader reader)
         {
             Delegate func = GetOrCreateMappingFunc(typeof(T), reader);
             return (Func<IDataReader, T>)func;
@@ -223,7 +223,7 @@ namespace Mapper
         {
             const BindingFlags PublicInstance = BindingFlags.Public | BindingFlags.Instance;
             return type.GetFields(PublicInstance).Where(field => !field.IsInitOnly).Cast<MemberInfo>()
-                   .Concat(type.GetProperties(PublicInstance).Where(prop => prop.CanWrite).Cast<MemberInfo>());
+                   .Concat(type.GetProperties(PublicInstance).Where(prop => prop.CanWrite));
         }
 
         private static BlockExpression CreateMapBlock(Type type, Dictionary<MemberInfo, Column> map, ParameterExpression reader, ParameterExpression result)
@@ -236,7 +236,7 @@ namespace Mapper
             Contract.Assert(constructor != null);
             var lines = new List<Expression>{ Expression.Assign(result, Expression.New(constructor))  };
             lines.AddRange(map
-                .Where(pair => Types.AreCompatible(Types.PropertyOrFieldType(pair.Key), pair.Value.Type))
+                .Where(pair => Types.AreCompatible(pair.Value.Type, Types.PropertyOrFieldType(pair.Key)))
                 .Select(pair => AssignDefaultOrValue(reader, pair.Value, pair.Key, result)));
             lines.Add(result); // the return value
             return Expression.Block(new[] { result }, lines);
