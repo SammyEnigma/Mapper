@@ -223,6 +223,14 @@ namespace Mapper.UnitTests
         }
 
         [Test]
+        public void can_map_name_without_id_to_name_ending_in_id_enum()
+        {
+            var input = new SingleProp<TestEnum> { Value = TestEnum.Something };
+            var output = input.Map<SingleProp<TestEnum>, SingleId<int>>();
+            Assert.AreEqual(1, output.ValueId);
+        }
+
+        [Test]
         public void can_map_name_with_underscores_to_name_without_underscores()
         {
             var input = new WithUnderscore {SOME_VALUE = 1};

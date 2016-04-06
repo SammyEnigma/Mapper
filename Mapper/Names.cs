@@ -10,10 +10,12 @@ namespace Mapper
             var names = new List<string>(2) { name };
 
             // special handling of xxxId to xxx for primitive types (int, long, etc)
-            if (name.EndsWith("Id", StringComparison.OrdinalIgnoreCase))
+            if (type.IsPrimitiveOrEnum() || (Types.IsNullable(type) && type.NullableOf().IsPrimitiveOrEnum()))
             {
-                if (type.IsPrimitiveOrEnum() || (Types.IsNullable(type) && type.NullableOf().IsPrimitiveOrEnum()))
+                if (name.EndsWith("Id", StringComparison.OrdinalIgnoreCase))
                     names.Add(name.Substring(0, name.Length - 2));
+                else
+                    names.Add(name + "Id");
             }
 
             // see if we need to replace underscores
