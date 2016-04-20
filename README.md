@@ -78,9 +78,9 @@ ILookup<int, Order> list = connection.QueryLookup<int, Order>("select * from dbo
 * `ReadDictinary<TKey,TValue>(Func<TKey,TValue> keyFunc)` for reading all records into a `Dictinary<TKey,TValue>` using the supplied function to get work out the key.  Note that the key must be unique.
 * `ReadLookup<TKey,TValue>(Func<TKey,TValue> keyFunc)` for reading all records into a `ILookup<TKey,TValue>` using the supplied function to get work out the key.  Each key may have multiple values.
 
-### SqlDataReader async methods
+### DbDataReader async methods
 
-Additionally `SqlDataReader` has the same set of methods as `IDataReader` but with `Async` suffix.
+Additional async methods exist for any class that extends `DbDataReader`.
 
 ## IDbCommand methods
 
@@ -94,9 +94,9 @@ For convenience `Mapper` adds the following extension method to `IDbCommand`:
 * `ExecuteDictinary<TKey,TValue>(Func<TKey,TValue> keyFunc)` for exeucting the command and reading all records into a `Dictinary<TKey,TValue>` using the supplied function to get work out the key.  Note that the key must be unique.
 * `ExecuteLookup<TKey,TValue>(Func<TKey,TValue> keyFunc)` for exeucting the command and reading all records into a `ILookup<TKey,TValue>` using the supplied function to get work out the key.  Each key may have multiple values.
 
-### SqlCommand async methods
+### DbCommand Async methods
 
-Additionally `SqlCommand` has the same set of methods as `IDbDataReader` but with `Async` suffix.
+Additional async methods exist for any class that extends `DbCommand`.
 
 ### IDbConnetion methods
 
@@ -108,6 +108,10 @@ For convenience `Mapper` adds the following extension method to `IDbConnection`:
 * `Queryist<T>()` for executing the command and reading all records into a `List<T>`
 * `QueryDictinary<TKey,TValue>(Func<TKey,TValue> keyFunc)` for executing the command and reading all records into a `Dictinary<TKey,TValue>` using the supplied function to get work out the key.  Note that the key must be unique.
 * `QueryLookup<TKey,TValue>(Func<TKey,TValue> keyFunc)` for executing the command and reading all records into a `ILookup<TKey,TValue>` using the supplied function to get work out the key.  Each key may have multiple values.
+
+### DbConnection Async methods
+
+Additional async methods exist for any class that extends `DbConnection`.
 
 ### SqlDataRecord methods
 
