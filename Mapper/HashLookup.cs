@@ -15,11 +15,11 @@ namespace Mapper
     /// </summary>
     public class HashLookup<TKey, TElement> : ILookup<TKey, TElement>
     {
-        private static readonly List<TElement> Empty = new List<TElement>();
-        private readonly IEqualityComparer<TKey> _comparer;
-        private Grouping<TKey, TElement>[] _groupings;
-        private Grouping<TKey, TElement> _lastGrouping;
-        private int _count;
+        static readonly List<TElement> Empty = new List<TElement>();
+        readonly IEqualityComparer<TKey> _comparer;
+        Grouping<TKey, TElement>[] _groupings;
+        Grouping<TKey, TElement> _lastGrouping;
+        int _count;
 
         public HashLookup(IEqualityComparer<TKey> comparer = null)
         {
@@ -112,16 +112,9 @@ namespace Mapper
             }
         }
 
-        IEnumerator IEnumerable.GetEnumerator()
-        {
-            return GetEnumerator();
-        }
+        IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 
-        internal int InternalGetHashCode(TKey key)
-        {
-            // Handle comparer implementations that throw when passed null
-            return (key == null) ? 0 : _comparer.GetHashCode(key) & 0x7FFFFFFF;
-        }
+        internal int InternalGetHashCode(TKey key) => _comparer.GetHashCode(key) & 0x7FFFFFFF;
 
         internal Grouping<TKey, TElement> GetOrAddGrouping(TKey key)
         {
@@ -130,9 +123,9 @@ namespace Mapper
             return grouping ?? AddGrouping(key, hashCode);
         }
 
-        private Grouping<TKey, TElement> FindGrouping(TKey key, int hashCode)
+        Grouping<TKey, TElement> FindGrouping(TKey key, int hashCode)
         {
-            for (Grouping<TKey, TElement> grouping = _groupings[hashCode%_groupings.Length]; grouping != null; grouping = grouping._hashNext)
+            for (Grouping<TKey, TElement> grouping = _groupings[hashCode % _groupings.Length]; grouping != null; grouping = grouping._hashNext)
             {
                 if (grouping._hashCode == hashCode && _comparer.Equals(grouping._key, key))
                 {
@@ -142,14 +135,14 @@ namespace Mapper
             return null;
         }
 
-        private Grouping<TKey, TElement> AddGrouping(TKey key, int hashCode)
+        Grouping<TKey, TElement> AddGrouping(TKey key, int hashCode)
         {
             if (_count == _groupings.Length)
             {
                 Resize();
             }
 
-            int index = hashCode%_groupings.Length;
+            int index = hashCode % _groupings.Length;
             var newGrouping = new Grouping<TKey, TElement>
             {
                 _key = key,
@@ -173,7 +166,7 @@ namespace Mapper
             return newGrouping;
         }
 
-        private void Resize()
+        void Resize()
         {
             int newSize = checked((_count * 2) + 1);
             var newGroupings = new Grouping<TKey, TElement>[newSize];

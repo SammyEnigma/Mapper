@@ -65,10 +65,7 @@ namespace Mapper
             }
         }
 
-        public static bool AreCompatible(Type inType, Type outType)
-        {
-            return inType == outType || CanBeCast(inType, outType);
-        }
+        public static bool AreCompatible(Type inType, Type outType) => inType == outType || CanBeCast(inType, outType);
 
         public static bool CanBeCast(Type inType, Type outType)
         {
@@ -97,7 +94,9 @@ namespace Mapper
             return true;
         }
 
-        public static bool IsNullable(Type type) {
+        public static bool IsNullable(Type type)
+        {
+            Contract.Requires(type != null);
             return type.IsConstructedGenericType && type.GetGenericTypeDefinition() == typeof(Nullable<>);
         }
 
@@ -133,10 +132,7 @@ namespace Mapper
             return map;
         }
 
-        public static Dictionary<string, MemberInfo> ReadablePropertiesAndFields<T>()
-        {
-            return ReadablePropertiesAndFields(typeof(T));
-        }
+        public static Dictionary<string, MemberInfo> ReadablePropertiesAndFields<T>() => ReadablePropertiesAndFields(typeof(T));
 
         public static Dictionary<string, MemberInfo> ReadablePropertiesAndFields(Type typeT)
         {

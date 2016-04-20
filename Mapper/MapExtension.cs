@@ -9,33 +9,21 @@ namespace Mapper
 {
     public static class MapExtension
     {
-        private static readonly MostlyReadDictionary<TypePair, Delegate> MapMethods = new MostlyReadDictionary<TypePair, Delegate>();
+        static readonly MostlyReadDictionary<TypePair, Delegate> MapMethods = new MostlyReadDictionary<TypePair, Delegate>();
 
         /// <summary>Create an output object using the parameter-less constructor and setting public fields and properties</summary>
-        public static T Clone<T>(this T input)
-        {
-            return Map<T, T>(input);
-        }
+        public static T Clone<T>(this T input) => Map<T, T>(input);
 
         /// <summary>Create shallow copies of the <paramref name="input"/> objects using the parameter-less constructor and setting public fields and properties</summary>
-        public static IEnumerable<T> CloneSome<T>(this IEnumerable<T> input)
-        {
-            return MapSome<T,T>(input);
-        }
+        public static IEnumerable<T> CloneSome<T>(this IEnumerable<T> input) => MapSome<T, T>(input);
 
         /// <summary>Create shallow copies of the <paramref name="input"/> objects using the parameter-less constructor and setting public fields and properties</summary>
         /// <remarks><paramref name="extraAction"/> can be used to set additional values on each cloned objects</remarks>
-        public static IEnumerable<T> CloneSome<T>(this IEnumerable<T> input, Action<T,T> extraAction)
-        {
-            return MapSome(input, extraAction);
-        }
+        public static IEnumerable<T> CloneSome<T>(this IEnumerable<T> input, Action<T, T> extraAction) => MapSome(input, extraAction);
 
         /// <summary>Create shallow copies of the <paramref name="input"/> objects using the parameter-less constructor and setting public fields and properties</summary>
         /// <remarks><paramref name="extraAction"/> can be used to set additional values on each cloned objects</remarks>
-        public static IEnumerable<T> CloneSome<T>(this IEnumerable<T> input, Action<T,T, int> extraAction)
-        {
-            return MapSome(input, extraAction);
-        }
+        public static IEnumerable<T> CloneSome<T>(this IEnumerable<T> input, Action<T, T, int> extraAction) => MapSome(input, extraAction);
 
         /// <summary>Create an output object and copies all properties and fields where the property name and types match</summary>
         public static TOut Map<TIn, TOut>(this TIn input)
@@ -89,7 +77,7 @@ namespace Mapper
         /// <summary>
         /// Fast copying code that generates a method that does the copy from one type to another
         /// </summary>
-        private static Delegate CreateMapDelegate<TIn, TOut>()
+        static Delegate CreateMapDelegate<TIn, TOut>()
         {
             Contract.Requires(typeof(TOut).GetConstructor(Type.EmptyTypes) != null);
             Contract.Ensures(Contract.Result<Delegate>() != null);
@@ -106,7 +94,7 @@ namespace Mapper
             {
                 var outPF = FindOutPropertyOrField(outByName, inPF);
                 if (outPF == null) continue;
-                
+
                 var outType = Types.PropertyOrFieldType(outPF);
                 var inType = Types.PropertyOrFieldType(inPF);
                 Expression value = Expression.PropertyOrField(input, inPF.Name);
@@ -125,8 +113,8 @@ namespace Mapper
                     {
                         value = Expression.Convert(Expression.Call(value, inType.GetMethod("GetValueOrDefault", Type.EmptyTypes)), outType);
                     }
-                    else 
-                        continue;                    
+                    else
+                        continue;
                 }
                 lines.Add(Expression.Assign(Expression.PropertyOrField(result, outPF.Name), value));
             }
@@ -135,7 +123,7 @@ namespace Mapper
             return Expression.Lambda<Func<TIn, TOut>>(block, input).Compile();
         }
 
-        private static MemberInfo FindOutPropertyOrField(IDictionary<string, MemberInfo> outByName, MemberInfo inPF)
+        static MemberInfo FindOutPropertyOrField(IDictionary<string, MemberInfo> outByName, MemberInfo inPF)
         {
             Contract.Requires(outByName != null);
             Contract.Requires(inPF != null);
@@ -159,16 +147,9 @@ namespace Mapper
                 Out = @out;
             }
 
-            public bool Equals(TypePair other)
-            {
-                return In == other.In && Out == other.Out;
-            }
+            public bool Equals(TypePair other) => In == other.In && Out == other.Out;
 
-            public override bool Equals(object obj)
-            {
-                if (ReferenceEquals(null, obj)) return false;
-                return obj is TypePair && Equals((TypePair) obj);
-            }
+            public override bool Equals(object obj) => obj is TypePair && Equals((TypePair)obj);
 
             public override int GetHashCode()
             {

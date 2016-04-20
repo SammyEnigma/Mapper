@@ -8,8 +8,8 @@ namespace Mapper
     /// <summary>A dictionary that is mostly read from, hardly ever written too</summary>
     class MostlyReadDictionary<TKey, TValue>
     {
-        private readonly ReaderWriterLockSlim _rwLock = new ReaderWriterLockSlim();
-        private readonly Dictionary<TKey, TValue> _map = new Dictionary<TKey, TValue>();
+        readonly ReaderWriterLockSlim _rwLock = new ReaderWriterLockSlim();
+        readonly Dictionary<TKey, TValue> _map = new Dictionary<TKey, TValue>();
 
         public TValue GetOrAdd(TKey key, Func<TKey, TValue> addFunc)
         {

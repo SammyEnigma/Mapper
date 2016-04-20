@@ -2,18 +2,31 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.Data;
-using System.Data.SqlClient;
 using System.Diagnostics.Contracts;
 using System.Linq.Expressions;
 using System.Reflection;
 using System.Threading.Tasks;
 using Microsoft.SqlServer.Server;
+using System.Data.Common;
+using System.Data.SqlClient;
 
 namespace Mapper
 {
     public static class DbCommandExtensions
     {
-        private static readonly MostlyReadDictionary<Type, Delegate> Methods = new MostlyReadDictionary<Type, Delegate>();
+        static readonly MostlyReadDictionary<Type, Delegate> Methods = new MostlyReadDictionary<Type, Delegate>();
+
+        public static T ExecuteScalar<T>(this IDbCommand cmd)
+        {
+            Contract.Requires(cmd != null);
+            return (T)cmd.ExecuteScalar();
+        }
+
+        public static async Task<T> ExecuteScalarAsync<T>(this DbCommand cmd)
+        {
+            Contract.Requires(cmd != null);
+            return (T)await cmd.ExecuteScalarAsync();
+        }
 
         /// <summary>Executes the <paramref name="cmd"/> reading exactly one item</summary>
         /// <exception cref="InvalidOperationException"> when zero values read or more than one value can be read</exception>
@@ -29,7 +42,7 @@ namespace Mapper
 
         /// <summary>Executes the <paramref name="cmd"/> reading exactly one item</summary>
         /// <exception cref="InvalidOperationException"> when zero values read or more than one value can be read</exception>
-        public static async Task<T> ExecuteSingleAsync<T>(this SqlCommand cmd)
+        public static async Task<T> ExecuteSingleAsync<T>(this DbCommand cmd)
         {
             Contract.Requires(cmd != null);
             Contract.Ensures(Contract.Result<T>() != null);
@@ -52,7 +65,7 @@ namespace Mapper
 
         /// <summary>Executes the <paramref name="cmd"/> reading one item</summary>
         /// <remarks>Returns the default vaue of T if no values be read, i.e may return null</remarks>
-        public static async Task<T> ExecuteSingleOrDefaultAsync<T>(this SqlCommand cmd)
+        public static async Task<T> ExecuteSingleOrDefaultAsync<T>(this DbCommand cmd)
         {
             Contract.Requires(cmd != null);
             using (var reader = await cmd.ExecuteReaderAsync(CommandBehavior.SingleRow))
@@ -73,7 +86,7 @@ namespace Mapper
         }
 
         /// <summary>Executes the <paramref name="cmd"/> and reads all the records into a list</summary>
-        public static async Task<List<T>> ExecuteListAsync<T>(this SqlCommand cmd)
+        public static async Task<List<T>> ExecuteListAsync<T>(this DbCommand cmd)
         {
             Contract.Requires(cmd != null);
             Contract.Ensures(Contract.Result<List<T>>() != null);
@@ -96,7 +109,7 @@ namespace Mapper
         }
 
         /// <summary>Executes the <paramref name="cmd"/> and reads all the records into a dictionary, using the supplied <paramref name="keyFunc"/> to generate the key</summary>
-        public static async Task<Dictionary<TKey, TValue>> ExecuteDictionaryAsync<TKey, TValue>(this SqlCommand cmd, Func<TValue, TKey> keyFunc)
+        public static async Task<Dictionary<TKey, TValue>> ExecuteDictionaryAsync<TKey, TValue>(this DbCommand cmd, Func<TValue, TKey> keyFunc)
         {
             Contract.Requires(cmd != null);
             Contract.Requires(keyFunc != null);
@@ -120,7 +133,7 @@ namespace Mapper
         }
 
         /// <summary>Executes the <paramref name="cmd"/> and reads all the records in a lookup, grouped by key, using the supplied <paramref name="keyFunc"/> to generate the key</summary>
-        public static async Task<HashLookup<TKey, TValue>> ExecuteLookupAsync<TKey, TValue>(this SqlCommand cmd, Func<TValue, TKey> keyFunc)
+        public static async Task<HashLookup<TKey, TValue>> ExecuteLookupAsync<TKey, TValue>(this DbCommand cmd, Func<TValue, TKey> keyFunc)
         {
             Contract.Requires(cmd != null);
             Contract.Requires(keyFunc != null);
@@ -141,7 +154,7 @@ namespace Mapper
             return cmd;
         }
 
-        private static Action<IDbCommand, object> CreateAddParametersAction(Type type)
+        static Action<IDbCommand, object> CreateAddParametersAction(Type type)
         {
             var obj = Expression.Parameter(typeof(object), "obj");
             var parameters = Expression.Parameter(type, "parameters");
@@ -165,11 +178,11 @@ namespace Mapper
                         throw new NotSupportedException($"Parameter {dataParam.Name} implements {nameof(IEnumerable<SqlDataRecord>)} but type name is unknown.  Please wrap parameter by calling {nameof(SqlDataRecordExtensions.WithTypeName)}");
 
                     lines.Add(Expression.IfThen(
-                        Expression.Not(Expression.TypeIs(cmd, typeof(SqlCommand))), 
-                        Expression.Throw(Expression.New(typeof(NotSupportedException).GetConstructor(new [] { typeof(string) }), Expression.Constant("Structured parameters are supported only for SqlCommand")))
+                        Expression.Not(Expression.TypeIs(cmd, typeof(DbCommand))),
+                        Expression.Throw(Expression.New(typeof(NotSupportedException).GetConstructor(new[] { typeof(string) }), Expression.Constant("Structured parameters are supported only for SqlCommand")))
                         ));
-                    lines.Add(Expression.Assign(Expression.Property(Expression.Convert(dataParam, typeof (SqlParameter)), "SqlDbType"), Expression.Constant(SqlDbType.Structured)));
-                    lines.Add(Expression.Assign(Expression.Property(Expression.Convert(dataParam, typeof (SqlParameter)), "TypeName"), Expression.Property(Expression.Property(parameters, prop.Name), "TypeName")));
+                    lines.Add(Expression.Assign(Expression.Property(Expression.Convert(dataParam, typeof(SqlParameter)), "SqlDbType"), Expression.Constant(SqlDbType.Structured)));
+                    lines.Add(Expression.Assign(Expression.Property(Expression.Convert(dataParam, typeof(SqlParameter)), "TypeName"), Expression.Property(Expression.Property(parameters, prop.Name), "TypeName")));
                 }
                 else if (propertyType.IsEnum)
                 {
@@ -184,7 +197,7 @@ namespace Mapper
                 {
                     lines.Add(Expression.IfThenElse(
                         Expression.Equal(Expression.Property(parameters, prop.Name), Expression.Constant(null)),
-                        Expression.Assign(Expression.Property(dataParam, "Value"), Expression.Convert(Expression.Field(null, typeof (DBNull), "Value"), typeof (object))),
+                        Expression.Assign(Expression.Property(dataParam, "Value"), Expression.Convert(Expression.Field(null, typeof(DBNull), "Value"), typeof(object))),
                         Expression.Assign(Expression.Property(dataParam, "Value"), PropertyValue(parameters, prop))
                         ));
                 }
@@ -193,18 +206,18 @@ namespace Mapper
                     lines.Add(Expression.Assign(Expression.Property(dataParam, "Value"), PropertyValue(parameters, prop)));
                 }
 
-                lines.Add(Expression.Call(Expression.Property(cmd, "Parameters"), typeof(IList).GetMethod("Add", new [] {typeof(object)}), dataParam));
+                lines.Add(Expression.Call(Expression.Property(cmd, "Parameters"), typeof(IList).GetMethod("Add", new[] { typeof(object) }), dataParam));
             }
             var block = Expression.Block(new[] { dataParam, parameters }, lines);
             return Expression.Lambda<Action<IDbCommand, object>>(block, cmd, obj).Compile();
         }
 
-        private static bool IsSupportedType(Type propertyType)
+        static bool IsSupportedType(Type propertyType)
         {
             return Types.IsStructured(propertyType) || Types.TypeToDbType.ContainsKey(propertyType) || propertyType.IsEnum;
         }
 
-        private static UnaryExpression PropertyValue(ParameterExpression obj, PropertyInfo prop)
+        static UnaryExpression PropertyValue(ParameterExpression obj, PropertyInfo prop)
         {
             Expression value = Expression.Property(obj, prop.Name);
             if (prop.PropertyType.IsEnum)

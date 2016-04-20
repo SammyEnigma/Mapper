@@ -11,7 +11,7 @@ namespace Mapper
 {
     public static class SqlDataRecordExtensions
     {
-        private static readonly MostlyReadDictionary<TypeAndMetaData, Delegate> Methods = new MostlyReadDictionary<TypeAndMetaData, Delegate>();
+        static readonly MostlyReadDictionary<TypeAndMetaData, Delegate> Methods = new MostlyReadDictionary<TypeAndMetaData, Delegate>();
 
         /// <summary>
         /// Converts a sequence of <paramref name="items"/> into a sequence of <see cref="SqlDataRecord"/> using the supplied <paramref name="metaData"/>
@@ -58,7 +58,7 @@ namespace Mapper
             return new TableType(tableTypeName, Records(items, metaData, map, extraAction));
         }
 
-        private static IEnumerable<SqlDataRecord> Records<T>(IEnumerable<T> items, SqlMetaData[] metaData, Func<SqlMetaData[], T, SqlDataRecord> map, Action<SqlDataRecord, T> extraAction)
+        static IEnumerable<SqlDataRecord> Records<T>(IEnumerable<T> items, SqlMetaData[] metaData, Func<SqlMetaData[], T, SqlDataRecord> map, Action<SqlDataRecord, T> extraAction)
         {
             foreach (var item in items)
             {
@@ -85,7 +85,7 @@ namespace Mapper
             return new TableType(tableTypeName, Records(items, metaData, map, extraAction));
         }
 
-        private static IEnumerable<SqlDataRecord> Records<T>(IEnumerable<T> items, SqlMetaData[] metaData, Func<SqlMetaData[], T, SqlDataRecord> map, Action<SqlDataRecord, T, int> extraAction)
+        static IEnumerable<SqlDataRecord> Records<T>(IEnumerable<T> items, SqlMetaData[] metaData, Func<SqlMetaData[], T, SqlDataRecord> map, Action<SqlDataRecord, T, int> extraAction)
         {
             int i = 0;
             foreach (var item in items)
@@ -97,9 +97,7 @@ namespace Mapper
             }
         }
 
-        /// <summary>
-        /// Used to add the SQL Server Table Type name to a parameter
-        /// </summary>
+        /// <summary>Used to add the SQL Server Table Type name to a parameter</summary>
         public static TableType WithTypeName(this IEnumerable<SqlDataRecord> records, string typeName)
         {
             Contract.Requires(records != null);
@@ -108,17 +106,14 @@ namespace Mapper
             return new TableType(typeName, records);
         }
 
-        private static Delegate GetOrAddFunc(TypeAndMetaData key, Type typeT)
-        {
-            return Methods.GetOrAdd(key, data => CreateMappingFunc(typeT, data.MetaData));
-        }
+        static Delegate GetOrAddFunc(TypeAndMetaData key, Type typeT) => Methods.GetOrAdd(key, data => CreateMappingFunc(typeT, data.MetaData));
 
-        private static Delegate CreateMappingFunc(Type typeT, SqlMetaData[] metaData)
+        static Delegate CreateMappingFunc(Type typeT, SqlMetaData[] metaData)
         {
-            var result = Expression.Parameter(typeof (SqlDataRecord), "rec");
-            var metaDataParam = Expression.Parameter(typeof (SqlMetaData[]), "metaData");
+            var result = Expression.Parameter(typeof(SqlDataRecord), "rec");
+            var metaDataParam = Expression.Parameter(typeof(SqlMetaData[]), "metaData");
             var item = Expression.Parameter(typeT, "item");
-            var constructorInfo = typeof (SqlDataRecord).GetConstructor(new[] {typeof (SqlMetaData[])});
+            var constructorInfo = typeof(SqlDataRecord).GetConstructor(new[] { typeof(SqlMetaData[]) });
             var lines = new List<Expression>
             {
                 Expression.Assign(result, Expression.New(constructorInfo, metaDataParam))
@@ -153,12 +148,12 @@ namespace Mapper
                 }
             }
             lines.Add(result);
-            var block = Expression.Block(new[] {result}, lines);
+            var block = Expression.Block(new[] { result }, lines);
             var func = typeof(Func<,,>).MakeGenericType(typeof(SqlMetaData[]), typeT, typeof(SqlDataRecord));
             return Expression.Lambda(func, block, metaDataParam, item).Compile();
         }
 
-        private static MemberInfo FindMember(SqlMetaData col, Type colType, IDictionary<string, MemberInfo> propertiesAndFields)
+        static MemberInfo FindMember(SqlMetaData col, Type colType, IDictionary<string, MemberInfo> propertiesAndFields)
         {
             foreach (var name in Names.CandidateNames(col.Name, colType))
             {
@@ -169,7 +164,7 @@ namespace Mapper
             return null;
         }
 
-        private static MethodCallExpression SetValue(ParameterExpression result, Type colType, int ordinal, ParameterExpression item, MemberInfo member)
+        static MethodCallExpression SetValue(ParameterExpression result, Type colType, int ordinal, ParameterExpression item, MemberInfo member)
         {
             var inType = Types.PropertyOrFieldType(member);
             Expression value = Expression.PropertyOrField(item, member.Name);
@@ -198,15 +193,15 @@ namespace Mapper
             return Expression.Call(result, setMethod, Expression.Constant(ordinal), value);
         }
 
-        private static string SetMethodName(Type colType)
+        static string SetMethodName(Type colType)
         {
             if (Types.IsNullable(colType)) colType = colType.GetGenericArguments()[0];
-            if (colType == typeof(Single)) return "SetFloat";
+            if (colType == typeof(float)) return "SetFloat";
             return "Set" + colType.Name;
         }
     }
 
-    internal struct TypeAndMetaData : IEquatable<TypeAndMetaData>
+    struct TypeAndMetaData : IEquatable<TypeAndMetaData>
     {
         public readonly Type Type;
         public readonly SqlMetaData[] MetaData;
@@ -232,24 +227,22 @@ namespace Mapper
             return true;
         }
 
-        public override bool Equals(object obj)
-        {
-            if (ReferenceEquals(null, obj)) return false;
-            return obj is TypeAndMetaData && Equals((TypeAndMetaData) obj);
-        }
+        public override bool Equals(object obj) => obj is TypeAndMetaData && Equals((TypeAndMetaData)obj);
 
         public override int GetHashCode()
         {
             unchecked
             {
-                return ((Type?.GetHashCode() ?? 0)*397) ^ MetaData.Length;
+                return (Type.GetHashCode() *397) ^ MetaData.Length;
             }
         }
     }
 
     public class TableType : IEnumerable<SqlDataRecord>
     {
+        /// <summary>The name of the SQL Server table type</summary>
         public string TypeName { get; }
+
         public IEnumerable<SqlDataRecord> Records { get; }
 
         public TableType(string typeName, IEnumerable<SqlDataRecord> records)
@@ -260,15 +253,10 @@ namespace Mapper
             Records = records;
         }
 
-        public IEnumerator<SqlDataRecord> GetEnumerator()
-        {
-            return Records.GetEnumerator();
-        }
+        /// <summary>Returns an enumerator that iterates through the collection.</summary>
+        public IEnumerator<SqlDataRecord> GetEnumerator() => Records.GetEnumerator();
 
-        IEnumerator IEnumerable.GetEnumerator()
-        {
-            return ((IEnumerable)Records).GetEnumerator();
-        }
+        IEnumerator IEnumerable.GetEnumerator() => ((IEnumerable)Records).GetEnumerator();
     }
 
 }
