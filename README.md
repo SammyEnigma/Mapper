@@ -1,7 +1,7 @@
 # mapper
 .NET composable mapping library for objects and data (System.Data).
 
-Sort of a replacement for Dapper (150K) and Automapper (350K) but `Mapper` is *much smaller* at less than 70K.
+Sort of a replacement for Dapper (150K) and Automapper (350K) but `Mapper` is *much smaller* at around than 75K.
 
 Performance is "good" as `Mapper` uses the DLR to create and JIT compile methods to do the mapping, and these methods are cached.
 
@@ -57,12 +57,12 @@ List<Order> list = connection.QueryList<Order>("select * from dbo.[Order] where 
 
 Select a dictionary keyed by the primary key:
 ```
-Dictionary<int, Order> list = connection.QueryDictionary<int, Order>("select * from dbo.[Order] where status = @Status", new { Status = 1 }, order => order.Id);
+Dictionary<int, Order> byId = connection.QueryDictionary<int, Order>("select * from dbo.[Order] where status = @Status", new { Status = 1 }, order => order.Id);
 ```
 
 Select a key to multiple value `ILookup`:
 ```
-ILookup<int, Order> list = connection.QueryLookup<int, Order>("select * from dbo.[Order] where order_date > @OrderDate", new { OrderDate = new DateTime(2016, 8, 1) }, order => order.Status);
+HasLookup<int, Order> byStatus = connection.QueryLookup<int, Order>("select * from dbo.[Order] where order_date > @OrderDate", new { OrderDate = new DateTime(2016, 8, 1) }, order => order.Status);
 ```
 
 ## Data Composability
@@ -91,7 +91,7 @@ For convenience `Mapper` adds the following extension method to `System.Data.Com
 * `ExecuteSingleOrDefault<T>()` for exeucting the command and reading zero or one rows
 * `ExecuteList<T>()` for exeucting the command and reading all records into a `List<T>`
 * `ExecuteDictinary<TKey,TValue>(Func<TKey,TValue> keyFunc)` for exeucting the command and reading all records into a `Dictinary<TKey,TValue>` using the supplied function to get work out the key.  Note that the key must be unique.
-* `ExecuteLookup<TKey,TValue>(Func<TKey,TValue> keyFunc)` for exeucting the command and reading all records into a `ILookup<TKey,TValue>` using the supplied function to get work out the key.  Each key may have multiple values.
+* `ExecuteLookup<TKey,TValue>(Func<TKey,TValue> keyFunc)` for exeucting the command and reading all records into a `HashLookup<TKey,TValue>` using the supplied function to get work out the key.  Each key may have multiple values.
 * `ExecuteScalar<T>()` for exeucting the command and reading the first value of the first row
 
 Additional `...Async` methods exist for executing commands using tasks.
@@ -103,7 +103,7 @@ For convenience `Mapper` adds the following extension method to `System.Data.Com
 * `ExecuteNonQuery(string sql, object parameters)` for executing database commands that do not return result sets
 * `QuerySingle<T>()` for executing the command and reading exactly one row
 * `QuerySingleOrDefault<T>()` for executing the command and reading zero or one rows
-* `Queryist<T>()` for executing the command and reading all records into a `List<T>`
+* `QueryList<T>()` for executing the command and reading all records into a `List<T>`
 * `QueryDictinary<TKey,TValue>(Func<TKey,TValue> keyFunc)` for executing the command and reading all records into a `Dictinary<TKey,TValue>` using the supplied function to get work out the key.  Note that the key must be unique.
 * `QueryLookup<TKey,TValue>(Func<TKey,TValue> keyFunc)` for executing the command and reading all records into a `ILookup<TKey,TValue>` using the supplied function to get work out the key.  Each key may have multiple values.
 * `QueryScalar<T>()` for exeucting the command and reading the first value of the first row
