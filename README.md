@@ -60,7 +60,7 @@ Select a dictionary keyed by the primary key:
 Dictionary<int, Order> byId = connection.QueryDictionary<int, Order>("select * from dbo.[Order] where status = @Status", new { Status = 1 }, order => order.Id);
 ```
 
-Select a key to multiple value `ILookup`:
+Select a key to multiple value `HashLookup`:
 ```
 HasLookup<int, Order> byStatus = connection.QueryLookup<int, Order>("select * from dbo.[Order] where order_date > @OrderDate", new { OrderDate = new DateTime(2016, 8, 1) }, order => order.Status);
 ```
@@ -76,7 +76,7 @@ HasLookup<int, Order> byStatus = connection.QueryLookup<int, Order>("select * fr
 * `ReadSingleOrDefault<T>()` for reading zero or one rows
 * `ReadList<T>()` for reading all records into a `List<T>`
 * `ReadDictinary<TKey,TValue>(Func<TKey,TValue> keyFunc)` for reading all records into a `Dictinary<TKey,TValue>` using the supplied function to get work out the key.  Note that the key must be unique.
-* `ReadLookup<TKey,TValue>(Func<TKey,TValue> keyFunc)` for reading all records into a `ILookup<TKey,TValue>` using the supplied function to get work out the key.  Each key may have multiple values.
+* `ReadLookup<TKey,TValue>(Func<TKey,TValue> keyFunc)` for reading all records into a `HashLookup<TKey,TValue>` using the supplied function to get work out the key.  Each key may have multiple values.
 * `ReadScalar<T>()` for reading the first value of the first row
 
 Additional `...Async` methods exist for reading data using tasks.
@@ -105,7 +105,7 @@ For convenience `Mapper` adds the following extension method to `System.Data.Com
 * `QuerySingleOrDefault<T>()` for executing the command and reading zero or one rows
 * `QueryList<T>()` for executing the command and reading all records into a `List<T>`
 * `QueryDictinary<TKey,TValue>(Func<TKey,TValue> keyFunc)` for executing the command and reading all records into a `Dictinary<TKey,TValue>` using the supplied function to get work out the key.  Note that the key must be unique.
-* `QueryLookup<TKey,TValue>(Func<TKey,TValue> keyFunc)` for executing the command and reading all records into a `ILookup<TKey,TValue>` using the supplied function to get work out the key.  Each key may have multiple values.
+* `QueryLookup<TKey,TValue>(Func<TKey,TValue> keyFunc)` for executing the command and reading all records into a `HashLookup<TKey,TValue>` using the supplied function to get work out the key.  Each key may have multiple values.
 * `QueryScalar<T>()` for exeucting the command and reading the first value of the first row
 
 Additional `...Async` methods exist for executing commands using tasks.
