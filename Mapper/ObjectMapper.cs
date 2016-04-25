@@ -39,7 +39,11 @@ namespace Mapper
             foreach (var inPF in inByName.Select(pair => pair.Value))
             {
                 var outPF = FindOutPropertyOrField(outByName, inPF);
-                if (outPF == null) continue;
+                if (outPF == null)
+                {
+                    _trace.OnNext($"Can't find the output property (or field) for {inPF.DeclaringType}.{inPF.Name} on type {typeof(TOut)}");
+                    continue;
+                }
 
                 var outType = Types.PropertyOrFieldType(outPF);
                 var inType = Types.PropertyOrFieldType(inPF);
@@ -61,7 +65,7 @@ namespace Mapper
                     }
                     else
                     {
-                        _trace.OnNext($"Don't know how to map {inPF.DeclaringType}.{inPF.Name} to type {typeof(TOut)}");
+                        _trace.OnNext($"Trying to map {inPF.DeclaringType}.{inPF.Name} to {typeof(TOut)}.{outPF.Name} but don't know how to map {inType} to {outType}");
                         continue;
                     }
                 }
