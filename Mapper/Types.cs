@@ -8,10 +8,10 @@ using Microsoft.SqlServer.Server;
 
 namespace Mapper
 {
-    internal static class Types
+    public static class Types
     {
-        public static readonly Dictionary<Type, DbType> TypeToDbType;
-        public static readonly Dictionary<DbType, Type> DBTypeToType;
+        internal static readonly Dictionary<Type, DbType> TypeToDbType;
+        internal static readonly Dictionary<DbType, Type> DBTypeToType;
 
         static Types()
         {
@@ -65,9 +65,11 @@ namespace Mapper
             }
         }
 
-        public static bool AreCompatible(Type inType, Type outType) => inType == outType || CanBeCast(inType, outType);
+        [Pure]
+        internal static bool AreCompatible(Type inType, Type outType) => inType == outType || CanBeCast(inType, outType);
 
-        public static bool CanBeCast(Type inType, Type outType)
+        [Pure]
+        internal static bool CanBeCast(Type inType, Type outType)
         {
             return outType.IsAssignableFrom(inType)
                 || (inType.IsPrimitiveOrEnum() && IsNullable(outType) && outType.GetGenericArguments()[0].IsPrimitiveOrEnum())
@@ -77,7 +79,8 @@ namespace Mapper
                    || (outType.IsPrimitive && inType.IsEnum);
         }
 
-        public static Type PropertyOrFieldType(MemberInfo member)
+        [Pure]
+        internal static Type PropertyOrFieldType(MemberInfo member)
         {
             Contract.Requires(member != null);
             var prop = member as PropertyInfo;
@@ -85,7 +88,8 @@ namespace Mapper
             return ((FieldInfo) member).FieldType;
         }
 
-        public static bool CanBeNull(Type type)
+        [Pure]
+        internal static bool CanBeNull(Type type)
         {
             if (type.IsPrimitive) return false;
             if (IsNullable(type)) return true;
@@ -94,25 +98,36 @@ namespace Mapper
             return true;
         }
 
-        public static bool IsNullable(Type type)
+        [Pure]
+        public static bool CanReadScalar(this Type type)
+        {
+            Contract.Requires(type != null);
+            return TypeToDbType.ContainsKey(type);
+        }
+
+        [Pure]
+        internal static bool IsNullable(this Type type)
         {
             Contract.Requires(type != null);
             return type.IsConstructedGenericType && type.GetGenericTypeDefinition() == typeof(Nullable<>);
         }
 
-        public static bool IsPrimitiveOrEnum(this Type type)
+        [Pure]
+        internal static bool IsPrimitiveOrEnum(this Type type)
         {
             Contract.Requires(type != null);
             return type.IsPrimitive || type.IsEnum;
         }
 
-        public static bool IsStructured(Type type)
+        [Pure]
+        internal static bool IsStructured(Type type)
         {
             Contract.Requires(type != null);            
             return type == typeof(TableType) || typeof(IEnumerable<SqlDataRecord>).IsAssignableFrom(type);
         }
 
-        public static Type NullableOf(this Type type)
+        [Pure]
+        internal static Type NullableOf(this Type type)
         {
             Contract.Requires(type != null);
             Contract.Requires(type.IsGenericType);
@@ -120,7 +135,7 @@ namespace Mapper
             return type.GetGenericArguments()[0];
         }
 
-        public static Dictionary<string, MemberInfo> WritablePropertiesAndFields<T>()
+        internal static Dictionary<string, MemberInfo> WritablePropertiesAndFields<T>()
         {
             var map = typeof (T).GetProperties(BindingFlags.Instance | BindingFlags.Public).Where(p => p.CanWrite)
                 .Cast<MemberInfo>()
@@ -132,9 +147,9 @@ namespace Mapper
             return map;
         }
 
-        public static Dictionary<string, MemberInfo> ReadablePropertiesAndFields<T>() => ReadablePropertiesAndFields(typeof(T));
+        internal static Dictionary<string, MemberInfo> ReadablePropertiesAndFields<T>() => ReadablePropertiesAndFields(typeof(T));
 
-        public static Dictionary<string, MemberInfo> ReadablePropertiesAndFields(Type typeT)
+        internal static Dictionary<string, MemberInfo> ReadablePropertiesAndFields(Type typeT)
         {
             var map = typeT.GetProperties(BindingFlags.Instance | BindingFlags.Public).Where(p => p.CanRead)
                 .Cast<MemberInfo>()

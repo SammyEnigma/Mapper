@@ -70,37 +70,35 @@ ILookup<int, Order> list = connection.QueryLookup<int, Order>("select * from dbo
 `Mapper` has a series of extension methods for ADO.Net types:
 
 ### DbDataReader methods
-`DbDataReader` has the following extension methods:
+`System.Data.Common.DbDataReader` has the following extension methods:
 
 * `ReadSingle<T>()` for reading exactly one row
 * `ReadSingleOrDefault<T>()` for reading zero or one rows
 * `ReadList<T>()` for reading all records into a `List<T>`
 * `ReadDictinary<TKey,TValue>(Func<TKey,TValue> keyFunc)` for reading all records into a `Dictinary<TKey,TValue>` using the supplied function to get work out the key.  Note that the key must be unique.
 * `ReadLookup<TKey,TValue>(Func<TKey,TValue> keyFunc)` for reading all records into a `ILookup<TKey,TValue>` using the supplied function to get work out the key.  Each key may have multiple values.
+* `ReadScalar<T>()` for reading the first value of the first row
 
-### DbDataReader async methods
-
-Additional async methods exist for any class that extends `DbDataReader`.
+Additional `...Async` methods exist for reading data using tasks.
 
 ## DbCommand methods
 
-`Mapper` adds `AddParameters(object parameters)` extension method to `DbCommand`. `AddParameters` will add a `DbDataParameter` to the commands `Parameters` collection for each readable public property (and field) of `parameters`, setting the type and value.
+`Mapper` adds `AddParameters(object parameters)` extension method to `System.Data.Common.DbCommand`. `AddParameters` will add a `DbDataParameter` to the commands `Parameters` collection for each readable public property (and field) of `parameters`, setting the type and value.
 
-For convenience `Mapper` adds the following extension method to `DbCommand`:
+For convenience `Mapper` adds the following extension method to `System.Data.Common.DbCommand`:
 
 * `ExecuteSingle<T>()` for exeucting the command and reading exactly one row
 * `ExecuteSingleOrDefault<T>()` for exeucting the command and reading zero or one rows
 * `ExecuteList<T>()` for exeucting the command and reading all records into a `List<T>`
 * `ExecuteDictinary<TKey,TValue>(Func<TKey,TValue> keyFunc)` for exeucting the command and reading all records into a `Dictinary<TKey,TValue>` using the supplied function to get work out the key.  Note that the key must be unique.
 * `ExecuteLookup<TKey,TValue>(Func<TKey,TValue> keyFunc)` for exeucting the command and reading all records into a `ILookup<TKey,TValue>` using the supplied function to get work out the key.  Each key may have multiple values.
+* `ExecuteScalar<T>()` for exeucting the command and reading the first value of the first row
 
-### DbCommand Async methods
-
-Additional async methods exist for any class that extends `DbCommand`.
+Additional `...Async` methods exist for executing commands using tasks.
 
 ### DbConnetion methods
 
-For convenience `Mapper` adds the following extension method to `DbConnection`:
+For convenience `Mapper` adds the following extension method to `System.Data.Common.DbConnection`:
 
 * `ExecuteNonQuery(string sql, object parameters)` for executing database commands that do not return result sets
 * `QuerySingle<T>()` for executing the command and reading exactly one row
@@ -108,10 +106,9 @@ For convenience `Mapper` adds the following extension method to `DbConnection`:
 * `Queryist<T>()` for executing the command and reading all records into a `List<T>`
 * `QueryDictinary<TKey,TValue>(Func<TKey,TValue> keyFunc)` for executing the command and reading all records into a `Dictinary<TKey,TValue>` using the supplied function to get work out the key.  Note that the key must be unique.
 * `QueryLookup<TKey,TValue>(Func<TKey,TValue> keyFunc)` for executing the command and reading all records into a `ILookup<TKey,TValue>` using the supplied function to get work out the key.  Each key may have multiple values.
+* `QueryScalar<T>()` for exeucting the command and reading the first value of the first row
 
-### DbConnection Async methods
-
-Additional async methods exist for any class that extends `System.Data.Common.DbConnection`.
+Additional `...Async` methods exist for executing commands using tasks.
 
 ### SqlDataRecord methods
 

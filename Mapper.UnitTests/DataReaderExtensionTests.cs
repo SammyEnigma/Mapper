@@ -98,6 +98,31 @@ namespace Mapper.UnitTests
             Assert.IsNotNull(result);
             Assert.AreEqual(1L, result.Id);
         }
+
+
+        [Test, ExpectedException()]
+        public void cannot_read_scalar_via_read_single()
+        {
+            var stubDataReader = new StubDataReader
+            {
+                Names = new[] { "ID" },
+                Types = new[] { typeof(long) },
+                Values = new object[] { 1L },
+            };
+            int val = stubDataReader.ReadSingle<int>();
+        }
+
+        [Test, ExpectedException()]
+        public void cannot_read_scalar_via_read_single_async()
+        {
+            var stubDataReader = new StubDataReader
+            {
+                Names = new[] { "ID" },
+                Types = new[] { typeof(long) },
+                Values = new object[] { 1L },
+            };
+            stubDataReader.ReadSingleAsync<int>();
+        }
     }
 
     class TestPropertyId
