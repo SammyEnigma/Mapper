@@ -12,6 +12,6 @@ using System.Runtime.InteropServices;
 [assembly: AssemblyCulture("")]
 [assembly: ComVisible(false)]
 [assembly: AssemblyVersion("1.1.0.0")]
-[assembly: AssemblyFileVersion("1.1.0.3")]
+[assembly: AssemblyFileVersion("1.1.0.4")]
 
 [assembly: InternalsVisibleTo("Mapper.UnitTests")]

@@ -8,9 +8,13 @@ using System.Reflection;
 
 namespace Mapper
 {
-    class DataReaderMapper
+    public class DataReaderMapper
     {
-        readonly MostlyReadDictionary<MetaData, Delegate> Methods = new MostlyReadDictionary<MetaData, Delegate>();
+        static readonly MostlyReadDictionary<MetaData, Delegate> Methods = new MostlyReadDictionary<MetaData, Delegate>();
+
+        static readonly Subject<string> _trace = new Subject<string>();
+
+        public static IObservable<string> Trace => _trace;
 
         internal Delegate GetOrCreateMappingFunc(Type typeT, DbDataReader reader)
         {
@@ -58,7 +62,10 @@ namespace Mapper
             foreach (var member in WriteablePublicFieldsAndProperties(type))
             {
                 var col = bestMatch(member.Name);
-                if (col.Name != null) map.Add(member, col);
+                if (col.Name != null)
+                    map.Add(member, col);
+                else
+                    _trace.OnNext($"Cannot find a column in the data reader for {type}.{member.Name}");
             }
             return map;
         }
@@ -90,9 +97,15 @@ namespace Mapper
             var constructor = type.GetConstructor(Type.EmptyTypes);
             Contract.Assert(constructor != null);
             var lines = new List<Expression> { Expression.Assign(result, Expression.New(constructor)) };
-            lines.AddRange(map
-                .Where(pair => Types.AreCompatible(pair.Value.Type, Types.PropertyOrFieldType(pair.Key)))
-                .Select(pair => AssignDefaultOrValue(reader, pair.Value, pair.Key, result)));
+            foreach (var pair in map)
+            {
+                var member = pair.Key;
+                var col = pair.Value;
+                if (Types.AreCompatible(col.Type, Types.PropertyOrFieldType(member)))
+                    lines.Add(AssignDefaultOrValue(reader, col, member, result));
+                else
+                    _trace.OnNext($"Cannot map column {col.Name} to {type}.{member.Name} as column type {col.Type} is not compatible with {Types.PropertyOrFieldType(member)}");
+            }
             lines.Add(result); // the return value
             return Expression.Block(new[] { result }, lines);
         }
