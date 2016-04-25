@@ -22,8 +22,7 @@ namespace Mapper
             Contract.Requires(metaData != null);
             Contract.Ensures(Contract.Result<IEnumerable<SqlDataRecord>>() != null);
             var key = new TypeAndMetaData(typeof(T), metaData);
-            var typeT = typeof(T);
-            var map = (Func<SqlMetaData[], T, SqlDataRecord>)GetOrAddFunc(key, typeT);
+            var map = (Func<SqlMetaData[], T, SqlDataRecord>)GetOrAddFunc(key, typeof(T));
             return items.Select(item => map(metaData, item));
         }
 
@@ -34,11 +33,10 @@ namespace Mapper
         {
             Contract.Requires(items != null);
             Contract.Requires(metaData != null);
-            Contract.Requires(tableTypeName != null);
+            Contract.Requires(!string.IsNullOrWhiteSpace(tableTypeName));
             Contract.Ensures(Contract.Result<IEnumerable<SqlDataRecord>>() != null);
             var key = new TypeAndMetaData(typeof(T), metaData);
-            var typeT = typeof(T);
-            var map = (Func<SqlMetaData[], T, SqlDataRecord>)GetOrAddFunc(key, typeT);
+            var map = (Func<SqlMetaData[], T, SqlDataRecord>)GetOrAddFunc(key, typeof(T));
             return new TableType(tableTypeName, items.Select(item => map(metaData, item)));
         }
 
@@ -50,15 +48,14 @@ namespace Mapper
         {
             Contract.Requires(items != null);
             Contract.Requires(metaData != null);
-            Contract.Requires(tableTypeName != null);
+            Contract.Requires(!string.IsNullOrWhiteSpace(tableTypeName));
             Contract.Ensures(Contract.Result<IEnumerable<SqlDataRecord>>() != null);
             var key = new TypeAndMetaData(typeof(T), metaData);
-            var typeT = typeof(T);
-            var map = (Func<SqlMetaData[], T, SqlDataRecord>)GetOrAddFunc(key, typeT);
-            return new TableType(tableTypeName, Records(items, metaData, map, extraAction));
+            var map = (Func<SqlMetaData[], T, SqlDataRecord>)GetOrAddFunc(key, typeof(T));
+            return new TableType(tableTypeName, ConvertItemsToRecords(items, metaData, map, extraAction));
         }
 
-        static IEnumerable<SqlDataRecord> Records<T>(IEnumerable<T> items, SqlMetaData[] metaData, Func<SqlMetaData[], T, SqlDataRecord> map, Action<SqlDataRecord, T> extraAction)
+        static IEnumerable<SqlDataRecord> ConvertItemsToRecords<T>(IEnumerable<T> items, SqlMetaData[] metaData, Func<SqlMetaData[], T, SqlDataRecord> map, Action<SqlDataRecord, T> extraAction)
         {
             foreach (var item in items)
             {
@@ -256,7 +253,7 @@ namespace Mapper
         /// <summary>Returns an enumerator that iterates through the collection.</summary>
         public IEnumerator<SqlDataRecord> GetEnumerator() => Records.GetEnumerator();
 
-        IEnumerator IEnumerable.GetEnumerator() => ((IEnumerable)Records).GetEnumerator();
+        IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
     }
 
 }

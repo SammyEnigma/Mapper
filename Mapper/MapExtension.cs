@@ -155,7 +155,7 @@ namespace Mapper
             {
                 unchecked
                 {
-                    return ((In?.GetHashCode() ?? 0)*397) ^ (Out?.GetHashCode() ?? 0);
+                    return (In.GetHashCode()*397) ^ Out.GetHashCode();
                 }
             }            
         }

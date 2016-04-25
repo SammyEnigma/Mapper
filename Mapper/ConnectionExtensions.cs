@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Data;
 using System.Data.Common;
 using System.Diagnostics.Contracts;
-using System.Linq;
 using System.Threading.Tasks;
 
 namespace Mapper
@@ -11,9 +10,9 @@ namespace Mapper
     /// <summary>
     /// Easy to use extension methods that build on the command and data reader extensions 
     /// </summary>
-    public static class ConnectionExtension
+    public static class ConnectionExtensions
     {
-        public static int ExecuteNonQuery(this IDbConnection cnn, string sql, object parameters = null)
+        public static int ExecuteNonQuery(this DbConnection cnn, string sql, object parameters = null)
         {
             CheckConnectionAndSql(cnn, sql);
             using (var cmd = cnn.CreateCommand())
@@ -33,7 +32,7 @@ namespace Mapper
             }
         }
 
-        public static T QueryScalar<T>(this IDbConnection cnn, string sql, object parameters = null)
+        public static T QueryScalar<T>(this DbConnection cnn, string sql, object parameters = null)
         {
             CheckConnectionAndSql(cnn, sql);
             using (var cmd = cnn.CreateCommand())
@@ -54,7 +53,7 @@ namespace Mapper
             }
         }
 
-        public static T QuerySingle<T>(this IDbConnection cnn, string sql, object parameters = null)
+        public static T QuerySingle<T>(this DbConnection cnn, string sql, object parameters = null)
         {
             CheckConnectionAndSql(cnn, sql);
             Contract.Ensures(Contract.Result<T>() != null);
@@ -76,7 +75,7 @@ namespace Mapper
             }
         }
 
-        public static T QuerySingleOrDefault<T>(this IDbConnection cnn, string sql, object parameters = null)
+        public static T QuerySingleOrDefault<T>(this DbConnection cnn, string sql, object parameters = null)
         {
             CheckConnectionAndSql(cnn, sql);
             using (var cmd = cnn.CreateCommand())
@@ -97,7 +96,7 @@ namespace Mapper
         }
 
         /// <summary>Executes a command using the <paramref name="sql"/> and <paramref name="parameters"/> and reads all the records into a list</summary>
-        public static List<T> QueryList<T>(this IDbConnection cnn, string sql, object parameters = null)
+        public static List<T> QueryList<T>(this DbConnection cnn, string sql, object parameters = null)
         {
             CheckConnectionAndSql(cnn, sql);
             Contract.Ensures(Contract.Result<List<T>>() != null);
@@ -122,7 +121,7 @@ namespace Mapper
         }
 
         /// <summary>Executes a command using the <paramref name="sql"/> and reads all the records into a dictionary</summary>
-        public static Dictionary<TKey, TValue> QueryDictionary<TKey, TValue>(this IDbConnection cnn, string sql, Func<TValue, TKey> keyFunc)
+        public static Dictionary<TKey, TValue> QueryDictionary<TKey, TValue>(this DbConnection cnn, string sql, Func<TValue, TKey> keyFunc)
         {
             CheckConnectionAndSql(cnn, sql);
             Contract.Requires(keyFunc != null);
@@ -149,7 +148,7 @@ namespace Mapper
         }
 
         /// <summary>Executes a command using the <paramref name="sql"/> and <paramref name="parameters"/> and reads all the records into a dictionary</summary>
-        public static Dictionary<TKey, TValue> QueryDictionary<TKey, TValue>(this IDbConnection cnn, string sql, object parameters, Func<TValue, TKey> keyFunc)
+        public static Dictionary<TKey, TValue> QueryDictionary<TKey, TValue>(this DbConnection cnn, string sql, object parameters, Func<TValue, TKey> keyFunc)
         {
             CheckConnectionAndSql(cnn, sql);
             Contract.Requires(parameters != null);
@@ -178,11 +177,11 @@ namespace Mapper
         }
 
         /// <summary>Executes a command using the <paramref name="sql"/> and reads all the records into a lookup</summary>
-        public static ILookup<TKey, TValue> QueryLookup<TKey, TValue>(this IDbConnection cnn, string sql, Func<TValue, TKey> keyFunc)
+        public static HashLookup<TKey, TValue> QueryLookup<TKey, TValue>(this DbConnection cnn, string sql, Func<TValue, TKey> keyFunc)
         {
             CheckConnectionAndSql(cnn, sql);
             Contract.Requires(keyFunc != null);
-            Contract.Ensures(Contract.Result<ILookup<TKey, TValue>>() != null);
+            Contract.Ensures(Contract.Result<HashLookup<TKey, TValue>>() != null);
             using (var cmd = cnn.CreateCommand())
             {
                 SetupCommand(cmd, cnn, sql, null);
@@ -191,12 +190,12 @@ namespace Mapper
         }
 
         /// <summary>Executes a command using the <paramref name="sql"/> and <paramref name="parameters"/> and reads all the records into a lookup</summary>
-        public static ILookup<TKey, TValue> QueryLookup<TKey, TValue>(this IDbConnection cnn, string sql, object parameters, Func<TValue, TKey> keyFunc)
+        public static HashLookup<TKey, TValue> QueryLookup<TKey, TValue>(this DbConnection cnn, string sql, object parameters, Func<TValue, TKey> keyFunc)
         {
             CheckConnectionAndSql(cnn, sql);
             Contract.Requires(parameters != null);
             Contract.Requires(keyFunc != null);
-            Contract.Ensures(Contract.Result<ILookup<TKey, TValue>>() != null);
+            Contract.Ensures(Contract.Result<HashLookup<TKey, TValue>>() != null);
             using (var cmd = cnn.CreateCommand())
             {
                 SetupCommand(cmd, cnn, sql, parameters);
@@ -234,14 +233,14 @@ namespace Mapper
         }
 
         [ContractAbbreviator]
-        static void CheckConnectionAndSql(IDbConnection cnn, string sql)
+        static void CheckConnectionAndSql(DbConnection cnn, string sql)
         {
             Contract.Requires(cnn != null);
             Contract.Requires(cnn.State == ConnectionState.Open);
             Contract.Requires(!string.IsNullOrWhiteSpace(sql));
         }
 
-        static void SetupCommand(IDbCommand cmd, IDbConnection cnn, string sql, object parameters)
+        static void SetupCommand(DbCommand cmd, DbConnection cnn, string sql, object parameters)
         {
             cmd.Connection = cnn;
             cmd.CommandText = sql;

@@ -229,12 +229,14 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="CommandParameterMapper.cs" />
+    <Compile Include="DataReaderMapper.cs" />
     <Compile Include="Grouping.cs" />
     <Compile Include="HashLookup.cs" />
     <Compile Include="Names.cs" />
     <Compile Include="SqlDataRecordExtensions.cs" />
-    <Compile Include="CommandExtension.cs" />
-    <Compile Include="ConnectionExtension.cs" />
+    <Compile Include="CommandExtensions.cs" />
+    <Compile Include="ConnectionExtensions.cs" />
     <Compile Include="MapExtension.cs" />
     <Compile Include="DataReaderExtensions.cs" />
     <Compile Include="MostlyReadDictionary.cs" />
