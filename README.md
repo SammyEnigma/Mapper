@@ -69,8 +69,8 @@ ILookup<int, Order> list = connection.QueryLookup<int, Order>("select * from dbo
 
 `Mapper` has a series of extension methods for ADO.Net types:
 
-### IDataReader methods
-`IDataReader` has the following extension methods:
+### DbDataReader methods
+`DbDataReader` has the following extension methods:
 
 * `ReadSingle<T>()` for reading exactly one row
 * `ReadSingleOrDefault<T>()` for reading zero or one rows
@@ -82,11 +82,11 @@ ILookup<int, Order> list = connection.QueryLookup<int, Order>("select * from dbo
 
 Additional async methods exist for any class that extends `DbDataReader`.
 
-## IDbCommand methods
+## DbCommand methods
 
-`Mapper` adds `AddParameters(object parameters)` extension method to `IDbCommand`. `AddParameters` will add a `IDataParameter` to the commands `Parameters` collection for each readable public property (and field) of `parameters`, setting the type and value.
+`Mapper` adds `AddParameters(object parameters)` extension method to `DbCommand`. `AddParameters` will add a `DbDataParameter` to the commands `Parameters` collection for each readable public property (and field) of `parameters`, setting the type and value.
 
-For convenience `Mapper` adds the following extension method to `IDbCommand`:
+For convenience `Mapper` adds the following extension method to `DbCommand`:
 
 * `ExecuteSingle<T>()` for exeucting the command and reading exactly one row
 * `ExecuteSingleOrDefault<T>()` for exeucting the command and reading zero or one rows
@@ -98,9 +98,9 @@ For convenience `Mapper` adds the following extension method to `IDbCommand`:
 
 Additional async methods exist for any class that extends `DbCommand`.
 
-### IDbConnetion methods
+### DbConnetion methods
 
-For convenience `Mapper` adds the following extension method to `IDbConnection`:
+For convenience `Mapper` adds the following extension method to `DbConnection`:
 
 * `ExecuteNonQuery(string sql, object parameters)` for executing database commands that do not return result sets
 * `QuerySingle<T>()` for executing the command and reading exactly one row
@@ -111,7 +111,7 @@ For convenience `Mapper` adds the following extension method to `IDbConnection`:
 
 ### DbConnection Async methods
 
-Additional async methods exist for any class that extends `DbConnection`.
+Additional async methods exist for any class that extends `System.Data.Common.DbConnection`.
 
 ### SqlDataRecord methods
 
