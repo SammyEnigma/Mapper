@@ -44,12 +44,46 @@ namespace Mapper
             Contract.Requires(typeT != null);
             Contract.Ensures(Contract.Result<Delegate>() != null);
 
+            if (typeT.IsPrimitiveOrEnum() || typeT.IsNullable())
+            {
+                return CreatePrimativeMapFunc(typeT, columns);
+            }
+
             var map = CreateMemberToColumnMap(columns, typeT);
             var readerParam = Expression.Parameter(typeof(DbDataReader), "reader");
             var resultParam = Expression.Parameter(typeT, "result");
             var block = CreateMapBlock(typeT, map, readerParam, resultParam);
             var func = typeof(Func<,>).MakeGenericType(new[] { typeof(DbDataReader), typeT });
             return Expression.Lambda(func, block, new[] { readerParam }).Compile();
+        }
+
+        static Delegate CreatePrimativeMapFunc(Type typeT, IReadOnlyCollection<Column> columns)
+        {
+            Contract.Requires(typeT != null);
+            Contract.Requires(columns != null);
+            Contract.Requires(columns.Count > 0);
+
+            var col0 = columns.First();
+            if (!Types.AreCompatible(col0.Type, typeT))
+                _trace.OnNext($"Cannot map column {col0.Name} to {typeT} as column type {col0.Type} is not compatible");
+
+            var readerParam = Expression.Parameter(typeof(DbDataReader), "reader");
+            var resultParam = Expression.Parameter(typeT, "result");
+
+            var getMethod = DataReaderGetMethod(typeT);
+            Expression value = Expression.Call(readerParam, getMethod, Expression.Constant(0));
+            if (col0.Type != typeT)
+            {
+                value = Expression.Convert(value, typeT);
+            }
+
+            var body = Expression.Condition(
+                Expression.IsTrue(Expression.Call(readerParam, typeof(DbDataReader).GetMethod("IsDBNull", new[] { typeof(int) }), Expression.Constant(0))),
+                Expression.Default(typeT),
+                value);
+
+            var func = typeof(Func<,>).MakeGenericType(new[] { typeof(DbDataReader), typeT });
+            return Expression.Lambda(func, body, new[] { readerParam }).Compile();
         }
 
         internal static Dictionary<MemberInfo, Column> CreateMemberToColumnMap(IReadOnlyCollection<Column> columns, Type type)

@@ -100,28 +100,28 @@ namespace Mapper.UnitTests
         }
 
 
-        [Test, ExpectedException()]
+        [Test]
         public void cannot_read_scalar_via_read_single()
         {
             var stubDataReader = new StubDataReader
             {
                 Names = new[] { "ID" },
                 Types = new[] { typeof(long) },
-                Values = new object[] { 1L },
+                Values = new object[] { 1 },
             };
             int val = stubDataReader.ReadSingle<int>();
         }
 
-        [Test, ExpectedException()]
-        public void cannot_read_scalar_via_read_single_async()
+        [Test]
+        public async Task cannot_read_scalar_via_read_single_async()
         {
             var stubDataReader = new StubDataReader
             {
                 Names = new[] { "ID" },
                 Types = new[] { typeof(long) },
-                Values = new object[] { 1L },
+                Values = new object[] { 1 },
             };
-            stubDataReader.ReadSingleAsync<int>();
+            await stubDataReader.ReadSingleAsync<int>();
         }
     }
 

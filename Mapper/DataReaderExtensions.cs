@@ -13,7 +13,6 @@ namespace Mapper
         internal static Func<DbDataReader, T> GetMappingFunc<T>(DbDataReader reader)
         {
             Contract.Requires(reader != null);
-            Contract.Requires(!typeof(T).IsPrimitiveOrEnum() && !typeof(T).IsNullable(), "Please use DbCommandExtensions.ExecuteScalar<T>() method for reading single values");
             Delegate func = _mapper.GetOrCreateMappingFunc(typeof(T), reader);
             return (Func<DbDataReader, T>)func;
         }
@@ -24,7 +23,6 @@ namespace Mapper
         {
             Contract.Requires(reader != null);
             Contract.Requires(reader.IsClosed == false);
-            Contract.Requires(!typeof(T).CanReadScalar(), "Please use DbCommandExtensions.ExecuteScalar<T>() method for reading single values");
             Contract.Ensures(Contract.Result<T>() != null);
             if (!reader.Read()) throw new InvalidOperationException("Expected one value to be read but reader is empty");
             var map = GetMappingFunc<T>(reader);
@@ -39,7 +37,6 @@ namespace Mapper
         {
             Contract.Requires(reader != null);
             Contract.Requires(reader.IsClosed == false);
-            Contract.Requires(!typeof(T).CanReadScalar(), "Please use DbCommandExtensions.ExecuteScalarAsync<T>() method for reading single values");
             Contract.Ensures(Contract.Result<Task<T>>() != null);
             if (!await reader.ReadAsync()) throw new InvalidOperationException("Expected one value to be read but reader is empty");
             var map = GetMappingFunc<T>(reader);

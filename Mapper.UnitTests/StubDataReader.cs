@@ -9,6 +9,7 @@ namespace Mapper.UnitTests
         public string[] Names;
         public Type[] Types;
         public object[] Values;
+        bool read;
 
         public override string GetName(int i) => Names[i];
         public override Type GetFieldType(int i) => Types[i];
@@ -84,7 +85,12 @@ namespace Mapper.UnitTests
 
         public override bool Read()
         {
-            throw new NotImplementedException();
+            if (!read)
+            {
+                read = true;
+                return true;
+            }
+            return false;
         }
 
         public override int FieldCount => Names.Length;
