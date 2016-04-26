@@ -47,7 +47,6 @@ namespace Mapper
         public static T ExecuteSingle<T>(this DbCommand cmd)
         {
             Contract.Requires(cmd != null);
-            Contract.Requires(!typeof(T).CanReadScalar(), "Please use the ExecuteScalar<T>() extension method for reading single values");
             using (var reader = cmd.ExecuteReader(CommandBehavior.SingleRow))
             {
                 return reader.ReadSingle<T>();
@@ -59,7 +58,6 @@ namespace Mapper
         public static async Task<T> ExecuteSingleAsync<T>(this DbCommand cmd)
         {
             Contract.Requires(cmd != null);
-            Contract.Requires(!typeof(T).CanReadScalar(), "Please use the ExecuteScalarAsync<T>() extension method for reading single values");
             Contract.Ensures(Contract.Result<Task<T>>() != null);
             using (var reader = await cmd.ExecuteReaderAsync(CommandBehavior.SingleRow))
             {

@@ -56,7 +56,6 @@ namespace Mapper
         public static T QuerySingle<T>(this DbConnection cnn, string sql, object parameters = null)
         {
             CheckConnectionAndSql(cnn, sql);
-            Contract.Requires(!typeof(T).CanReadScalar(), "Please use the QueryScalar<T>() extension method for reading single values");
             Contract.Ensures(Contract.Result<T>() != null);
             using (var cmd = cnn.CreateCommand())
             {
@@ -68,7 +67,6 @@ namespace Mapper
         public static Task<T> QuerySingleAsync<T>(this DbConnection cnn, string sql, object parameters = null)
         {
             CheckConnectionAndSql(cnn, sql);
-            Contract.Requires(!typeof(T).CanReadScalar(), "Please use the QueryScalarAsync<T>() extension method for reading single values");
             Contract.Ensures(Contract.Result<Task<T>>() != null);
             using (var cmd = cnn.CreateCommand())
             {

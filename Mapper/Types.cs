@@ -8,7 +8,7 @@ using Microsoft.SqlServer.Server;
 
 namespace Mapper
 {
-    public static class Types
+    static class Types
     {
         internal static readonly Dictionary<Type, DbType> TypeToDbType;
         internal static readonly Dictionary<DbType, Type> DBTypeToType;
@@ -96,13 +96,6 @@ namespace Mapper
             if (type.IsEnum) return false;
             if (!type.IsClass) return false;
             return true;
-        }
-
-        [Pure]
-        public static bool CanReadScalar(this Type type)
-        {
-            Contract.Requires(type != null);
-            return TypeToDbType.ContainsKey(type);
         }
 
         [Pure]
