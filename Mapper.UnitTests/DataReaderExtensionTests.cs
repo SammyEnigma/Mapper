@@ -101,25 +101,62 @@ namespace Mapper.UnitTests
 
 
         [Test]
-        public void cannot_read_scalar_via_read_single()
+        public void can_read_single_primative_type()
         {
             var stubDataReader = new StubDataReader
             {
                 Names = new[] { "ID" },
                 Types = new[] { typeof(long) },
-                Values = new object[] { 1 },
+                Values = new object[] { 1L },
             };
-            int val = stubDataReader.ReadSingle<int>();
+            var val = stubDataReader.ReadSingle<long>();
         }
 
         [Test]
-        public async Task cannot_read_scalar_via_read_single_async()
+        public void can_read_single_nullable_primative_type()
         {
             var stubDataReader = new StubDataReader
             {
                 Names = new[] { "ID" },
                 Types = new[] { typeof(long) },
+                Values = new object[] { 1L },
+            };
+            var val = stubDataReader.ReadSingle<long?>();
+        }
+
+
+        [Test]
+        public void can_read_single_enum()
+        {
+            var stubDataReader = new StubDataReader
+            {
+                Names = new[] { "ID" },
+                Types = new[] { typeof(int) },
                 Values = new object[] { 1 },
+            };
+            var val = stubDataReader.ReadSingle<TestEnum>();
+        }
+
+        [Test]
+        public void can_read_single_nullable_enum()
+        {
+            var stubDataReader = new StubDataReader
+            {
+                Names = new[] { "ID" },
+                Types = new[] { typeof(int) },
+                Values = new object[] { 1 },
+            };
+            var val = stubDataReader.ReadSingle<TestEnum?>();
+        }
+
+        [Test]
+        public async Task can_read_single_primative_type_async()
+        {
+            var stubDataReader = new StubDataReader
+            {
+                Names = new[] { "ID" },
+                Types = new[] { typeof(long) },
+                Values = new object[] { 1L },
             };
             await stubDataReader.ReadSingleAsync<int>();
         }

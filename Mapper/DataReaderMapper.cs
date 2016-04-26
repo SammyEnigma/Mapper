@@ -70,7 +70,7 @@ namespace Mapper
             var readerParam = Expression.Parameter(typeof(DbDataReader), "reader");
             var resultParam = Expression.Parameter(typeT, "result");
 
-            var getMethod = DataReaderGetMethod(typeT);
+            var getMethod = DataReaderGetMethod(col0.Type);
             Expression value = Expression.Call(readerParam, getMethod, Expression.Constant(0));
             if (col0.Type != typeT)
             {
