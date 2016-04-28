@@ -1,4 +1,5 @@
 ﻿using NUnit.Framework;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -99,7 +100,6 @@ namespace Mapper.UnitTests
             Assert.AreEqual(1L, result.Id);
         }
 
-
         [Test]
         public void can_read_single_primative_type()
         {
@@ -123,7 +123,6 @@ namespace Mapper.UnitTests
             };
             var val = stubDataReader.ReadSingle<long?>();
         }
-
 
         [Test]
         public void can_read_single_enum()
@@ -160,6 +159,54 @@ namespace Mapper.UnitTests
             };
             await stubDataReader.ReadSingleAsync<int>();
         }
+
+        [Test]
+        public void can_read_single_guid()
+        {
+            var g = Guid.NewGuid();
+            var stubDataReader = new StubDataReader
+            {
+                Names = new[] { "ID" },
+                Types = new[] { g.GetType() },
+                Values = new object[] { g },
+            };
+            var read = stubDataReader.ReadSingle<Guid>();
+            Assert.AreEqual(g, read);
+        }
+
+        [Test]
+        public void can_read_single_datetime()
+        {
+            var dt = DateTime.Now;
+            var stubDataReader = new StubDataReader
+            {
+                Names = new[] { "ID" },
+                Types = new[] { dt.GetType() },
+                Values = new object[] { dt },
+            };
+            var read = stubDataReader.ReadSingle<DateTime>();
+            Assert.AreEqual(dt, read);
+        }
+
+        [Test]
+        public void can_read_single_object_containing_guid()
+        {
+            var g = Guid.NewGuid();
+            var stubDataReader = new StubDataReader
+            {
+                Names = new[] { "VALUE" },
+                Types = new[] { g.GetType() },
+                Values = new object[] { g },
+            };
+            var read = stubDataReader.ReadSingle<TestSingle<Guid>>();
+            Assert.AreEqual(g, read.Value);
+        }
+
+    }
+
+    class TestSingle<T>
+    {
+        public T Value { get; set; }
     }
 
     class TestPropertyId

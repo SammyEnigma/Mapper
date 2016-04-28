@@ -21,6 +21,8 @@ namespace Mapper.UnitTests
         public override double GetDouble(int i) => (double)Values[i];
         public override string GetString(int i) => (string)Values[i];
         public override decimal GetDecimal(int i) => (decimal)Values[i];
+        public override Guid GetGuid(int i) => (Guid)Values[i];
+        public override DateTime GetDateTime(int i) => (DateTime)Values[i];
         public override bool IsDBNull(int i) => Values[i] is DBNull;
 
         public override string GetDataTypeName(int ordinal)
@@ -59,16 +61,6 @@ namespace Mapper.UnitTests
         }
 
         public override long GetChars(int ordinal, long dataOffset, char[] buffer, int bufferOffset, int length)
-        {
-            throw new NotImplementedException();
-        }
-
-        public override DateTime GetDateTime(int ordinal)
-        {
-            throw new NotImplementedException();
-        }
-
-        public override Guid GetGuid(int ordinal)
         {
             throw new NotImplementedException();
         }

@@ -44,7 +44,7 @@ namespace Mapper
             Contract.Requires(typeT != null);
             Contract.Ensures(Contract.Result<Delegate>() != null);
 
-            if (typeT.IsPrimitiveOrEnum() || typeT.IsNullable())
+            if (typeT.IsPrimitiveOrEnum() || typeT.IsNullable() || typeT == typeof(Guid) || typeT == typeof(DateTime))
             {
                 return CreatePrimativeMapFunc(typeT, columns);
             }
@@ -196,6 +196,8 @@ namespace Mapper
                 return dataReader.GetMethod("GetDecimal", ordinal);
             if (columnType == typeof(char))
                 return dataReader.GetMethod("GetChar", ordinal);
+            if (columnType == typeof(Guid))
+                return dataReader.GetMethod("GetGuid", ordinal);
             throw new NotSupportedException(columnType.ToString());
         }
 
