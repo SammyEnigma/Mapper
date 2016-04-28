@@ -91,6 +91,8 @@ namespace Mapper
                     return typeof(DateTime);
                 case "timestamp":
                     return typeof(byte[]);
+                case "uniqueidentifier":
+                    return typeof(Guid);
                 default:
                     throw new ArgumentOutOfRangeException(nameof(sqlType), sqlType, "Unknown SQL type");
             }

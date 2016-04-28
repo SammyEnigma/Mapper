@@ -250,7 +250,11 @@ namespace Mapper
 
         public static string GenerateSqlProcCall(this DbConnection cnn, string procName, object parameters)
         {
-            CheckConnectionAndSql(cnn, procName);
+            Contract.Requires(cnn != null);
+            Contract.Requires(!string.IsNullOrWhiteSpace(procName));
+            if (cnn.State != ConnectionState.Open)
+                cnn.Open();
+
             return SqlStoredProcCallGenerator.Generate(cnn, procName, parameters);
         }
     }
