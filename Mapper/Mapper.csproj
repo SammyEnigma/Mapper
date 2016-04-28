@@ -229,6 +229,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Column.cs" />
     <Compile Include="CommandParameterMapper.cs" />
     <Compile Include="DataReaderMapper.cs" />
     <Compile Include="Grouping.cs" />
@@ -242,6 +243,7 @@
     <Compile Include="DataReaderExtensions.cs" />
     <Compile Include="MostlyReadDictionary.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="SqlStoredProcCallGenerator.cs" />
     <Compile Include="Subject.cs" />
     <Compile Include="Types.cs" />
   </ItemGroup>

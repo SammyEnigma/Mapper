@@ -65,6 +65,37 @@ namespace Mapper
             }
         }
 
+        public static Type TypeFromSqlTypeName(string sqlType)
+        {
+            switch (sqlType)
+            {
+                case "char":
+                case "nchar":
+                case "varchar":
+                case "nvarchar":
+                    return typeof(string);
+                case "numeric":
+                    return typeof(decimal);
+                case "bit":
+                    return typeof(bool);
+                case "tinyint":
+                    return typeof(byte);
+                case "smallint":
+                    return typeof(short);
+                case "int":
+                    return typeof(int);
+                case "bigint":
+                    return typeof(long);
+                case "datetime":
+                case "datetime2":
+                    return typeof(DateTime);
+                case "timestamp":
+                    return typeof(byte[]);
+                default:
+                    throw new ArgumentOutOfRangeException(nameof(sqlType), sqlType, "Unknown SQL type");
+            }
+        }
+
         [Pure]
         internal static bool AreCompatible(Type inType, Type outType) => inType == outType || CanBeCast(inType, outType);
 
@@ -80,7 +111,7 @@ namespace Mapper
         }
 
         [Pure]
-        internal static Type PropertyOrFieldType(MemberInfo member)
+        internal static Type PropertyOrFieldType(this MemberInfo member)
         {
             Contract.Requires(member != null);
             var prop = member as PropertyInfo;
@@ -130,28 +161,31 @@ namespace Mapper
 
         internal static Dictionary<string, MemberInfo> WritablePropertiesAndFields<T>()
         {
-            var map = typeof (T).GetProperties(BindingFlags.Instance | BindingFlags.Public).Where(p => p.CanWrite)
-                .Cast<MemberInfo>()
-                .ToDictionary(p => p.Name, p => p, StringComparer.OrdinalIgnoreCase);
-            foreach (var field in typeof (T).GetFields(BindingFlags.Instance | BindingFlags.Public).Where(f => !f.IsInitOnly))
-            {
-                map[field.Name] = field;
-            }
-            return map;
+            return WriteablePublicFieldsAndProperties(typeof(T)).ToDictionary(p => p.Name, p => p, StringComparer.OrdinalIgnoreCase);
         }
 
-        internal static Dictionary<string, MemberInfo> ReadablePropertiesAndFields<T>() => ReadablePropertiesAndFields(typeof(T));
-
-        internal static Dictionary<string, MemberInfo> ReadablePropertiesAndFields(Type typeT)
+        internal static IEnumerable<MemberInfo> WriteablePublicFieldsAndProperties(Type type)
         {
-            var map = typeT.GetProperties(BindingFlags.Instance | BindingFlags.Public).Where(p => p.CanRead)
-                .Cast<MemberInfo>()
-                .ToDictionary(p => p.Name, p => p, StringComparer.OrdinalIgnoreCase);
-            foreach (var field in typeT.GetFields(BindingFlags.Instance | BindingFlags.Public))
-            {
-                map[field.Name] = field;
-            }
-            return map;
+            Contract.Requires(type != null);
+            const BindingFlags PublicInstance = BindingFlags.Public | BindingFlags.Instance;
+            return type.GetFields(PublicInstance).Where(field => !field.IsInitOnly).Cast<MemberInfo>()
+                   .Concat(type.GetProperties(PublicInstance).Where(prop => prop.CanWrite));
         }
+
+        internal static Dictionary<string, MemberInfo> ReadablePropertiesAndFields<T>() => ReadablePropertiesAndFieldsDictionary(typeof(T));
+
+        internal static Dictionary<string, MemberInfo> ReadablePropertiesAndFieldsDictionary(Type typeT)
+        {
+            return ReadablePublicFieldsAndProperties(typeT).ToDictionary(p => p.Name, p => p, StringComparer.OrdinalIgnoreCase);
+        }
+
+        internal static IEnumerable<MemberInfo> ReadablePublicFieldsAndProperties(Type type)
+        {
+            Contract.Requires(type != null);
+            const BindingFlags PublicInstance = BindingFlags.Public | BindingFlags.Instance;
+            return type.GetFields(PublicInstance).Cast<MemberInfo>()
+                   .Concat(type.GetProperties(PublicInstance).Where(prop => prop.CanRead));
+        }
+
     }
 }

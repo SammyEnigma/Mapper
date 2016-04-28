@@ -92,8 +92,8 @@ namespace Mapper
             Contract.Requires(columns != null);
 
             var map = new Dictionary<MemberInfo, Column>();
-            var bestMatch = NewMatchFunc(columns);
-            foreach (var member in WriteablePublicFieldsAndProperties(type))
+            var bestMatch = columns.MatchFunc();
+            foreach (var member in Types.WriteablePublicFieldsAndProperties(type))
             {
                 var col = bestMatch(member.Name);
                 if (col.Name != null)
@@ -103,25 +103,7 @@ namespace Mapper
             }
             return map;
         }
-
-        static Func<string, Column> NewMatchFunc(IReadOnlyCollection<Column> columns)
-        {
-            Contract.Requires(columns != null);
-            var nameToColumns = columns
-                .SelectMany(col => Names.CandidateNames(col.Name, col.Type), (col, name) => new { col, name })
-                .OrderByDescending(x => x.col.Name.Length) // make sure columns with the longest names match first
-                .ToLookup(x => x.name, x => x.col, StringComparer.OrdinalIgnoreCase);
-            return name => nameToColumns[name].FirstOrDefault();
-        }
-
-        static IEnumerable<MemberInfo> WriteablePublicFieldsAndProperties(Type type)
-        {
-            Contract.Requires(type != null);
-            const BindingFlags PublicInstance = BindingFlags.Public | BindingFlags.Instance;
-            return type.GetFields(PublicInstance).Where(field => !field.IsInitOnly).Cast<MemberInfo>()
-                   .Concat(type.GetProperties(PublicInstance).Where(prop => prop.CanWrite));
-        }
-
+ 
         static BlockExpression CreateMapBlock(Type type, Dictionary<MemberInfo, Column> map, ParameterExpression reader, ParameterExpression result)
         {
             Contract.Requires(type != null);
@@ -258,24 +240,5 @@ namespace Mapper
 
     }
 
-    struct Column : IEquatable<Column>
-    {
-        public int Ordinal { get; }
-        public string Name { get; }
-        public Type Type { get; }
-
-        public Column(int ordinal, string name, Type type)
-        {
-            Ordinal = ordinal;
-            Name = name;
-            Type = type;
-        }
-
-        public override bool Equals(object obj) => obj is Column && Equals((Column)obj);
-        public bool Equals(Column other) => Ordinal == other.Ordinal && Name == other.Name && Type == other.Type;
-        public override int GetHashCode() => Ordinal;
-        public static bool operator ==(Column left, Column right) => left.Equals(right);
-        public static bool operator !=(Column left, Column right) => !left.Equals(right);
-    }
-
+ 
 }

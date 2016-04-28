@@ -115,7 +115,7 @@ namespace Mapper
             {
                 Expression.Assign(result, Expression.New(constructorInfo, metaDataParam))
             };
-            var propertiesAndFields = Types.ReadablePropertiesAndFields(typeT);
+            var propertiesAndFields = Types.ReadablePropertiesAndFieldsDictionary(typeT);
 
             var setNullMethod = typeof(SqlDataRecord).GetMethod("SetDBNull", new[] { typeof(int) });
             Contract.Assert(setNullMethod != null);

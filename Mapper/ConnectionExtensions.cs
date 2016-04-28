@@ -248,5 +248,10 @@ namespace Mapper
                 cmd.AddParameters(parameters);
         }
 
+        public static string GenerateSqlProcCall(this DbConnection cnn, string procName, object parameters)
+        {
+            CheckConnectionAndSql(cnn, procName);
+            return SqlStoredProcCallGenerator.Generate(cnn, procName, parameters);
+        }
     }
 }
