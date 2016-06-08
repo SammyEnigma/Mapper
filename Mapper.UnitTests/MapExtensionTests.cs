@@ -157,6 +157,30 @@ namespace Mapper.UnitTests
         }
 
         [Test]
+        public void can_map_nullable_long_to_nullable_enum()
+        {
+            var input = new SingleProp<long?> { Value = 1 };
+            SingleProp<TestEnum?> output = input.Map<SingleProp<long?>, SingleProp<TestEnum?>>();
+            Assert.AreEqual((TestEnum)input.Value, output.Value);
+        }
+
+        [Test]
+        public void can_map_nullable_enum_to_nullable_int()
+        {
+            var input = new SingleProp<TestEnum?> { Value = TestEnum.Something };
+            var output = input.Map<SingleProp<TestEnum?>, SingleProp<int?>>();
+            Assert.AreEqual(1, output.Value);
+        }
+
+        [Test]
+        public void can_map_null_value_nullable_enum_to_nullable_int_as_null()
+        {
+            var input = new SingleProp<TestEnum?> { Value = null};
+            var output = input.Map<SingleProp<TestEnum?>, SingleProp<int?>>();
+            Assert.AreEqual(null, output.Value);
+        }
+
+        [Test]
         public void can_map_nullable_int_to_int()
         {
             var input = new SingleProp<int?> { Value = 1 };

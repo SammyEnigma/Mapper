@@ -59,6 +59,14 @@ namespace Mapper
                     {
                         value = Expression.Call(value, inType.GetMethod("GetValueOrDefault", Type.EmptyTypes));
                     }
+                    else if (Types.IsNullable(inType) && Types.IsNullable(outType) && Types.CanBeCast(inType.GetGenericArguments()[0], outType))
+                    {
+                        // nullable<> to nullable<> conversion must handle null to null as a special case
+                        value = Expression.Condition(
+                            Expression.PropertyOrField(value, "HasValue"),
+                            Expression.Convert(Expression.Call(value, inType.GetMethod("GetValueOrDefault", Type.EmptyTypes)), outType),
+                            Expression.Default(outType));
+                    }
                     else if (Types.IsNullable(inType) && Types.CanBeCast(inType.GetGenericArguments()[0], outType))
                     {
                         value = Expression.Convert(Expression.Call(value, inType.GetMethod("GetValueOrDefault", Type.EmptyTypes)), outType);
@@ -70,6 +78,7 @@ namespace Mapper
                     }
                 }
                 lines.Add(Expression.Assign(Expression.PropertyOrField(result, outPF.Name), value));
+                outByName.Remove(outPF.Name); // remove it so mapping is one-to-one
             }
             lines.Add(result); // the return value
             var block = Expression.Block(new[] { result }, lines);
