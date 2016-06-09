@@ -113,6 +113,12 @@ namespace Mapper
         }
 
         [Pure]
+        internal static bool AreInSomeSenseCompatible(Type inType, Type outType)
+        {
+            return AreCompatible(inType, outType) || (IsNullable(inType) && AreCompatible(inType.GetGenericArguments()[0], outType));
+        }
+
+        [Pure]
         internal static Type PropertyOrFieldType(this MemberInfo member)
         {
             Contract.Requires(member != null);
@@ -164,6 +170,32 @@ namespace Mapper
         internal static Dictionary<string, MemberInfo> WritablePropertiesAndFields<T>()
         {
             return WriteablePublicFieldsAndProperties(typeof(T)).ToDictionary(p => p.Name, p => p, StringComparer.OrdinalIgnoreCase);
+        }
+
+        internal static IReadOnlyCollection<Thing> WriteablePublicThings(Type type)
+        {
+            const BindingFlags PublicInstance = BindingFlags.Public | BindingFlags.Instance;
+            var fields = type.GetFields(PublicInstance).Where(field => !field.IsInitOnly).Select(fi => (Thing)new Field(fi));
+            var props = type.GetProperties(PublicInstance).Where(prop => prop.CanWrite).Select(pi => (Thing)new Property(pi));
+            return new List<Thing>(fields.Concat(props));
+        }
+
+        internal static IReadOnlyCollection<Thing> ReadablePublicThings(Type type)
+        {
+            const BindingFlags PublicInstance = BindingFlags.Public | BindingFlags.Instance;
+            var fields = type.GetFields(PublicInstance).Select(fi => (Thing)new Field(fi));
+            var props = type.GetProperties(PublicInstance).Where(prop => prop.CanRead).Select(pi => (Thing)new Property(pi));
+            return new List<Thing>(fields.Concat(props));
+        }
+
+        internal static ConstructorInfo LongestConstructor(Type type)
+        {
+            return type.GetConstructors().OrderByDescending(ci => ci.GetParameters().Length).FirstOrDefault();
+        }
+
+        internal static IReadOnlyCollection<Thing> ConstructorThings(ConstructorInfo ctor)
+        {
+            return ctor.GetParameters().Select(pi => (Thing)new Parameter(pi)).ToList();
         }
 
         internal static IEnumerable<MemberInfo> WriteablePublicFieldsAndProperties(Type type)

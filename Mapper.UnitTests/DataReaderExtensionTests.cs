@@ -10,65 +10,6 @@ namespace Mapper.UnitTests
     [TestFixture]
     public class DataReaderExtensionTests
     {
-        [TestCase("OrderId")]
-        [TestCase("ORDERID")]
-        [TestCase("ORDER_ID")]
-        [TestCase("Order_Id")]
-        public void maps_property_to_column(string colName)
-        {
-            var col = new Column(0, colName, typeof(int));
-            var map = DataReaderMapper.CreateMemberToColumnMap(new[] { col }, new TestPropertyId { OrderId = 1 }.GetType());
-            Assert.AreEqual(1, map.Count, "count");
-            var pair = map.Single();
-            Assert.IsNotNull(pair.Key);
-            Assert.AreEqual(col, pair.Value);
-        }
-
-        [TestCase("OrderId")]
-        [TestCase("ORDERID")]
-        [TestCase("ORDER_ID")]
-        [TestCase("Order_Id")]
-        public void maps_field_to_column(string colName)
-        {
-            var col = new Column(0, colName, typeof(int));
-            var map = DataReaderMapper.CreateMemberToColumnMap(new[] { col }, new TestFieldId{ OrderId = 1 }.GetType());
-            Assert.AreEqual(1, map.Count, "count");
-            var pair = map.Single();
-            Assert.IsNotNull(pair.Key);
-            Assert.AreEqual(col, pair.Value);
-        }
-
-        [TestCase("OrderId")]
-        [TestCase("ORDERID")]
-        [TestCase("ORDER_ID")]
-        [TestCase("Order_Id")]
-        [TestCase("Order")]
-        [TestCase("ORDER")]
-        public void maps_property_to_column_without_id(string colName)
-        {
-            var col = new Column(0, colName, typeof(int));
-            var map = DataReaderMapper.CreateMemberToColumnMap(new[] { col }, new TestProperty { Order = 1 }.GetType());
-            Assert.AreEqual(1, map.Count, "count");
-            var pair = map.Single();
-            Assert.IsNotNull(pair.Key);
-            Assert.AreEqual(col, pair.Value);
-        }
-
-        [TestCase("OrderId")]
-        [TestCase("ORDERID")]
-        [TestCase("ORDER_ID")]
-        [TestCase("Order_Id")]
-        [TestCase("Order")]
-        [TestCase("ORDER")]
-        public void maps_field_to_column_without_id(string colName)
-        {
-            var col = new Column(0, colName, typeof(int));
-            var map = DataReaderMapper.CreateMemberToColumnMap(new[] { col }, new TestField { Order = 1 }.GetType());
-            Assert.AreEqual(1, map.Count, "count");
-            var pair = map.Single();
-            Assert.IsNotNull(pair.Key);
-            Assert.AreEqual(col, pair.Value);
-        }
 
         [Test]
         public void can_read_int_into_int()

@@ -12,10 +12,6 @@ namespace Mapper
     {
         static readonly MostlyReadDictionary<MetaData, Delegate> Methods = new MostlyReadDictionary<MetaData, Delegate>();
 
-        static readonly Subject<string> _trace = new Subject<string>();
-
-        public static IObservable<string> Trace => _trace;
-
         internal Delegate GetOrCreateMappingFunc(Type typeT, DbDataReader reader)
         {
             Contract.Requires(typeT != null);
@@ -49,7 +45,7 @@ namespace Mapper
                 return CreatePrimativeMapFunc(typeT, columns);
             }
 
-            var map = CreateMemberToColumnMap(columns, typeT);
+            var map = Mapping.CreateUsingSource(columns, Types.WriteablePublicThings(typeT));
             var readerParam = Expression.Parameter(typeof(DbDataReader), "reader");
             var resultParam = Expression.Parameter(typeT, "result");
             var block = CreateMapBlock(typeT, map, readerParam, resultParam);
@@ -65,7 +61,7 @@ namespace Mapper
 
             var col0 = columns.First();
             if (!Types.AreCompatible(col0.Type, typeT))
-                _trace.OnNext($"Cannot map column {col0.Name} to {typeT} as column type {col0.Type} is not compatible");
+                Mapping._trace.OnNext($"Cannot map column {col0.Name} to {typeT} as column type {col0.Type} is not compatible");
 
             var readerParam = Expression.Parameter(typeof(DbDataReader), "reader");
             var resultParam = Expression.Parameter(typeT, "result");
@@ -86,74 +82,49 @@ namespace Mapper
             return Expression.Lambda(func, body, new[] { readerParam }).Compile();
         }
 
-        internal static Dictionary<MemberInfo, Column> CreateMemberToColumnMap(IReadOnlyCollection<Column> columns, Type type)
+        static BlockExpression CreateMapBlock(Type type, IReadOnlyList<Mapping> mappping, ParameterExpression reader, ParameterExpression result)
         {
             Contract.Requires(type != null);
-            Contract.Requires(columns != null);
-
-            var map = new Dictionary<MemberInfo, Column>();
-            var bestMatch = columns.MatchFunc();
-            foreach (var member in Types.WriteablePublicFieldsAndProperties(type))
-            {
-                var col = bestMatch(member.Name);
-                if (col.Name != null)
-                    map.Add(member, col);
-                else
-                    _trace.OnNext($"Cannot find a column in the data reader for {type}.{member.Name}");
-            }
-            return map;
-        }
- 
-        static BlockExpression CreateMapBlock(Type type, Dictionary<MemberInfo, Column> map, ParameterExpression reader, ParameterExpression result)
-        {
-            Contract.Requires(type != null);
-            Contract.Requires(map != null);
+            Contract.Requires(mappping != null);
             Contract.Ensures(Contract.Result<BlockExpression>() != null);
 
             var ctor = type.IsClass ? (Expression)Expression.New(type.GetConstructor(Type.EmptyTypes)) : Expression.Default(type);
             Contract.Assert(ctor != null);
             var lines = new List<Expression> { Expression.Assign(result, ctor) };
-            foreach (var pair in map)
+            foreach (var map in mappping)
             {
-                var member = pair.Key;
-                var col = pair.Value;
-                if (Types.AreCompatible(col.Type, Types.PropertyOrFieldType(member)))
-                    lines.Add(AssignDefaultOrValue(reader, col, member, result));
-                else
-                    _trace.OnNext($"Cannot map column {col.Name} to {type}.{member.Name} as column type {col.Type} is not compatible with {Types.PropertyOrFieldType(member)}");
+                lines.Add(AssignDefaultOrValue(reader, (Column)map.From, map.To, result));
             }
             lines.Add(result); // the return value
             return Expression.Block(new[] { result }, lines);
         }
 
-        static ConditionalExpression AssignDefaultOrValue(ParameterExpression reader, Column col, MemberInfo member, ParameterExpression result)
+        static ConditionalExpression AssignDefaultOrValue(ParameterExpression reader, Column from, Thing to, ParameterExpression result)
         {
             return Expression.IfThenElse(
-                Expression.IsTrue(Expression.Call(reader, typeof(DbDataReader).GetMethod("IsDBNull", new[] { typeof(int) }), Expression.Constant(col.Ordinal))),
-                Expression.Assign(Expression.PropertyOrField(result, member.Name), Expression.Default(PropertyOrFieldType(member))),
-                AssignValue(member, col, result, reader));
+                Expression.IsTrue(Expression.Call(reader, typeof(DbDataReader).GetMethod("IsDBNull", new[] { typeof(int) }), Expression.Constant(from.Ordinal))),
+                Expression.Assign(Expression.PropertyOrField(result, to.Name), Expression.Default(to.Type)),
+                AssignValue(from, to, result, reader));
         }
 
-        static Type PropertyOrFieldType(MemberInfo member) => (member as PropertyInfo)?.PropertyType ?? (member as FieldInfo).FieldType;
-
-        static Expression AssignValue(MemberInfo member, Column col, ParameterExpression result, ParameterExpression reader)
+        static Expression AssignValue(Column from, Thing to, ParameterExpression result, ParameterExpression reader)
         {
-            if (col.Type == typeof(byte[]))
+            if (from.Type == typeof(byte[]))
             {
-                return AssignRowVersionTimestampValue(member, col, result, reader);
+                return AssignRowVersionTimestampValue(from, to, result, reader);
             }
 
-            var getMethod = DataReaderGetMethod(col.Type);
-            Expression value = Expression.Call(reader, getMethod, Expression.Constant(col.Ordinal));
-            var outType = PropertyOrFieldType(member);
-            if (col.Type != outType)
+            var getMethod = DataReaderGetMethod(from.Type);
+            Expression value = Expression.Call(reader, getMethod, Expression.Constant(from.Ordinal));
+            var outType = to.Type;
+            if (from.Type != outType)
             {
                 value = Expression.Convert(value, outType);
             }
-            return Expression.Assign(Expression.PropertyOrField(result, member.Name), value);
+            return Expression.Assign(Expression.PropertyOrField(result, to.Name), value);
         }
 
-        static Expression AssignRowVersionTimestampValue(MemberInfo member, Column col, ParameterExpression result, ParameterExpression reader)
+        static Expression AssignRowVersionTimestampValue(Column from, Thing to, ParameterExpression result, ParameterExpression reader)
         {
             //BIG assumption here is all byte[] fields are SQL Server Timestamp (RowVersion) fields
             var buffer = Expression.Parameter(typeof(byte[]), "buffer");
@@ -161,8 +132,8 @@ namespace Mapper
             return Expression.Block(
                 new[] { buffer },
                 Expression.Assign(buffer, Expression.NewArrayBounds(typeof(byte), Expression.Constant(4))),
-                Expression.Call(reader, getBytes, Expression.Constant(col.Ordinal), Expression.Constant(0L), buffer, Expression.Constant(0), Expression.Constant(4)),
-                Expression.Assign(Expression.PropertyOrField(result, member.Name), buffer)
+                Expression.Call(reader, getBytes, Expression.Constant(from.Ordinal), Expression.Constant(0L), buffer, Expression.Constant(0), Expression.Constant(4)),
+                Expression.Assign(Expression.PropertyOrField(result, to.Name), buffer)
             );
         }
 

@@ -1,9 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics.Contracts;
-using System.Linq;
 using System.Linq.Expressions;
-using System.Reflection;
 
 namespace Mapper
 {
@@ -11,95 +9,88 @@ namespace Mapper
     {
         static readonly MostlyReadDictionary<TypePair, Delegate> MapMethods = new MostlyReadDictionary<TypePair, Delegate>();
 
-        static readonly Subject<string> _trace = new Subject<string>();
-
-        public static IObservable<string> Trace => _trace;
-
         internal static Func<TIn, TOut> GetOrAddMapping<TIn, TOut>()
         {
-            return (Func<TIn, TOut>)MapMethods.GetOrAdd(new TypePair(typeof(TIn), typeof(TOut)), _ => CreateMapDelegate<TIn, TOut>());
+            return (Func<TIn, TOut>)MapMethods.GetOrAdd(new TypePair(typeof(TIn), typeof(TOut)), _ => CreateMapDelegate(typeof(TIn), typeof(TOut)));
         }
 
-        /// <summary>
-        /// Fast copying code that generates a method that does the copy from one type to another
-        /// </summary>
-        static internal Delegate CreateMapDelegate<TIn, TOut>()
+        /// <summary>Fast copying code that generates a method that does the copy from one type to another</summary>
+        static internal Delegate CreateMapDelegate(Type inType, Type outType)
         {
+            Contract.Requires(outType != null);
+            Contract.Requires(inType != null);
             Contract.Ensures(Contract.Result<Delegate>() != null);
 
-            if (typeof(TOut).IsClass && typeof(TOut).GetConstructor(Type.EmptyTypes) == null)
+            List<Mapping> mapping = Mapping.CreateUsingSource(inType, outType);
+            LambdaExpression lambdaExpression = CreateMappingLambda(inType, outType, mapping);
+            return lambdaExpression.Compile();
+        }
+
+        static LambdaExpression CreateMappingLambda(Type inType, Type outType, List<Mapping> mapping)
+        {
+            Contract.Requires(mapping != null);
+            Contract.Requires(outType != null);
+            Contract.Requires(inType != null);
+            Contract.Ensures(Contract.Result<LambdaExpression>() != null);
+
+            if (outType.IsClass && outType.GetConstructor(Type.EmptyTypes) == null)
                 throw new ArgumentException("Output type must have a parameterless constructor");
 
-            var input = Expression.Parameter(typeof(TIn), "input");
-            var result = Expression.Parameter(typeof(TOut), "result");
+            var input = Expression.Parameter(inType, "input");
+            var result = Expression.Parameter(outType, "result");
 
-            var ctor = typeof(TOut).IsClass ? (Expression)Expression.New(typeof(TOut).GetConstructor(Type.EmptyTypes)) : Expression.Default(typeof(TOut));
+            var ctor = outType.IsClass ? (Expression)Expression.New(outType.GetConstructor(Type.EmptyTypes)) : Expression.Default(outType);
             var lines = new List<Expression> { Expression.Assign(result, ctor) };
 
-            var outByName = Types.WritablePropertiesAndFields<TOut>();
-            var inByName = Types.ReadablePropertiesAndFields<TIn>();
-
-            foreach (var inPF in inByName.Select(pair => pair.Value))
+            foreach (Mapping map in mapping)
             {
-                var outPF = FindOutPropertyOrField(outByName, inPF);
-                if (outPF == null)
-                {
-                    _trace.OnNext($"Can't find the output property (or field) for {inPF.DeclaringType}.{inPF.Name} on type {typeof(TOut)}");
-                    continue;
-                }
-
-                var outType = Types.PropertyOrFieldType(outPF);
-                var inType = Types.PropertyOrFieldType(inPF);
-                Expression value = Expression.PropertyOrField(input, inPF.Name);
-                if (inType != outType)
-                {
-                    // type if not the same, can it be assigned?
-                    if (Types.CanBeCast(inType, outType))
-                    {
-                        value = Expression.Convert(value, outType);
-                    }
-                    else if (Types.IsNullable(inType) && inType.GetGenericArguments()[0] == outType)
-                    {
-                        value = Expression.Call(value, inType.GetMethod("GetValueOrDefault", Type.EmptyTypes));
-                    }
-                    else if (Types.IsNullable(inType) && Types.IsNullable(outType) && Types.CanBeCast(inType.GetGenericArguments()[0], outType))
-                    {
-                        // nullable<> to nullable<> conversion must handle null to null as a special case
-                        value = Expression.Condition(
-                            Expression.PropertyOrField(value, "HasValue"),
-                            Expression.Convert(Expression.Call(value, inType.GetMethod("GetValueOrDefault", Type.EmptyTypes)), outType),
-                            Expression.Default(outType));
-                    }
-                    else if (Types.IsNullable(inType) && Types.CanBeCast(inType.GetGenericArguments()[0], outType))
-                    {
-                        value = Expression.Convert(Expression.Call(value, inType.GetMethod("GetValueOrDefault", Type.EmptyTypes)), outType);
-                    }
-                    else
-                    {
-                        _trace.OnNext($"Trying to map {inPF.DeclaringType}.{inPF.Name} to {typeof(TOut)}.{outPF.Name} but don't know how to map {inType} to {outType}");
-                        continue;
-                    }
-                }
-                lines.Add(Expression.Assign(Expression.PropertyOrField(result, outPF.Name), value));
-                outByName.Remove(outPF.Name); // remove it so mapping is one-to-one
+                Expression readValue = ReadValue(input, map);
+                lines.Add(Expression.Assign(Expression.PropertyOrField(result, map.To.Name), readValue));
             }
             lines.Add(result); // the return value
-            var block = Expression.Block(new[] { result }, lines);
-            return Expression.Lambda<Func<TIn, TOut>>(block, input).Compile();
+
+            var delegateType = typeof(Func<,>).MakeGenericType(new[] { inType, outType });
+            var body = Expression.Block(new[] { result }, lines);
+            LambdaExpression lambdaExpression = Expression.Lambda(delegateType, body, new[] { input });
+            return lambdaExpression;
         }
 
-        static MemberInfo FindOutPropertyOrField(IDictionary<string, MemberInfo> outByName, MemberInfo inPF)
+        static Expression ReadValue(ParameterExpression input, Mapping map)
         {
-            Contract.Requires(outByName != null);
-            Contract.Requires(inPF != null);
-            foreach (var name in Names.CandidateNames(inPF.Name, Types.PropertyOrFieldType(inPF)))
+            Expression value = Expression.PropertyOrField(input, map.From.Name);
+            var fromType = map.From.Type;
+            var toType = map.To.Type;
+            if (fromType == toType)
             {
-                MemberInfo outPF;
-                if (outByName.TryGetValue(name, out outPF)) // names match
-                    return outPF;
+                return value;
             }
-            return null;
+            if (Types.CanBeCast(fromType, toType))
+            {
+                return Expression.Convert(value, toType);
+            }
+            if (Types.IsNullable(fromType))
+            {
+                var nullableArgType = fromType.GetGenericArguments()[0];
+                if (nullableArgType == toType)
+                {
+                    return Expression.Call(value, fromType.GetMethod("GetValueOrDefault", Type.EmptyTypes));
+                }
+                if (Types.IsNullable(toType) && Types.CanBeCast(nullableArgType, toType))
+                {
+                    // nullable<> to nullable<> conversion must handle null to null as a special case
+                    return Expression.Condition(
+                        Expression.PropertyOrField(value, "HasValue"),
+                        Expression.Convert(Expression.Call(value, fromType.GetMethod("GetValueOrDefault", Type.EmptyTypes)), toType),
+                        Expression.Default(toType));
+                }
+                if (Types.CanBeCast(nullableArgType, toType))
+                {
+                    return Expression.Convert(Expression.Call(value, fromType.GetMethod("GetValueOrDefault", Type.EmptyTypes)), toType);
+                }
+            }
+            throw new InvalidOperationException("Should never get here has types compatibility has been checked");
         }
+
     }
 
     struct TypePair : IEquatable<TypePair>
@@ -125,4 +116,5 @@ namespace Mapper
             }
         }
     }
+
 }

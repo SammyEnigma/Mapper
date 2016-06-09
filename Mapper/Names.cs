@@ -3,9 +3,9 @@ using System.Collections.Generic;
 
 namespace Mapper
 {
-    internal static class Names
+    static class Names
     {
-        public static List<string> CandidateNames(string name, Type type)
+        public static List<string> Candidates(string name, Type type)
         {
             var names = new List<string>(2) { name };
 

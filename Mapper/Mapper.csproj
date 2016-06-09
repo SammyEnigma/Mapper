@@ -229,11 +229,11 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Column.cs" />
     <Compile Include="CommandParameterMapper.cs" />
     <Compile Include="DataReaderMapper.cs" />
     <Compile Include="Grouping.cs" />
     <Compile Include="HashLookup.cs" />
+    <Compile Include="Mapping.cs" />
     <Compile Include="Names.cs" />
     <Compile Include="ObjectMapper.cs" />
     <Compile Include="SqlDataRecordExtensions.cs" />
