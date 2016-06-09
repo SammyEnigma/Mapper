@@ -202,6 +202,24 @@ namespace Mapper.UnitTests
             Assert.AreEqual(g, read.Value);
         }
 
+        [Test]
+        public void can_read_into_struct()
+        {
+            var stubDataReader = new StubDataReader
+            {
+                Names = new[] { "VALUE" },
+                Types = new[] { typeof(long) },
+                Values = new object[] { 1L },
+            };
+            var val = stubDataReader.ReadSingle<TestStruct<long>>();
+            Assert.AreEqual(1L, val.Value);
+        }
+
+    }
+
+    struct TestStruct<T>
+    {
+        public T Value { get; set; }
     }
 
     class TestSingle<T>

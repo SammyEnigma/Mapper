@@ -25,13 +25,16 @@ namespace Mapper
         /// </summary>
         static internal Delegate CreateMapDelegate<TIn, TOut>()
         {
-            Contract.Requires(typeof(TOut).GetConstructor(Type.EmptyTypes) != null);
             Contract.Ensures(Contract.Result<Delegate>() != null);
+
+            if (typeof(TOut).IsClass && typeof(TOut).GetConstructor(Type.EmptyTypes) == null)
+                throw new ArgumentException("Output type must have a parameterless constructor");
 
             var input = Expression.Parameter(typeof(TIn), "input");
             var result = Expression.Parameter(typeof(TOut), "result");
 
-            var lines = new List<Expression> { Expression.Assign(result, Expression.New(typeof(TOut).GetConstructor(Type.EmptyTypes))) };
+            var ctor = typeof(TOut).IsClass ? (Expression)Expression.New(typeof(TOut).GetConstructor(Type.EmptyTypes)) : Expression.Default(typeof(TOut));
+            var lines = new List<Expression> { Expression.Assign(result, ctor) };
 
             var outByName = Types.WritablePropertiesAndFields<TOut>();
             var inByName = Types.ReadablePropertiesAndFields<TIn>();

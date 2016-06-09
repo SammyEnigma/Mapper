@@ -110,9 +110,9 @@ namespace Mapper
             Contract.Requires(map != null);
             Contract.Ensures(Contract.Result<BlockExpression>() != null);
 
-            var constructor = type.GetConstructor(Type.EmptyTypes);
-            Contract.Assert(constructor != null);
-            var lines = new List<Expression> { Expression.Assign(result, Expression.New(constructor)) };
+            var ctor = type.IsClass ? (Expression)Expression.New(type.GetConstructor(Type.EmptyTypes)) : Expression.Default(type);
+            Contract.Assert(ctor != null);
+            var lines = new List<Expression> { Expression.Assign(result, ctor) };
             foreach (var pair in map)
             {
                 var member = pair.Key;

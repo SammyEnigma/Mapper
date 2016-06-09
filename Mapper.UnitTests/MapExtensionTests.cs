@@ -262,6 +262,21 @@ namespace Mapper.UnitTests
             Assert.AreEqual(1, output.SomeValue);
         }
 
+        [Test]
+        public void can_map_class_to_struct()
+        {
+            var input = new SingleProp<int> { Value = 1 };
+            var output = input.Map<SingleProp<int>, SinglePropStruct<int>>();
+            Assert.AreEqual(input.Value, output.Value);
+        }
+
+        [Test]
+        public void can_map_struct_to_class()
+        {
+            var input = new SinglePropStruct<int> { Value = 1 };
+            var output = input.Map<SinglePropStruct<int>, SingleProp<int>>();
+            Assert.AreEqual(input.Value, output.Value);
+        }
     }
 
     public class WithUnderscore
@@ -274,7 +289,13 @@ namespace Mapper.UnitTests
         public int SomeValue { get; set; }
 
     }
+
     public class SingleProp<T>
+    {
+        public T Value { get; set; }
+    }
+
+    public struct SinglePropStruct<T>
     {
         public T Value { get; set; }
     }
