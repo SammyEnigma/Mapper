@@ -52,32 +52,31 @@ The headline examples is much like Dapper, but methods have strongly typed retur
 
 Select a list:
 ```
-List<Order> list = connection.QueryList<Order>("select * from dbo.[Order] where order_id = @OrderId", new { OrderId = 123 });
+List<Order> list = connection.Execute<Order>("select * from dbo.[Order] where order_id = @OrderId", new { OrderId = 123 }).ToList();
 ```
 
 Select a dictionary keyed by the primary key:
 ```
-Dictionary<int, Order> byId = connection.QueryDictionary<int, Order>("select * from dbo.[Order] where status = @Status", new { Status = 1 }, order => order.Id);
+Dictionary<int, Order> byId = connection.Execute<Order>("select * from dbo.[Order] where status = @Status", new { Status = 1 }).ToDictionary(order => order.Id);
 ```
 
 Select a key to multiple value `HashLookup`:
 ```
-HasLookup<int, Order> byStatus = connection.QueryLookup<int, Order>("select * from dbo.[Order] where order_date > @OrderDate", new { OrderDate = new DateTime(2016, 8, 1) }, order => order.Status);
+HasLookup<int, Order> byStatus = connection.Execute<Order>("select * from dbo.[Order] where order_date > @OrderDate", new { OrderDate = new DateTime(2016, 8, 1) }).ToLookup(order => order.Status);
 ```
 
 ## Data Composability
 
 `Mapper` has a series of extension methods for ADO.Net types:
 
-### DbDataReader methods
+### DataSequence methods
 `System.Data.Common.DbDataReader` has the following extension methods:
 
-* `ReadSingle<T>()` for reading exactly one row
-* `ReadSingleOrDefault<T>()` for reading zero or one rows
-* `ReadList<T>()` for reading all records into a `List<T>`
-* `ReadDictinary<TKey,TValue>(Func<TKey,TValue> keyFunc)` for reading all records into a `Dictinary<TKey,TValue>` using the supplied function to get work out the key.  Note that the key must be unique.
-* `ReadLookup<TKey,TValue>(Func<TKey,TValue> keyFunc)` for reading all records into a `HashLookup<TKey,TValue>` using the supplied function to get work out the key.  Each key may have multiple values.
-* `ReadScalar<T>()` for reading the first value of the first row
+* `Single<T>()` for reading exactly one row
+* `SingleOrDefault<T>()` for reading zero or one rows
+* `ToList<T>()` for reading all records into a `List<T>`
+* `ToDictinary<TKey,TValue>(Func<TKey,TValue> keyFunc)` for reading all records into a `Dictinary<TKey,TValue>` using the supplied function to get work out the key.  Note that the key must be unique.
+* `ToLookup<TKey,TValue>(Func<TKey,TValue> keyFunc)` for reading all records into a `HashLookup<TKey,TValue>` using the supplied function to get work out the key.  Each key may have multiple values.
 
 Additional `...Async` methods exist for reading data using tasks.
 
@@ -87,14 +86,10 @@ Additional `...Async` methods exist for reading data using tasks.
 
 For convenience `Mapper` adds the following extension method to `System.Data.Common.DbCommand`:
 
-* `ExecuteSingle<T>()` for exeucting the command and reading exactly one row
-* `ExecuteSingleOrDefault<T>()` for exeucting the command and reading zero or one rows
-* `ExecuteList<T>()` for exeucting the command and reading all records into a `List<T>`
-* `ExecuteDictinary<TKey,TValue>(Func<TKey,TValue> keyFunc)` for exeucting the command and reading all records into a `Dictinary<TKey,TValue>` using the supplied function to get work out the key.  Note that the key must be unique.
-* `ExecuteLookup<TKey,TValue>(Func<TKey,TValue> keyFunc)` for exeucting the command and reading all records into a `HashLookup<TKey,TValue>` using the supplied function to get work out the key.  Each key may have multiple values.
-* `ExecuteScalar<T>()` for exeucting the command and reading the first value of the first row
-
-Additional `...Async` methods exist for executing commands using tasks.
+* `Execute<T>()` for exeucting the command, returns a `DataSequence<T>`
+* `ExecuteAsync<T>()` for exeucting the command asynchronously, returns a `DataSequence<T>`
+* `ExecuteScalar<T>()` for exeucting the command, returning the value of the first column of the first row
+* `ExecuteScalarAsync<T>()` for exeucting the command asynchronously, returning the value of the first column of the first row
 
 ### DbConnetion methods
 

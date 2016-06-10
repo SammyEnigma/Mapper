@@ -13,6 +13,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 		README.md = README.md
 	EndProjectSection
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Mapper.CodeGen", "Mapper.CodeGen\Mapper.CodeGen.csproj", "{918A2A4B-C2FB-43F0-9439-BB2473F425E0}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -27,6 +29,10 @@ Global
 		{AD2B32F7-7DF4-4B7F-9115-BDB6ACA20EB1}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{AD2B32F7-7DF4-4B7F-9115-BDB6ACA20EB1}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{AD2B32F7-7DF4-4B7F-9115-BDB6ACA20EB1}.Release|Any CPU.Build.0 = Release|Any CPU
+		{918A2A4B-C2FB-43F0-9439-BB2473F425E0}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{918A2A4B-C2FB-43F0-9439-BB2473F425E0}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{918A2A4B-C2FB-43F0-9439-BB2473F425E0}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{918A2A4B-C2FB-43F0-9439-BB2473F425E0}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

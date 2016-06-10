@@ -20,7 +20,7 @@ namespace Mapper.UnitTests
                 Types = new []{ typeof(int)},
                 Values = new object[] {1},
             };
-            var func = DataReaderExtensions.GetMappingFunc<TestPropertyId>(stubDataReader);
+            var func = Extensions.GetMappingFunc<TestPropertyId>(stubDataReader);
             var result = func(stubDataReader);
             Assert.IsNotNull(result);
             Assert.AreEqual(1, result.OrderId);
@@ -35,7 +35,7 @@ namespace Mapper.UnitTests
                 Types = new []{ typeof(long)},
                 Values = new object[] {1L},
             };
-            var func = DataReaderExtensions.GetMappingFunc<NullableLong>(stubDataReader);
+            var func = Extensions.GetMappingFunc<NullableLong>(stubDataReader);
             var result = func(stubDataReader);
             Assert.IsNotNull(result);
             Assert.AreEqual(1L, result.Id);
@@ -50,7 +50,7 @@ namespace Mapper.UnitTests
                 Types = new[] { typeof(long) },
                 Values = new object[] { 1L },
             };
-            var val = stubDataReader.ReadSingle<long>();
+            var val = stubDataReader.AsSequenceOf<long>().Single();
         }
 
         [Test]
@@ -62,7 +62,7 @@ namespace Mapper.UnitTests
                 Types = new[] { typeof(long) },
                 Values = new object[] { 1L },
             };
-            var val = stubDataReader.ReadSingle<long?>();
+            var val = stubDataReader.AsSequenceOf<long?>().Single();
         }
 
         [Test]
@@ -74,7 +74,7 @@ namespace Mapper.UnitTests
                 Types = new[] { typeof(int) },
                 Values = new object[] { 1 },
             };
-            var val = stubDataReader.ReadSingle<TestEnum>();
+            var val = stubDataReader.AsSequenceOf<TestEnum>().Single();
         }
 
         [Test]
@@ -86,7 +86,7 @@ namespace Mapper.UnitTests
                 Types = new[] { typeof(int) },
                 Values = new object[] { 1 },
             };
-            var val = stubDataReader.ReadSingle<TestEnum?>();
+            var val = stubDataReader.AsSequenceOf<TestEnum?>().Single();
         }
 
         [Test]
@@ -98,7 +98,7 @@ namespace Mapper.UnitTests
                 Types = new[] { typeof(long) },
                 Values = new object[] { 1L },
             };
-            await stubDataReader.ReadSingleAsync<int>();
+            await stubDataReader.AsSequenceOf<int>().SingleAsync();
         }
 
         [Test]
@@ -111,7 +111,7 @@ namespace Mapper.UnitTests
                 Types = new[] { g.GetType() },
                 Values = new object[] { g },
             };
-            var read = stubDataReader.ReadSingle<Guid>();
+            var read = stubDataReader.AsSequenceOf<Guid>().Single();
             Assert.AreEqual(g, read);
         }
 
@@ -125,7 +125,7 @@ namespace Mapper.UnitTests
                 Types = new[] { dt.GetType() },
                 Values = new object[] { dt },
             };
-            var read = stubDataReader.ReadSingle<DateTime>();
+            var read = stubDataReader.AsSequenceOf<DateTime>().Single();
             Assert.AreEqual(dt, read);
         }
 
@@ -139,7 +139,7 @@ namespace Mapper.UnitTests
                 Types = new[] { g.GetType() },
                 Values = new object[] { g },
             };
-            var read = stubDataReader.ReadSingle<TestSingle<Guid>>();
+            var read = stubDataReader.AsSequenceOf<Guid?>().Single();
             Assert.AreEqual(g, read.Value);
         }
 

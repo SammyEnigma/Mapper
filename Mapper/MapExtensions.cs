@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Diagnostics.Contracts;
 using System.Linq;
-using System.Text;
 
 namespace Mapper
 {
@@ -72,15 +71,6 @@ namespace Mapper
             }
         }
 
-        public static string GenerateNUnitEquals(Type type)
-        {
-            Contract.Requires(type != null);
-            var sb = new StringBuilder();
-            foreach (var item in Types.ReadablePublicFieldsAndProperties(type))
-            {
-                sb.Append("Assert.AreEqual(expected.").Append(item.Name).Append(", actual.").Append(item.Name).Append(", \"").Append(item.Name).Append("\");").AppendLine();
-            }
-            return sb.ToString();
-        }
+        
     }
 }

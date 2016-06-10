@@ -2,7 +2,7 @@
 <package >
   <metadata>
     <id>BusterWood.Mapper</id>
-    <version>1.4.3</version>
+    <version>2.0.0</version>
     <authors>BusterWood</authors>
     <description>A convention-based object cloner, object-object mapper (like AutoMapper), IDataReader to object mapper, object to command data parameter mapper, etc.</description>
     <projectUrl>https://github.com/busterwood/mapper</projectUrl>
@@ -16,6 +16,7 @@
   </metadata>
   <files>
     <file src="Bin\Release\Mapper.dll" target="lib\net45"/>
+    <file src="..\Mapper.CodeGen\Bin\Release\Mapper.CodeGen.dll" target="lib\net45"/>
     <file src="Bin\Release\Mapper.xml" target="lib\net45"/>
     <file src="Bin\Release\CodeContracts\Mapper.Contracts.dll" target="lib\net45\CodeContracts" />
   </files>
