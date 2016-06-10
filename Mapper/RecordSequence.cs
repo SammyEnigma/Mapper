@@ -38,7 +38,6 @@ namespace Mapper
         /// <exception cref="InvalidOperationException"> when zero values read or more than one value can be read</exception>
         public async Task<T> SingleAsync()
         {
-            Contract.Ensures(Contract.Result<T>() != null);
             if (!await reader.ReadAsync()) throw new InvalidOperationException("Expected one value to be read but reader is empty");
             var single = map(reader);
             if (await reader.ReadAsync()) throw new InvalidOperationException("Expected one value to be read but more than one value can be read");
@@ -57,7 +56,6 @@ namespace Mapper
         /// <remarks>Returns the default vaue of T if no values be read, i.e may return null</remarks>
         public async Task<T> SingleOrDefaultAsync()
         {
-            Contract.Ensures(Contract.Result<T>() != null);
             if (!await reader.ReadAsync()) return default(T);
             return map(reader);
         }

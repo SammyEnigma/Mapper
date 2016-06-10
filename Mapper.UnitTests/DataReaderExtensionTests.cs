@@ -98,7 +98,7 @@ namespace Mapper.UnitTests
                 Types = new[] { typeof(long) },
                 Values = new object[] { 1L },
             };
-            await stubDataReader.AsSequenceOf<int>().SingleAsync();
+            await stubDataReader.AsSequenceOf<long>().SingleAsync();
         }
 
         [Test]
@@ -152,7 +152,7 @@ namespace Mapper.UnitTests
                 Types = new[] { typeof(long) },
                 Values = new object[] { 1L },
             };
-            var val = stubDataReader.ReadSingle<TestStruct<long>>();
+            var val = stubDataReader.AsSequenceOf<TestStruct<long>>().Single();
             Assert.AreEqual(1L, val.Value);
         }
 
