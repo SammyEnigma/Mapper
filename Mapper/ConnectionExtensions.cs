@@ -20,13 +20,33 @@ namespace Mapper
             }
         }
 
-        public static async Task<DataSequence<T>> ExecuteAsync<T>(this DbConnection cnn, string sql, object parameters = null)
+        public static Task<DataSequence<T>> ExecuteAsync<T>(this DbConnection cnn, string sql, object parameters = null)
         {
             CheckConnectionAndSql(cnn, sql);
             using (var cmd = cnn.CreateCommand())
             {
                 SetupCommand(cmd, cnn, sql, parameters);
-                return await cmd.ExecuteAsync<T>();
+                return cmd.ExecuteAsync<T>();
+            }
+        }
+
+        public static int ExecuteNonQuery(this DbConnection cnn, string sql, object parameters = null)
+        {
+            CheckConnectionAndSql(cnn, sql);
+            using (var cmd = cnn.CreateCommand())
+            {
+                SetupCommand(cmd, cnn, sql, parameters);
+                return cmd.ExecuteNonQuery();
+            }
+        }
+
+        public static Task<int> ExecuteNonQueryAsync(this DbConnection cnn, string sql, object parameters = null)
+        {
+            CheckConnectionAndSql(cnn, sql);
+            using (var cmd = cnn.CreateCommand())
+            {
+                SetupCommand(cmd, cnn, sql, parameters);
+                return cmd.ExecuteNonQueryAsync();
             }
         }
 
