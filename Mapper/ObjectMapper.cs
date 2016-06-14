@@ -9,9 +9,9 @@ namespace Mapper
     {
         static readonly MostlyReadDictionary<TypePair, Delegate> MapMethods = new MostlyReadDictionary<TypePair, Delegate>();
 
-        internal static Func<TIn, TOut> GetOrAddMapping<TIn, TOut>()
+        internal static Func<TIn, TOut, TOut> GetOrAddMapping<TIn, TOut>()
         {
-            return (Func<TIn, TOut>)MapMethods.GetOrAdd(new TypePair(typeof(TIn), typeof(TOut)), _ => CreateMapDelegate(typeof(TIn), typeof(TOut)));
+            return (Func<TIn, TOut, TOut>)MapMethods.GetOrAdd(new TypePair(typeof(TIn), typeof(TOut)), _ => CreateMapDelegate(typeof(TIn), typeof(TOut)));
         }
 
         /// <summary>Fast copying code that generates a method that does the copy from one type to another</summary>
@@ -36,22 +36,27 @@ namespace Mapper
             if (outType.IsClass && outType.GetConstructor(Type.EmptyTypes) == null)
                 throw new ArgumentException("Output type must have a parameterless constructor");
 
-            var input = Expression.Parameter(inType, "input");
+            var from = Expression.Parameter(inType, "from");
+            var to = Expression.Parameter(outType, "to");
             var result = Expression.Parameter(outType, "result");
 
-            var ctor = outType.IsClass ? (Expression)Expression.New(outType.GetConstructor(Type.EmptyTypes)) : Expression.Default(outType);
-            var lines = new List<Expression> { Expression.Assign(result, ctor) };
-
+            var lines = new List<Expression>();
+            if (outType.IsClass)
+            {
+                // result = to ?? new outType
+                lines.Add(Expression.Assign(result, Expression.Coalesce(to, Expression.New(outType.GetConstructor(Type.EmptyTypes)))));
+            }
             foreach (Mapping map in mapping)
             {
-                Expression readValue = ReadValue(input, map);
+                Expression readValue = ReadValue(from, map);
                 lines.Add(Expression.Assign(Expression.PropertyOrField(result, map.To.Name), readValue));
             }
             lines.Add(result); // the return value
 
-            var delegateType = typeof(Func<,>).MakeGenericType(new[] { inType, outType });
-            var body = Expression.Block(new[] { result }, lines);
-            LambdaExpression lambdaExpression = Expression.Lambda(delegateType, body, new[] { input });
+            var variables = new[] { result };
+            var body = Expression.Block(variables, lines);
+            var delegateType = typeof(Func<,,>).MakeGenericType(new[] { inType, outType, outType });
+            LambdaExpression lambdaExpression = Expression.Lambda(delegateType, body, new[] { from, to });
             return lambdaExpression;
         }
 
@@ -70,7 +75,7 @@ namespace Mapper
             }
             if (Types.IsNullable(fromType))
             {
-                var nullableArgType = fromType.GetGenericArguments()[0];
+                var nullableArgType = Types.NullableOf(fromType);
                 if (nullableArgType == toType)
                 {
                     return Expression.Call(value, fromType.GetMethod("GetValueOrDefault", Type.EmptyTypes));
