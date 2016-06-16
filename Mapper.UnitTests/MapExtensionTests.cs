@@ -106,7 +106,6 @@ namespace Mapper.UnitTests
             Assert.AreSame(input.Value, copy.Value);
         }
 
-
         [Test]
         public void can_clone_list_property()
         {
@@ -275,6 +274,26 @@ namespace Mapper.UnitTests
         {
             var input = new SinglePropStruct<int> { Value = 1 };
             var output = input.Map<SinglePropStruct<int>, SingleProp<int>>();
+            Assert.AreEqual(input.Value, output.Value);
+        }
+
+        [Test]
+        public void can_mapto_existing_object()
+        {
+            var input = new SingleProp<int> { Value = 1 };
+            var existing = new SingleProp<int>();
+            var output = input.MapTo(existing);
+            Assert.AreEqual(existing.Value, input.Value);
+            Assert.AreEqual(input.Value, output.Value);
+            Assert.AreSame(existing, output);
+        }
+
+        [Test]
+        public void can_mapto_existing_object_when_existing_is_null()
+        {
+            var input = new SingleProp<int> { Value = 1 };
+            SingleProp<int> existing = null;
+            var output = input.MapTo(existing);
             Assert.AreEqual(input.Value, output.Value);
         }
     }

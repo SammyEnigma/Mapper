@@ -26,16 +26,26 @@ namespace Mapper
         {
             Contract.Requires(input != null);
             Contract.Ensures(Contract.Result<TOut>() != null);
-            Func<TIn, TOut> map = ObjectMapper.GetOrAddMapping<TIn, TOut>();
-            return map(input);
+            Func<TIn, TOut, TOut> map = ObjectMapper.GetOrAddMapping<TIn, TOut>();
+            return map(input, default(TOut));
+        }
+
+        /// <summary>Copies values from the <paramref name="input"/> to <paramref name="existing"/></summary>
+        /// <returns><paramref name="existing"/> or a new object if <paramref name="existing"/> was null</returns>
+        public static TOut MapTo<TIn, TOut>(this TIn input, TOut existing)
+        {
+            Contract.Requires(input != null);
+            Contract.Ensures(Contract.Result<TOut>() != null);
+            Func<TIn, TOut, TOut> map = ObjectMapper.GetOrAddMapping<TIn, TOut>();
+            return map(input, existing);
         }
 
         /// <summary>creates copies of all input objects, copying all properties and fields with matching names and compatible types</summary>
         public static IEnumerable<TOut> MapSome<TIn, TOut>(this IEnumerable<TIn> input) {
             Contract.Requires(input != null);
             Contract.Ensures(Contract.Result<IEnumerable<TOut>>() != null);
-            Func<TIn, TOut> map = ObjectMapper.GetOrAddMapping<TIn, TOut>();
-            return input.Select(map);
+            Func<TIn, TOut, TOut> map = ObjectMapper.GetOrAddMapping<TIn, TOut>();
+            return input.Select(i => map(i, default(TOut)));
         }
 
         /// <summary>creates copies of all input objects, copying all properties and fields with matching names and compatible types</summary>
@@ -44,10 +54,10 @@ namespace Mapper
             Contract.Requires(input != null);
             Contract.Requires(extraAction != null);
             Contract.Ensures(Contract.Result<IEnumerable<TOut>>() != null);
-            Func<TIn, TOut> map = ObjectMapper.GetOrAddMapping<TIn, TOut>();
+            Func<TIn, TOut, TOut> map = ObjectMapper.GetOrAddMapping<TIn, TOut>();
             foreach (var item in input)
             {
-                var copy = map(item);
+                var copy = map(item, default(TOut));
                 extraAction(item, copy);
                 yield return copy;
             }
@@ -60,11 +70,11 @@ namespace Mapper
             Contract.Requires(input != null);
             Contract.Requires(extraAction != null);
             Contract.Ensures(Contract.Result<IEnumerable<TOut>>() != null);
-            Func<TIn, TOut> map = ObjectMapper.GetOrAddMapping<TIn, TOut>();
+            Func<TIn, TOut, TOut> map = ObjectMapper.GetOrAddMapping<TIn, TOut>();
             int i = 0;
             foreach (var item in input)
             {
-                var copy = map(item);
+                var copy = map(item, default(TOut));
                 extraAction(item, copy, i);
                 yield return copy;
                 i++;
