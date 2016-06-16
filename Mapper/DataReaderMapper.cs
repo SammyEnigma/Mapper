@@ -45,7 +45,7 @@ namespace Mapper
                 return CreatePrimativeMapFunc(typeT, columns);
             }
 
-            var map = Mapping.CreateUsingSource(columns, Types.WriteablePublicThings(typeT));
+            var map = Mapping.CreateUsingSource(columns.Cast<Thing>().ToList(), Types.WriteablePublicThings(typeT));
             var readerParam = Expression.Parameter(typeof(DbDataReader), "reader");
             var resultParam = Expression.Parameter(typeT, "result");
             var block = CreateMapBlock(typeT, map, readerParam, resultParam);
@@ -189,7 +189,7 @@ namespace Mapper
                 if (Columns.Count != other.Columns.Count) return false;
                 for (int i = 0; i < Columns.Count; i++)
                 {
-                    if (Columns[i] != other.Columns[i]) return false;
+                    if (!Columns[i].Equals(other.Columns[i])) return false;
                 }
                 return true;
             }

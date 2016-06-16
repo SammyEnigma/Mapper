@@ -4,12 +4,12 @@ using System.Data.Common;
 
 namespace Mapper.UnitTests
 {
-    public class StubDataReader : DbDataReader
+    class StubDataReader : DbDataReader
     {
         public string[] Names;
         public Type[] Types;
         public object[] Values;
-        bool read;
+        internal bool read;
 
         public override string GetName(int i) => Names[i];
         public override Type GetFieldType(int i) => Types[i];
@@ -65,9 +65,10 @@ namespace Mapper.UnitTests
             throw new NotImplementedException();
         }
 
-        public override int GetValues(object[] values)
+        public override int GetValues(object[] copyTo)
         {
-            throw new NotImplementedException();
+            Values.CopyTo(copyTo, 0);
+            return copyTo.Length <= Values.Length ? copyTo.Length : Values.Length;
         }
 
         public override bool NextResult()

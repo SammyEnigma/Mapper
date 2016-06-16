@@ -16,7 +16,7 @@ namespace Mapper
         }
 
         /// <summary>Converts the <paramref name="reader"/> into a <see cref="DataSequence{T}"/></summary>
-        public static DataSequence<T> AsSequenceOf<T>(this DbDataReader reader)
+        public static DataSequence<T> AsSeqOf<T>(this DbDataReader reader)
         {
             Contract.Requires(reader != null);
             Contract.Requires(reader.IsClosed == false);

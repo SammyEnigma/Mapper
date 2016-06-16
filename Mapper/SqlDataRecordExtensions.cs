@@ -4,7 +4,6 @@ using System.Collections.Generic;
 using System.Diagnostics.Contracts;
 using System.Linq;
 using System.Linq.Expressions;
-using System.Reflection;
 using Microsoft.SqlServer.Server;
 
 namespace Mapper
@@ -111,7 +110,7 @@ namespace Mapper
 
         static Delegate CreateMappingFunc(Type typeT, SqlMetaData[] metaData)
         {
-            var columns = metaData.Select((md, i) => new Column(i, md.Name, Types.DBTypeToType[md.DbType])).ToList();
+            var columns = metaData.Select((md, i) => (Thing)new Column(i, md.Name, Types.DBTypeToType[md.DbType])).ToList();
             var mapping = Mapping.CreateUsingDestination(Types.ReadablePublicThings(typeT), columns);
             LambdaExpression lambdaExpression = CreateMappingLambda(typeT, mapping);
             return lambdaExpression.Compile();

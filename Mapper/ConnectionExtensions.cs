@@ -10,27 +10,36 @@ namespace Mapper
     /// </summary>
     public static partial class Extensions
     {
-        public static DataSequence<T> Execute<T>(this DbConnection cnn, string sql, object parameters = null)
+        /// <summary>
+        /// Executes some <paramref name="sql"/> using the optional <paramref name="parameters"/> and return a sequence of data
+        /// </summary>
+        public static DataSequence<T> Query<T>(this DbConnection cnn, string sql, object parameters = null)
         {
             CheckConnectionAndSql(cnn, sql);
             using (var cmd = cnn.CreateCommand())
             {
                 SetupCommand(cmd, cnn, sql, parameters);
-                return cmd.Execute<T>();
+                return cmd.Query<T>();
             }
         }
 
-        public static Task<DataSequence<T>> ExecuteAsync<T>(this DbConnection cnn, string sql, object parameters = null)
+        /// <summary>
+        /// Asynchronously executes some <paramref name="sql"/> using the optional <paramref name="parameters"/> and return a sequence of data
+        /// </summary>
+        public static Task<DataSequence<T>> QueryAsync<T>(this DbConnection cnn, string sql, object parameters = null)
         {
             CheckConnectionAndSql(cnn, sql);
             using (var cmd = cnn.CreateCommand())
             {
                 SetupCommand(cmd, cnn, sql, parameters);
-                return cmd.ExecuteAsync<T>();
+                return cmd.QueryAsync<T>();
             }
         }
 
-        public static int ExecuteNonQuery(this DbConnection cnn, string sql, object parameters = null)
+        /// <summary>
+        /// Executes some <paramref name="sql"/> using the optional <paramref name="parameters"/> and return the number of rows affected
+        /// </summary>
+        public static int Execute(this DbConnection cnn, string sql, object parameters = null)
         {
             CheckConnectionAndSql(cnn, sql);
             using (var cmd = cnn.CreateCommand())
@@ -40,13 +49,42 @@ namespace Mapper
             }
         }
 
-        public static Task<int> ExecuteNonQueryAsync(this DbConnection cnn, string sql, object parameters = null)
+        /// <summary>
+        /// Asynchronously executes some <paramref name="sql"/> using the optional <paramref name="parameters"/> and return the number of rows affected
+        /// </summary>
+        public static Task<int> ExecuteAsync(this DbConnection cnn, string sql, object parameters = null)
         {
             CheckConnectionAndSql(cnn, sql);
             using (var cmd = cnn.CreateCommand())
             {
                 SetupCommand(cmd, cnn, sql, parameters);
                 return cmd.ExecuteNonQueryAsync();
+            }
+        }
+
+        /// <summary>
+        /// Executes some <paramref name="sql"/> using the optional <paramref name="parameters"/> and return a sequence of dynamic data
+        /// </summary>
+        public static DynamicDataSequence Query(this DbConnection cnn, string sql, object parameters = null)
+        {
+            CheckConnectionAndSql(cnn, sql);
+            using (var cmd = cnn.CreateCommand())
+            {
+                SetupCommand(cmd, cnn, sql, parameters);
+                return cmd.Query();
+            }
+        }
+
+        /// <summary>
+        /// Asynchronously executes some <paramref name="sql"/> using the optional <paramref name="parameters"/> and return a sequence of dynamic data
+        /// </summary>
+        public static Task<DynamicDataSequence> QueryAsync(this DbConnection cnn, string sql, object parameters = null)
+        {
+            CheckConnectionAndSql(cnn, sql);
+            using (var cmd = cnn.CreateCommand())
+            {
+                SetupCommand(cmd, cnn, sql, parameters);
+                return cmd.QueryAsync();
             }
         }
 

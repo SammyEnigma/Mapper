@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace Mapper
 {
-    public struct DataSequence<T> : IEnumerable<T>
+    public struct DataSequence<T> : IEnumerable<T>, IDisposable
     {
         readonly Func<DbDataReader, T> map;
         readonly DbDataReader reader;
@@ -20,127 +20,180 @@ namespace Mapper
             map = Extensions.GetMappingFunc<T>(reader);
         }
 
+        /// <remarks>The underlying <see cref="DbDataReader"/> is disposed the <see cref="DataSequenceEnumerator"/> has been enumerated, i.e. after a foreach() loop on it</remarks>
         public DataSequenceEnumerator GetEnumerator() => new DataSequenceEnumerator(map, reader);
+
+        /// <remarks>The underlying <see cref="DbDataReader"/> is disposed the <see cref="DataSequenceEnumerator"/> has been enumerated, i.e. after a foreach() loop on it</remarks>
         IEnumerator<T> IEnumerable<T>.GetEnumerator() => GetEnumerator();
+
+        /// <remarks>The underlying <see cref="DbDataReader"/> is disposed the <see cref="DataSequenceEnumerator"/> has been enumerated, i.e. after a foreach() loop on it</remarks>
         IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 
         /// <summary>Reads exactly one item from the reader</summary>
         /// <exception cref="InvalidOperationException"> when zero values read or more than one value can be read</exception>
+        /// <remarks>The underlying <see cref="DbDataReader"/> is disposed after this method has been called</remarks>
         public T Single()
         {
-            if (!reader.Read()) throw new InvalidOperationException("Expected one value to be read but reader is empty");
-            var item = map(reader);
-            if (reader.Read()) throw new InvalidOperationException("Expected one value to be read but more than one value can be read");
-            return item;
+            using (reader)
+            {
+                if (!reader.Read()) throw new InvalidOperationException("Expected one value to be read but reader is empty");
+                var item = map(reader);
+                if (reader.Read()) throw new InvalidOperationException("Expected one value to be read but more than one value can be read");
+                return item;
+            }
         }
 
         /// <summary>Reads exactly one item from the reader</summary>
         /// <exception cref="InvalidOperationException"> when zero values read or more than one value can be read</exception>
+        /// <remarks>The underlying <see cref="DbDataReader"/> is disposed after this method has been called</remarks>
         public async Task<T> SingleAsync()
         {
-            if (!await reader.ReadAsync()) throw new InvalidOperationException("Expected one value to be read but reader is empty");
-            var single = map(reader);
-            if (await reader.ReadAsync()) throw new InvalidOperationException("Expected one value to be read but more than one value can be read");
-            return single;
+            using (reader)
+            {
+                if (!await reader.ReadAsync()) throw new InvalidOperationException("Expected one value to be read but reader is empty");
+                var single = map(reader);
+                if (await reader.ReadAsync()) throw new InvalidOperationException("Expected one value to be read but more than one value can be read");
+                return single;
+            }
         }
 
         /// <summary>Reads zero or one items from the reader</summary>
         /// <remarks>Returns the default vaue of T if no values be read, i.e may return null</remarks>
+        /// <remarks>The underlying <see cref="DbDataReader"/> is disposed after this method has been called</remarks>
         public T SingleOrDefault()
         {
-            if (!reader.Read()) return default(T);
-            return map(reader);
+            using (reader)
+            {
+                if (!reader.Read()) return default(T);
+                return map(reader);
+            }
         }
 
         /// <summary>Reads zero or one items from the reader</summary>
         /// <remarks>Returns the default vaue of T if no values be read, i.e may return null</remarks>
+        /// <remarks>The underlying <see cref="DbDataReader"/> is disposed after this method has been called</remarks>
         public async Task<T> SingleOrDefaultAsync()
         {
-            if (!await reader.ReadAsync()) return default(T);
-            return map(reader);
+            using (reader)
+            {
+                if (!await reader.ReadAsync()) return default(T);
+                return map(reader);
+            }
         }
 
         /// <summary>Reads all the records in the reader into a list</summary>
+        /// <remarks>The underlying <see cref="DbDataReader"/> is disposed after this method has been called</remarks>
         public List<T> ToList()
         {
             Contract.Ensures(Contract.Result<List<T>>() != null);
-            var list = new List<T>();
-            while (reader.Read())
+            using (reader)
             {
-                list.Add(map(reader));
+                var list = new List<T>();
+                while (reader.Read())
+                {
+                    list.Add(map(reader));
+                }
+                return list;
             }
-            return list;
         }
 
         /// <summary>Reads all the records in the reader into a list</summary>
+        /// <remarks>The underlying <see cref="DbDataReader"/> is disposed after this method has been called</remarks>
         public async Task<List<T>> ToListAsync()
         {
             Contract.Ensures(Contract.Result<Task<List<T>>>() != null);
             Contract.Ensures(Contract.Result<Task<List<T>>>().Result != null);
-            var list = new List<T>();
-            while (await reader.ReadAsync())
+            using (reader)
             {
-                list.Add(map(reader));
+                var list = new List<T>();
+                while (await reader.ReadAsync())
+                {
+                    list.Add(map(reader));
+                }
+                return list;
             }
-            return list;
         }
 
         /// <summary>Reads all the records in the reader into a dictionary, using the supplied <paramref name="keyFunc"/> to generate the key</summary>
+        /// <remarks>The underlying <see cref="DbDataReader"/> is disposed after this method has been called</remarks>
         public Dictionary<TKey, T> ToDictionary<TKey>(Func<T, TKey> keyFunc)
         {
             Contract.Ensures(Contract.Result<Dictionary<TKey, T>>() != null);
-            var dict = new Dictionary<TKey, T>();
-            while (reader.Read())
+            using (reader)
             {
-                T value = map(reader);
-                TKey key = keyFunc(value);
-                dict.Add(key, value);
+                var dict = new Dictionary<TKey, T>();
+                while (reader.Read())
+                {
+                    T value = map(reader);
+                    TKey key = keyFunc(value);
+                    dict.Add(key, value);
+                }
+                return dict;
             }
-            return dict;
         }
 
         /// <summary>Reads all the records in the reader into a dictionary, using the supplied <paramref name="keyFunc"/> to generate the key</summary>
+        /// <remarks>The underlying <see cref="DbDataReader"/> is disposed after this method has been called</remarks>
         public async Task<Dictionary<TKey, T>> ToDictionaryAsync<TKey>(Func<T, TKey> keyFunc)
         {
             Contract.Ensures(Contract.Result<Task<Dictionary<TKey, T>>>() != null);
             Contract.Ensures(Contract.Result<Task<Dictionary<TKey, T>>>().Result != null);
-            var dict = new Dictionary<TKey, T>();
-            while (await reader.ReadAsync())
+            using (reader)
             {
-                T value = map(reader);
-                TKey key = keyFunc(value);
-                dict.Add(key, value);
+                var dict = new Dictionary<TKey, T>();
+                while (await reader.ReadAsync())
+                {
+                    T value = map(reader);
+                    TKey key = keyFunc(value);
+                    dict.Add(key, value);
+                }
+                return dict;
             }
-            return dict;
         }
 
         /// <summary>Reads all the records in the lookup, group by key, using the supplied <paramref name="keyFunc"/> to generate the key</summary>
+        /// <remarks>The underlying <see cref="DbDataReader"/> is disposed after this method has been called</remarks>
         public HashLookup<TKey, T> ToLookup<TKey>(Func<T, TKey> keyFunc)
         {
             Contract.Ensures(Contract.Result<HashLookup<TKey, T>>() != null);
-            var lookup = new HashLookup<TKey, T>();
-            while (reader.Read())
+            using (reader)
             {
-                T value = map(reader);
-                TKey key = keyFunc(value);
-                lookup.Add(key, value);
+                var lookup = new HashLookup<TKey, T>();
+                while (reader.Read())
+                {
+                    T value = map(reader);
+                    TKey key = keyFunc(value);
+                    lookup.Add(key, value);
+                }
+                return lookup;
             }
-            return lookup;
         }
 
         /// <summary>Reads all the records in the lookup, group by key, using the supplied <paramref name="keyFunc"/> to generate the key</summary>
+        /// <remarks>The underlying <see cref="DbDataReader"/> is disposed after this method has been called</remarks>
         public async Task<HashLookup<TKey, T>> ToLookupAsync<TKey>(Func<T, TKey> keyFunc)
         {
             Contract.Ensures(Contract.Result<Task<HashLookup<TKey, T>>>() != null);
             Contract.Ensures(Contract.Result<Task<HashLookup<TKey, T>>>().Result != null);
-            var lookup = new HashLookup<TKey, T>();
-            while (await reader.ReadAsync())
+            using (reader)
             {
-                T value = map(reader);
-                TKey key = keyFunc(value);
-                lookup.Add(key, value);
+                var lookup = new HashLookup<TKey, T>();
+                while (await reader.ReadAsync())
+                {
+                    T value = map(reader);
+                    TKey key = keyFunc(value);
+                    lookup.Add(key, value);
+                }
+                return lookup;
             }
-            return lookup;
+        }
+
+        /// <summary>
+        /// Not call is normally need for this, enumerating this struct will close the reader
+        /// </summary>
+        void IDisposable.Dispose()
+        {
+            reader.Dispose();
         }
 
         public struct DataSequenceEnumerator : IEnumerator<T>

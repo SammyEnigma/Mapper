@@ -17,22 +17,22 @@ namespace Mapper
             return _cmdMapper.AddParameters(cmd, parameters);
         }
 
-        public static DataSequence<T> Execute<T>(this DbCommand cmd)
+        /// <summary>
+        /// Executes a <paramref name="cmd"/> and return a sequence of data
+        /// </summary>
+        public static DataSequence<T> Query<T>(this DbCommand cmd)
         {
             Contract.Requires(cmd != null);
-            using (var reader = cmd.ExecuteReader())
-            {
-                return reader.AsSequenceOf<T>();
-            }
+            return cmd.ExecuteReader().AsSeqOf<T>();
         }
 
-        public static async Task<DataSequence<T>> ExecuteAsync<T>(this DbCommand cmd)
+        /// <summary>
+        /// Asychronously executes a <paramref name="cmd"/> and return a sequence of data
+        /// </summary>
+        public static async Task<DataSequence<T>> QueryAsync<T>(this DbCommand cmd)
         {
             Contract.Requires(cmd != null);
-            using (var reader = await cmd.ExecuteReaderAsync())
-            {
-                return reader.AsSequenceOf<T>();
-            }
+            return (await cmd.ExecuteReaderAsync()).AsSeqOf<T>();
         }
 
         /// <summary>
@@ -57,7 +57,25 @@ namespace Mapper
             object obj = await cmd.ExecuteScalarAsync();
             return obj == null || obj is DBNull? default(T) : (T)obj;
         }
-        
+
+        /// <summary>
+        /// Executes a <paramref name="cmd"/> and return a sequence of dynamic data
+        /// </summary>
+        public static DynamicDataSequence Query(this DbCommand cmd)
+        {
+            Contract.Requires(cmd != null);
+            return new DynamicDataSequence(cmd.ExecuteReader());
+        }
+
+        /// <summary>
+        /// Executes a <paramref name="cmd"/> and return a sequence of dynamic data
+        /// </summary>
+        public static async Task<DynamicDataSequence> QueryAsync(this DbCommand cmd)
+        {
+            Contract.Requires(cmd != null);
+            return new DynamicDataSequence(await cmd.ExecuteReaderAsync());
+        }
+
     }
 
 }

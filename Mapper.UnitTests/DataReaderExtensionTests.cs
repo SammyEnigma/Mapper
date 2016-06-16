@@ -50,7 +50,7 @@ namespace Mapper.UnitTests
                 Types = new[] { typeof(long) },
                 Values = new object[] { 1L },
             };
-            var val = stubDataReader.AsSequenceOf<long>().Single();
+            var val = stubDataReader.AsSeqOf<long>().Single();
         }
 
         [Test]
@@ -62,7 +62,7 @@ namespace Mapper.UnitTests
                 Types = new[] { typeof(long) },
                 Values = new object[] { 1L },
             };
-            var val = stubDataReader.AsSequenceOf<long?>().Single();
+            var val = stubDataReader.AsSeqOf<long?>().Single();
         }
 
         [Test]
@@ -74,7 +74,7 @@ namespace Mapper.UnitTests
                 Types = new[] { typeof(int) },
                 Values = new object[] { 1 },
             };
-            var val = stubDataReader.AsSequenceOf<TestEnum>().Single();
+            var val = stubDataReader.AsSeqOf<TestEnum>().Single();
         }
 
         [Test]
@@ -86,7 +86,7 @@ namespace Mapper.UnitTests
                 Types = new[] { typeof(int) },
                 Values = new object[] { 1 },
             };
-            var val = stubDataReader.AsSequenceOf<TestEnum?>().Single();
+            var val = stubDataReader.AsSeqOf<TestEnum?>().Single();
         }
 
         [Test]
@@ -98,7 +98,7 @@ namespace Mapper.UnitTests
                 Types = new[] { typeof(long) },
                 Values = new object[] { 1L },
             };
-            await stubDataReader.AsSequenceOf<long>().SingleAsync();
+            await stubDataReader.AsSeqOf<long>().SingleAsync();
         }
 
         [Test]
@@ -111,7 +111,7 @@ namespace Mapper.UnitTests
                 Types = new[] { g.GetType() },
                 Values = new object[] { g },
             };
-            var read = stubDataReader.AsSequenceOf<Guid>().Single();
+            var read = stubDataReader.AsSeqOf<Guid>().Single();
             Assert.AreEqual(g, read);
         }
 
@@ -125,7 +125,7 @@ namespace Mapper.UnitTests
                 Types = new[] { dt.GetType() },
                 Values = new object[] { dt },
             };
-            var read = stubDataReader.AsSequenceOf<DateTime>().Single();
+            var read = stubDataReader.AsSeqOf<DateTime>().Single();
             Assert.AreEqual(dt, read);
         }
 
@@ -139,7 +139,7 @@ namespace Mapper.UnitTests
                 Types = new[] { g.GetType() },
                 Values = new object[] { g },
             };
-            var read = stubDataReader.AsSequenceOf<Guid?>().Single();
+            var read = stubDataReader.AsSeqOf<Guid?>().Single();
             Assert.AreEqual(g, read.Value);
         }
 
@@ -152,7 +152,7 @@ namespace Mapper.UnitTests
                 Types = new[] { typeof(long) },
                 Values = new object[] { 1L },
             };
-            var val = stubDataReader.AsSequenceOf<TestStruct<long>>().Single();
+            var val = stubDataReader.AsSeqOf<TestStruct<long>>().Single();
             Assert.AreEqual(1L, val.Value);
         }
 

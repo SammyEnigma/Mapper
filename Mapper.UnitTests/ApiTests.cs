@@ -17,7 +17,7 @@ namespace Mapper.UnitTests
                 Types = new[] { typeof(long) },
                 Values = new object[] { 1L },
             };
-            reader.AsSequenceOf<long>().Single();
+            reader.AsSeqOf<long>().Single();
         }
 
     }

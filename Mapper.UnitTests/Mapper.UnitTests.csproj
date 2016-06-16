@@ -62,6 +62,7 @@
     <Compile Include="ApiTests.cs" />
     <Compile Include="CommandExtensionTests.cs" />
     <Compile Include="DataReaderExtensionTests.cs" />
+    <Compile Include="DynamicTests.cs" />
     <Compile Include="MapExtensionTests.cs" />
     <Compile Include="Entity.cs" />
     <Compile Include="MappingTests.cs" />

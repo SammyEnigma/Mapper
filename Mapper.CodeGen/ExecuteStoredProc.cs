@@ -32,9 +32,9 @@ join sys.systypes t on t.xtype = p.system_type_id
 where p.[object_id] = OBJECT_ID(@procName, 'P') 
 order by p.parameter_id";
 
-            var procCols = connection.Execute<ProcColumn>(sql, new { procName }).ToList();
+            var procCols = connection.Query<ProcColumn>(sql, new { procName }).ToList();
             Console.WriteLine($"proc has {procCols.Count} parameters");
-            var cols = new List<Column>();
+            var cols = new List<Thing>();
             int i = 0;
             foreach (var pc in procCols)
             {
