@@ -13,9 +13,15 @@ namespace Mapper
             if (type.IsPrimitiveOrEnum() || (Types.IsNullable(type) && type.NullableOf().IsPrimitiveOrEnum()))
             {
                 if (name.EndsWith("Id", StringComparison.OrdinalIgnoreCase))
-                    names.Add(name.Substring(0, name.Length - 2));
+                {
+                    var left = name.Substring(0, name.Length - 2);
+                    if (!string.IsNullOrWhiteSpace(left) && !names.Contains(left))
+                        names.Add(left);
+                }
                 else
+                {
                     names.Add(name + "Id");
+                }
             }
 
             // see if we need to replace underscores
