@@ -45,7 +45,7 @@ namespace Mapper
                 return CreatePrimativeMapFunc(typeT, columns);
             }
 
-            var map = Mapping.CreateUsingSource(columns.Cast<Thing>().ToList(), Types.WriteablePublicThings(typeT));
+            var map = Mapping.CreateUsingSource(columns.Cast<Thing>().ToList(), Types.WriteablePublicThings(typeT), typeT.Name);
             var readerParam = Expression.Parameter(typeof(DbDataReader), "reader");
             var resultParam = Expression.Parameter(typeT, "result");
             var block = CreateMapBlock(typeT, map, readerParam, resultParam);

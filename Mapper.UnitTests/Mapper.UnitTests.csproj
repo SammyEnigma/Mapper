@@ -68,6 +68,7 @@
     <Compile Include="MapExtensionTests.cs" />
     <Compile Include="Entity.cs" />
     <Compile Include="MappingTests.cs" />
+    <Compile Include="NameTest.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="SqlDataRecordExtensionTests.cs" />
     <Compile Include="StubDataReader.cs" />

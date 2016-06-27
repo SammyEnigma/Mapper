@@ -111,7 +111,7 @@ namespace Mapper
         static Delegate CreateMappingFunc(Type typeT, SqlMetaData[] metaData)
         {
             var columns = metaData.Select((md, i) => (Thing)new Column(i, md.Name, Types.DBTypeToType[md.DbType])).ToList();
-            var mapping = Mapping.CreateUsingDestination(Types.ReadablePublicThings(typeT), columns);
+            var mapping = Mapping.CreateUsingDestination(Types.ReadablePublicThings(typeT), columns, typeT.Name);
             LambdaExpression lambdaExpression = CreateMappingLambda(typeT, mapping);
             return lambdaExpression.Compile();
         }

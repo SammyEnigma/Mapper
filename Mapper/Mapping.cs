@@ -41,7 +41,7 @@ namespace Mapper
         /// <summary>
         /// Creates the mapping between <paramref name="sourceMappings"/> and <paramref name="destinationMappings"/> using the DESTINATION to generate candidate names for the mapping
         /// </summary>
-        internal static List<Mapping> CreateUsingDestination(IReadOnlyCollection<Thing> sourceMappings, IReadOnlyCollection<Thing> destinationMappings)
+        internal static List<Mapping> CreateUsingDestination(IReadOnlyCollection<Thing> sourceMappings, IReadOnlyCollection<Thing> destinationMappings, string canRemovePrefix = null)
         {
             Contract.Requires(sourceMappings != null);
             Contract.Requires(sourceMappings.Count > 0);
@@ -52,7 +52,7 @@ namespace Mapper
             var sourceByName = sourceMappings.ToDictionary(m => m.Name, StringComparer.OrdinalIgnoreCase);
             foreach (Thing dest in destinationMappings)
             {
-                var source = Names.Candidates(dest.Name, dest.Type)
+                var source = Names.Candidates(dest.Name, dest.Type, canRemovePrefix)
                     .Where(name => sourceByName.ContainsKey(name))
                     .Select(name => sourceByName[name])
                     .Where(src => Types.AreInSomeSenseCompatible(src.Type, dest.Type))
@@ -70,7 +70,7 @@ namespace Mapper
         }
 
         /// <summary>
-        /// Creates the mapping between <paramref name="sourc"/> and <paramref name="destination"/> using the SOURCE to generate candidate names for the mapping
+        /// Creates the mapping between <paramref name="source"/> and <paramref name="destination"/> using the SOURCE to generate candidate names for the mapping
         /// </summary>
         internal static List<Mapping> CreateUsingSource(Type source, Type destination) => CreateUsingSource(Types.WriteablePublicThings(source), Types.WriteablePublicThings(destination));
 
@@ -82,7 +82,7 @@ namespace Mapper
         /// <summary>
         /// Creates the mapping between <paramref name="sourceMappings"/> and <paramref name="destinationMappings"/> using the SOURCE to generate candidate names for the mapping
         /// </summary>
-        internal static List<Mapping> CreateUsingSource(IReadOnlyCollection<Thing> sourceMappings, IReadOnlyCollection<Thing> destinationMappings)
+        internal static List<Mapping> CreateUsingSource(IReadOnlyCollection<Thing> sourceMappings, IReadOnlyCollection<Thing> destinationMappings, string canRemovePrefix = null)
         {
             Contract.Requires(sourceMappings != null);
             Contract.Requires(sourceMappings.Count > 0);
@@ -93,7 +93,7 @@ namespace Mapper
             var destByName = destinationMappings.ToDictionary(m => m.Name, StringComparer.OrdinalIgnoreCase);
             foreach (Thing source in sourceMappings)
             {
-                var dest = Names.Candidates(source.Name, source.Type)
+                var dest = Names.Candidates(source.Name, source.Type, canRemovePrefix)
                     .Where(name => destByName.ContainsKey(name))
                     .Select(name => destByName[name])
                     .Where(d => Types.AreInSomeSenseCompatible(source.Type, d.Type))
