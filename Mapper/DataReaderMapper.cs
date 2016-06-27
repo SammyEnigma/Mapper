@@ -21,7 +21,7 @@ namespace Mapper
             return Methods.GetOrAdd(new MetaData(typeT, columns), md => CreateMapFunc(md.Target, md.Columns));
         }
 
-        static Column[] CreateColumnList(DbDataReader reader)
+        internal static Column[] CreateColumnList(DbDataReader reader)
         {
             Contract.Requires(reader != null);
             Contract.Ensures(Contract.Result<Column[]>() != null);
@@ -172,7 +172,7 @@ namespace Mapper
             throw new NotSupportedException(columnType.ToString());
         }
 
-        struct MetaData : IEquatable<MetaData>
+        internal struct MetaData : IEquatable<MetaData>
         {
             public readonly Type Target;
             public readonly IReadOnlyList<Column> Columns;

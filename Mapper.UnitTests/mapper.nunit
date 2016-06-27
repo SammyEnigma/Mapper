@@ -3,5 +3,7 @@
   <Config name="Debug" binpathtype="Auto" runtimeFramework="net-4.0.21006">
     <assembly path="bin\Debug\Mapper.UnitTests.dll" />
   </Config>
-  <Config name="Release" binpathtype="Auto" />
+  <Config name="Release" binpathtype="Auto" runtimeFramework="net-4.0.21006">
+    <assembly path="bin\Release\Mapper.UnitTests.dll" />
+  </Config>
 </NUnitProject>

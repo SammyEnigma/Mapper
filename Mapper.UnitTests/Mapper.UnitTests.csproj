@@ -60,7 +60,9 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="ApiTests.cs" />
+    <Compile Include="Benchmark.cs" />
     <Compile Include="CommandExtensionTests.cs" />
+    <Compile Include="DataReaderDictionaryBenchmark.cs" />
     <Compile Include="DataReaderExtensionTests.cs" />
     <Compile Include="DynamicTests.cs" />
     <Compile Include="MapExtensionTests.cs" />
