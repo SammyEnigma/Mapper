@@ -266,7 +266,7 @@ namespace Mapper
             return await seq.ToListAsync();
         }
 
-        public static async Task<Dictionary<TKey, TValue>> ToDictionary<TKey, TValue>(this Task<DataSequence<TValue>> task, Func<TValue, TKey> keyFunc)
+        public static async Task<Dictionary<TKey, TValue>> ToDictionaryAsync<TKey, TValue>(this Task<DataSequence<TValue>> task, Func<TValue, TKey> keyFunc)
         {
             Contract.Requires(task != null);
             Contract.Ensures(Contract.Result<Task<Dictionary<TKey, TValue>>>() != null);
@@ -275,7 +275,7 @@ namespace Mapper
             return await seq.ToDictionaryAsync(keyFunc);
         }
 
-        public static async Task<HashLookup<TKey, TValue>> ToLookup<TKey, TValue>(this Task<DataSequence<TValue>> task, Func<TValue, TKey> keyFunc)
+        public static async Task<HashLookup<TKey, TValue>> ToLookupAsync<TKey, TValue>(this Task<DataSequence<TValue>> task, Func<TValue, TKey> keyFunc)
         {
             Contract.Requires(task != null);
             Contract.Ensures(Contract.Result<Task<HashLookup<TKey, TValue>>>() != null);
