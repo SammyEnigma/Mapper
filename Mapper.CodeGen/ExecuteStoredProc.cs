@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Data;
 using System.Data.Common;
 using System.Diagnostics.Contracts;
 using System.Linq;
@@ -7,13 +8,23 @@ using System.Text;
 
 namespace Mapper
 {
-    public class SqlStoredProcCallGenerator
+    public static partial class CodeGen
     {
         static readonly Subject<string> _trace = new Subject<string>();
 
         public static IObservable<string> Trace => _trace;
 
-        internal static string Generate(DbConnection connection, string procName, object parameter)
+        public static string ExecuteStoredProc(this DbConnection cnn, string procName, object parameters)
+        {
+            Contract.Requires(cnn != null);
+            Contract.Requires(!string.IsNullOrWhiteSpace(procName));
+            if (cnn.State != ConnectionState.Open)
+                cnn.Open();
+
+            return ExecuteStoredProcInternal(cnn, procName, parameters);
+        }
+
+        internal static string ExecuteStoredProcInternal(DbConnection connection, string procName, object parameter)
         {
             const string sql = @"select p.name, t.name as [type], p.max_length
 from sys.all_parameters p 
@@ -21,9 +32,9 @@ join sys.systypes t on t.xtype = p.system_type_id
 where p.[object_id] = OBJECT_ID(@procName, 'P') 
 order by p.parameter_id";
 
-            var procCols = connection.QueryList<ProcColumn>(sql, new { procName });
+            var procCols = connection.Query<ProcColumn>(sql, new { procName }).ToList();
             Console.WriteLine($"proc has {procCols.Count} parameters");
-            var cols = new List<Column>();
+            var cols = new List<Thing>();
             int i = 0;
             foreach (var pc in procCols)
             {

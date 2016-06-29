@@ -4,12 +4,11 @@ using System.Collections.Generic;
 using System.Diagnostics.Contracts;
 using System.Linq;
 using System.Linq.Expressions;
-using System.Reflection;
 using Microsoft.SqlServer.Server;
 
 namespace Mapper
 {
-    public static class SqlDataRecordExtensions
+    public static partial class Extensions
     {
         static readonly MostlyReadDictionary<TypeAndMetaData, Delegate> Methods = new MostlyReadDictionary<TypeAndMetaData, Delegate>();
 
@@ -111,8 +110,8 @@ namespace Mapper
 
         static Delegate CreateMappingFunc(Type typeT, SqlMetaData[] metaData)
         {
-            var columns = metaData.Select((md, i) => new Column(i, md.Name, Types.DBTypeToType[md.DbType])).ToList();
-            var mapping = Mapping.CreateUsingDestination(Types.ReadablePublicThings(typeT), columns);
+            var columns = metaData.Select((md, i) => (Thing)new Column(i, md.Name, Types.DBTypeToType[md.DbType])).ToList();
+            var mapping = Mapping.CreateUsingDestination(Types.ReadablePublicThings(typeT), columns, typeT.Name);
             LambdaExpression lambdaExpression = CreateMappingLambda(typeT, mapping);
             return lambdaExpression.Compile();
         }

@@ -59,11 +59,16 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="ApiTests.cs" />
+    <Compile Include="Benchmark.cs" />
     <Compile Include="CommandExtensionTests.cs" />
+    <Compile Include="DataReaderDictionaryBenchmark.cs" />
     <Compile Include="DataReaderExtensionTests.cs" />
-    <Compile Include="MapExtensionTests.cs" />
+    <Compile Include="DynamicTests.cs" />
+    <Compile Include="CopyExtensionTests.cs" />
     <Compile Include="Entity.cs" />
     <Compile Include="MappingTests.cs" />
+    <Compile Include="NameTest.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="SqlDataRecordExtensionTests.cs" />
     <Compile Include="StubDataReader.cs" />

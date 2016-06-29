@@ -35,18 +35,19 @@ namespace Mapper
                 // some other thread may have just added it
                 if (_map.TryGetValue(key, out value)) return value;
 
-                // we are going to add the value
+                // the function may take "some time" so evalutate it outside of the write lock so other threads can still read the dictionary
+                value = addFunc(key);
+
                 _rwLock.EnterWriteLock();
                 try
                 {
-                    value = addFunc(key);
                     _map[key] = value;
-                    return value;
                 }
                 finally
                 {
                     _rwLock.ExitWriteLock();
                 }
+                return value;
             }
             finally
             {

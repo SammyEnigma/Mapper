@@ -18,6 +18,7 @@ namespace Mapper
         {
             Contract.Requires(cmd != null);
             Contract.Requires(parameters != null);
+            Contract.Ensures(Contract.Result<DbCommand>() == cmd);
             Action<DbCommand, object> action = Methods.GetOrAdd(parameters.GetType(), CreateAddParametersAction);
             action(cmd, parameters);
             return cmd;
@@ -44,7 +45,7 @@ namespace Mapper
                 if (Types.IsStructured(propertyType))
                 {
                     if (propertyType != typeof(TableType))
-                        throw new NotSupportedException($"Parameter {dataParam.Name} implements {nameof(IEnumerable<SqlDataRecord>)} but type name is unknown.  Please wrap parameter by calling {nameof(SqlDataRecordExtensions.WithTypeName)}");
+                        throw new NotSupportedException($"Parameter {dataParam.Name} implements {nameof(IEnumerable<SqlDataRecord>)} but type name is unknown.  Please wrap parameter by calling {nameof(Extensions.WithTypeName)}");
 
                     lines.Add(Expression.IfThen(
                         Expression.Not(Expression.TypeIs(cmd, typeof(DbCommand))),

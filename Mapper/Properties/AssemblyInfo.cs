@@ -3,7 +3,7 @@ using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 
 [assembly: AssemblyTitle("Mapper")]
-[assembly: AssemblyDescription(".NET object mapper, cloner, and data mapper (System.Data)")]
+[assembly: AssemblyDescription(".NET object mapper, copier, and data mapper (System.Data)")]
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("Open source")]
 [assembly: AssemblyProduct("Mapper")]
@@ -11,7 +11,8 @@ using System.Runtime.InteropServices;
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
 [assembly: ComVisible(false)]
-[assembly: AssemblyVersion("1.5.0.0")]
-[assembly: AssemblyFileVersion("1.5.0")]
+[assembly: AssemblyVersion("3.0.0.0")]
+[assembly: AssemblyFileVersion("3.0.0")]
 
 [assembly: InternalsVisibleTo("Mapper.UnitTests")]
+[assembly: InternalsVisibleTo("Mapper.CodeGen")]

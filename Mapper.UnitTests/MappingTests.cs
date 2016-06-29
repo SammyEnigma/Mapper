@@ -12,7 +12,7 @@ namespace Mapper.UnitTests.MappingTests
         public void maps_column_to_property(string colName)
         {
             var col = new Column(0, colName, typeof(int));
-            var mapping = Mapping.CreateUsingSource(new[] { col }, new TestPropertyId { OrderId = 1 }.GetType());
+            var mapping = Mapping.CreateUsingSource(new Thing[] { col }, new TestPropertyId { OrderId = 1 }.GetType());
             Assert.AreEqual(1, mapping.Count, "count");
             var map = mapping[0];
             Assert.AreEqual(col, map.From);
@@ -26,7 +26,7 @@ namespace Mapper.UnitTests.MappingTests
         public void maps_column_to_field(string colName)
         {
             var col = new Column(0, colName, typeof(int));
-            var mapping = Mapping.CreateUsingSource(new[] { col }, new TestFieldId { OrderId = 1 }.GetType());
+            var mapping = Mapping.CreateUsingSource(new Thing[] { col }, new TestFieldId { OrderId = 1 }.GetType());
             Assert.AreEqual(1, mapping.Count, "count");
             var map = mapping[0];
             Assert.AreEqual(col, map.From);
@@ -42,7 +42,7 @@ namespace Mapper.UnitTests.MappingTests
         public void maps_column_to_property_without_id_suffix(string colName)
         {
             var col = new Column(0, colName, typeof(int));
-            var mapping = Mapping.CreateUsingSource(new[] { col }, new TestProperty { Order = 1 }.GetType());
+            var mapping = Mapping.CreateUsingSource(new Thing[] { col }, new TestProperty { Order = 1 }.GetType());
             Assert.AreEqual(1, mapping.Count, "count");
             var map = mapping[0];
             Assert.AreEqual(col, map.From);
@@ -58,7 +58,7 @@ namespace Mapper.UnitTests.MappingTests
         public void maps_column_to_field_without_id_suffix(string colName)
         {
             var col = new Column(0, colName, typeof(int));
-            var mapping = Mapping.CreateUsingSource(new[] { col }, new TestField { Order = 1 }.GetType());
+            var mapping = Mapping.CreateUsingSource(new Thing[] { col }, new TestField { Order = 1 }.GetType());
             Assert.AreEqual(1, mapping.Count, "count");
             var map = mapping[0];
             Assert.AreEqual(col, map.From);
@@ -76,7 +76,7 @@ namespace Mapper.UnitTests.MappingTests
         public void maps_column_to_property(string colName)
         {
             var col = new Column(0, colName, typeof(int));
-            var mapping = Mapping.CreateUsingDestination(new TestPropertyId { OrderId = 1 }.GetType(), new[] { col });
+            var mapping = Mapping.CreateUsingDestination(new TestPropertyId { OrderId = 1 }.GetType(), new Thing[] { col });
             Assert.AreEqual(1, mapping.Count, "count");
             var map = mapping[0];
             Assert.AreEqual(col, map.To);
@@ -90,7 +90,7 @@ namespace Mapper.UnitTests.MappingTests
         public void maps_column_to_field(string colName)
         {
             var col = new Column(0, colName, typeof(int));
-            var mapping = Mapping.CreateUsingDestination(new TestFieldId { OrderId = 1 }.GetType(), new[] { col });
+            var mapping = Mapping.CreateUsingDestination(new TestFieldId { OrderId = 1 }.GetType(), new Thing[] { col });
             Assert.AreEqual(1, mapping.Count, "count");
             var map = mapping[0];
             Assert.AreEqual(col, map.To);
@@ -106,7 +106,7 @@ namespace Mapper.UnitTests.MappingTests
         public void maps_column_to_property_without_id_suffix(string colName)
         {
             var col = new Column(0, colName, typeof(int));
-            var mapping = Mapping.CreateUsingDestination(new TestProperty { Order = 1 }.GetType(), new[] { col });
+            var mapping = Mapping.CreateUsingDestination(new TestProperty { Order = 1 }.GetType(), new Thing[] { col });
             Assert.AreEqual(1, mapping.Count, "count");
             var map = mapping[0];
             Assert.AreEqual(col, map.To);
@@ -122,7 +122,7 @@ namespace Mapper.UnitTests.MappingTests
         public void maps_column_to_field_without_id_suffix(string colName)
         {
             var col = new Column(0, colName, typeof(int));
-            var mapping = Mapping.CreateUsingDestination(new TestField { Order = 1 }.GetType(), new[] { col });
+            var mapping = Mapping.CreateUsingDestination(new TestField { Order = 1 }.GetType(), new Thing[] { col });
             Assert.AreEqual(1, mapping.Count, "count");
             var map = mapping[0];
             Assert.AreEqual(col, map.To);

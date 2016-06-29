@@ -9,7 +9,7 @@ using System.Linq;
 
 namespace Mapper
 {
-    internal class Grouping<TKey, TElement> : IGrouping<TKey, TElement>, IList<TElement>, IReadOnlyCollection<TElement>
+    class Grouping<TKey, TElement> : IGrouping<TKey, TElement>, IList<TElement>, IReadOnlyCollection<TElement>
     {
         internal TKey _key;
         internal int _hashCode;
@@ -17,10 +17,6 @@ namespace Mapper
         internal int _count;
         internal Grouping<TKey, TElement> _hashNext;
         internal Grouping<TKey, TElement> _next;
-
-        internal Grouping()
-        {
-        }
 
         internal void Add(TElement element)
         {

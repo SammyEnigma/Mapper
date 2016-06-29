@@ -21,7 +21,7 @@ namespace Mapper
             return Methods.GetOrAdd(new MetaData(typeT, columns), md => CreateMapFunc(md.Target, md.Columns));
         }
 
-        static Column[] CreateColumnList(DbDataReader reader)
+        internal static Column[] CreateColumnList(DbDataReader reader)
         {
             Contract.Requires(reader != null);
             Contract.Ensures(Contract.Result<Column[]>() != null);
@@ -45,7 +45,7 @@ namespace Mapper
                 return CreatePrimativeMapFunc(typeT, columns);
             }
 
-            var map = Mapping.CreateUsingSource(columns, Types.WriteablePublicThings(typeT));
+            var map = Mapping.CreateUsingSource(columns.Cast<Thing>().ToList(), Types.WriteablePublicThings(typeT), typeT.Name);
             var readerParam = Expression.Parameter(typeof(DbDataReader), "reader");
             var resultParam = Expression.Parameter(typeT, "result");
             var block = CreateMapBlock(typeT, map, readerParam, resultParam);
@@ -172,7 +172,7 @@ namespace Mapper
             throw new NotSupportedException(columnType.ToString());
         }
 
-        struct MetaData : IEquatable<MetaData>
+        internal struct MetaData : IEquatable<MetaData>
         {
             public readonly Type Target;
             public readonly IReadOnlyList<Column> Columns;
@@ -189,7 +189,7 @@ namespace Mapper
                 if (Columns.Count != other.Columns.Count) return false;
                 for (int i = 0; i < Columns.Count; i++)
                 {
-                    if (Columns[i] != other.Columns[i]) return false;
+                    if (!Columns[i].Equals(other.Columns[i])) return false;
                 }
                 return true;
             }
