@@ -8,7 +8,7 @@ using Microsoft.SqlServer.Server;
 
 namespace Mapper
 {
-    public static class SqlDataRecordExtensions
+    public static partial class Extensions
     {
         static readonly MostlyReadDictionary<TypeAndMetaData, Delegate> Methods = new MostlyReadDictionary<TypeAndMetaData, Delegate>();
 

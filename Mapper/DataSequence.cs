@@ -238,4 +238,51 @@ namespace Mapper
             }
         }
     }
+
+    public static partial class Extensions
+    {
+        public static async Task<T> SingleOrDefaultAsync<T>(this Task<DataSequence<T>> task)
+        {
+            Contract.Requires(task != null);
+            Contract.Ensures(Contract.Result<Task<T>>() != null);
+            var seq = await task;
+            return await seq.SingleOrDefaultAsync();
+        }
+
+        public static async Task<T> SingleAsync<T>(this Task<DataSequence<T>> task)
+        {
+            Contract.Requires(task != null);
+            Contract.Ensures(Contract.Result<Task<T>>() != null);
+            var seq = await task;
+            return await seq.SingleAsync();
+        }
+
+        public static async Task<List<T>> ToListAsync<T>(this Task<DataSequence<T>> task)
+        {
+            Contract.Requires(task != null);
+            Contract.Ensures(Contract.Result<Task<List<T>>>() != null);
+            Contract.Ensures(Contract.Result<Task<List<T>>>().Result != null);
+            var seq = await task;
+            return await seq.ToListAsync();
+        }
+
+        public static async Task<Dictionary<TKey, TValue>> ToDictionary<TKey, TValue>(this Task<DataSequence<TValue>> task, Func<TValue, TKey> keyFunc)
+        {
+            Contract.Requires(task != null);
+            Contract.Ensures(Contract.Result<Task<Dictionary<TKey, TValue>>>() != null);
+            Contract.Ensures(Contract.Result<Task<Dictionary<TKey, TValue>>>().Result != null);
+            var seq = await task;
+            return await seq.ToDictionaryAsync(keyFunc);
+        }
+
+        public static async Task<HashLookup<TKey, TValue>> ToLookup<TKey, TValue>(this Task<DataSequence<TValue>> task, Func<TValue, TKey> keyFunc)
+        {
+            Contract.Requires(task != null);
+            Contract.Ensures(Contract.Result<Task<HashLookup<TKey, TValue>>>() != null);
+            Contract.Ensures(Contract.Result<Task<HashLookup<TKey, TValue>>>().Result != null);
+            var seq = await task;
+            return await seq.ToLookupAsync(keyFunc);
+        }
+
+    }
 }

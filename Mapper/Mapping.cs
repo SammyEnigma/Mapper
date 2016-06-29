@@ -6,7 +6,7 @@ using System.Reflection;
 
 namespace Mapper
 {
-    /// <remarks>Only public so yoiu can observe <see cref="Trace"/> for things that have not been mapped</remarks>
+    /// <remarks>This is marked as public so users can observe <see cref="Trace"/> for things that have not been mapped</remarks>
     public struct Mapping
     {
         internal static readonly Subject<string> _trace = new Subject<string>();

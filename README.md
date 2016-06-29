@@ -5,22 +5,28 @@ Sort of a replacement for Dapper (150K) and Automapper (350K) but `Mapper` is *m
 
 Performance is "good" as `Mapper` uses the DLR to create and JIT compile methods to do the mapping, and these methods are cached.
 
-## Cloning
+## Copying an object
 
-`Mapper` contains an extension method for all objects called `Clone` which performs a *shallow* clone. The type being cloned *must* have a parameterless contructor, then all public properties and fields are copied.
+`Mapper` contains an extension method for all objects called `Copy<T>()` which returns a *shallow* copy of the original object. The type being cloned *must* have a parameterless contructor, then all public properties and fields are copied.
 
-`Mapper` can also clone sequences of object via the `CloneSome<T>()` extension which takes a `IEnumerable<T>` and returns an `IEnumerable<T>`.
+`Mapper` can also clone sequences of object via the `CopyAll<T>()` extension which takes a `IEnumerable<T>` and returns an `IEnumerable<T>`.
 
-## Mapping
+To allow for customized copying the following overloads of `CopyAll<T>()` take an extra action to be performed on each copy:
+* `CopyAll<T>(Func<T, T>)` calls the supplied function for each copied object 
+* `CopyAll<T>(Func<T, T, int>)` calls the supplied function for each mapped object passing the zero based index of the object 
 
-You can copy an object of one type to another type using the `Map<TFrom,TTo>()` extension method.  The type being mapped to *must* have a parameterless contructor, then all readable public properties (and fields) of the source type are copied to properties (or fields) of the target type.  
+## Copying between different types
 
-`Mapper` can also copy sequences of objects via the `MapSome<TFrom,TTo>()` extension which takes a `IEnumerable<TFrom>` and returns an `IEnumerable<TTo>`.  `MapSome<TFrom,TTo>()` has overloads that allow the mapping to be customized:
+You can copy an object of one type to another type using the `Copy<TFrom,TTo>()` extension method.  The type being mapped *to* **must** have a parameterless contructor, then all readable public properties (and fields) of the source type are copied to properties (or fields) of the target type.  
 
-* `MapSome<TFrom,TTo>(Func<TFrom,TTo>)` calls the supplied function for each mapped object
-* `MapSome<TFrom,TTo>(Func<TFrom,TTo, int>)` calls the supplied function for each mapped object passing the zero based index of the object 
+`Mapper` can also copy sequences of objects via the `CopyAll<TFrom,TTo>()` extension which takes a `IEnumerable<TFrom>` and returns an `IEnumerable<TTo>`.  `MapSome<TFrom,TTo>()` has overloads that allow the mapping to be customized:
 
-A property (or field) types must be compatible in some sense, the following list the type compatibility rules:
+* `CopyAll<TFrom,TTo>(Func<TFrom,TTo>)` calls the supplied function for each mapped object
+* `CopyAll<TFrom,TTo>(Func<TFrom,TTo, int>)` calls the supplied function for each mapped object passing the zero based index of the object 
+
+## Type compatibility
+
+When copying data types must be compatible in *some sense*, the following lists the type compatibility rules:
 
 | Source Type                                       | Target Type                                                                                                              |
 |---------------------------------------------------|--------------------------------------------------------------------------------------------------------------------------|
@@ -31,11 +37,15 @@ A property (or field) types must be compatible in some sense, the following list
 
 ## Name compatibility
 
-For `Map`, `MapSome` and all the data mappings, the following rules apply when looking for candidate names:
+For `Copy`, `CopyAll` and all the data mappings, the following rules apply when looking for the destination field or property to map to:
 
 1. the source name (case insensitive)
 2. if the name ends with 'ID' then try the name without 'ID'  (case insensitive)
-3. the name above names with underscores removed  (case insensitive)
+3. if the name does *not* end with 'ID' then try the name with 'Id' suffix added (case insensitive)
+4. the above names with underscores removed  (case insensitive)
+5. the above names with the target class name prefix removed (case insensitive)
+
+Note that the rules are following in the above sequence, and that rules 2 & 3 only apply when the data type of the field being mapped is a primative type, and enum, or a nullable<T> of those types.
 
 For example, if the source name is `ORDER_ID` then the following names would be considered  (shown in perference order):
 
@@ -43,33 +53,95 @@ For example, if the source name is `ORDER_ID` then the following names would be 
 2. ORDER_
 3. ORDERID
 4. ORDER
+5. ID     (* this will be consider when mapping from a DbDataReader to a type called `Order`)
 
 Note: name comparison is *case insensitive*.
 
 ## Data extensions
 
-The headline examples is much like Dapper, but methods have strongly typed return values:
+ADO.NET connections have `Query<T>()` and `Execute()` extension methods added.
 
-Select a list:
-```
-List<Order> list = connection.Execute<Order>("select * from dbo.[Order] where order_id = @OrderId", new { OrderId = 123 }).ToList();
-```
+The `Query<T>()` methods return a `DataSequence<T>` which has method to convert to Lists, Dictionary and Lookups, as well as allow custom collection creation by being `IEnumerable<T>`.
 
-Select a dictionary keyed by the primary key:
+Query returning a list:
 ```
-Dictionary<int, Order> byId = connection.Execute<Order>("select * from dbo.[Order] where status = @Status", new { Status = 1 }).ToDictionary(order => order.Id);
+List<Order> list = connection.Query<Order>("select * from dbo.[Order] where order_id = @OrderId", new { OrderId = 123 }).ToList();
 ```
 
-Select a key to multiple value `HashLookup`:
+Asynchronously query returning a list:
 ```
-HasLookup<int, Order> byStatus = connection.Execute<Order>("select * from dbo.[Order] where order_date > @OrderDate", new { OrderDate = new DateTime(2016, 8, 1) }).ToLookup(order => order.Status);
+List<Order> list = await connection.QueryAsync<Order>("select * from dbo.[Order] where order_id = @OrderId", new { OrderId = 123 }).ToListAsync();
+```
+
+Query returning a dictionary for a unqiue key:
+```
+Dictionary<int, Order> byId = connection.Query<Order>("select * from dbo.[Order] where status = @Status", new { Status = 1 }).ToDictionary(order => order.Id);
+```
+
+Asynchronously query returning a dictionary for a unqiue key::
+```
+Dictionary<int, Order> byId = await connection.QueryAsync<Order>("select * from dbo.[Order] where status = @Status", new { Status = 1 }).ToDictionaryAsync(order => order.Id);
+```
+
+Query returning `HashLookup` for a non-unqiue key:
+```
+HashLookup<int, Order> byStatus = connection.Query<Order>("select * from dbo.[Order] where order_date > @OrderDate", new { OrderDate = new DateTime(2016, 8, 1) }).ToLookup(order => order.Status);
+```
+
+Asynchronously query returning `HashLookup` for a non-unqiue key:
+```
+HashLookup<int, Order> byStatus = await connection.QueryAsync<Order>("select * from dbo.[Order] where order_date > @OrderDate", new { OrderDate = new DateTime(2016, 8, 1) }).ToLookupAsync(order => order.Status);
+```
+
+Query returning exactly one row:
+```
+Order order = connection.Query<Order>("select * from dbo.[Order] where order_id = @OrderId", new { OrderId = 123 }).ToSingle();
+```
+
+Asynchronously query returning exactly one row:
+```
+Order order = await connection.QueryAsync<Order>("select * from dbo.[Order] where order_id = @OrderId", new { OrderId = 123 }).ToSingleAsync();
+```
+
+Query returning exactly one row of a primative type:
+```
+int count = connection.Query<int>("select count(*) from dbo.[Order] where order_type = @orderType", new { orderType = 3 }).ToSingle();
+```
+
+Query returning exactly zero or one rows:
+```
+Order order = connection.Query<Order>("select * from dbo.[Order] where order_id = @OrderId", new { OrderId = 123 }).ToSingleOrDefault();
+```
+
+Asynchronously query returning zero or one rows:
+```
+Order order = await connection.QueryAsync<Order>("select * from dbo.[Order] where order_id = @OrderId", new { OrderId = 123 }).ToSingleOrDefaultAsync();
+```
+
+Query returning zero or one rows of a enum:
+```
+OrderType? orderType = connection.Query<OrderType?>("select order_type_id from dbo.[Order] where order_id = @OrderId", new { OrderId = 123 }).ToSingleOrDefault();
+```
+
+Call a stored procedure that does not return results set(s)
+```
+int rowsChanged = connection.Execute("EXEC update_user_name @user_id=@id, @name=@name", new { id=123, name="fred" });
+```
+
+Asynchronously call a stored procedure that does not return results set(s)
+```
+int rowsChanged = await connection.ExecuteAsync("EXEC update_user_name @user_id=@id, @name=@name", new { id=123, name="fred" });
 ```
 
 ## Data Composability
 
 `Mapper` has a series of extension methods for ADO.Net types:
 
-### DataSequence methods
+`System.Data.Common.DbDataReader` has the following extension method:
+
+* `AsSeqOf<T>` which return a `DataSequence<T>` 
+
+### DataSequence<T> methods
 `System.Data.Common.DbDataReader` has the following extension methods:
 
 * `Single<T>()` for reading exactly one row
@@ -86,22 +158,17 @@ Additional `...Async` methods exist for reading data using tasks.
 
 For convenience `Mapper` adds the following extension method to `System.Data.Common.DbCommand`:
 
-* `Execute<T>()` for exeucting the command, returns a `DataSequence<T>`
-* `ExecuteAsync<T>()` for exeucting the command asynchronously, returns a `DataSequence<T>`
-* `ExecuteScalar<T>()` for exeucting the command, returning the value of the first column of the first row
-* `ExecuteScalarAsync<T>()` for exeucting the command asynchronously, returning the value of the first column of the first row
+* `Query<T>()` for running a command, returns a `DataSequence<T>`
+* `QueryAsync<T>()` for running a command asynchronously, returns a `Task<DataSequence<T>>`
 
 ### DbConnetion methods
 
 For convenience `Mapper` adds the following extension method to `System.Data.Common.DbConnection`:
 
-* `ExecuteNonQuery(string sql, object parameters)` for executing database commands that do not return result sets
-* `QuerySingle<T>()` for executing the command and reading exactly one row
-* `QuerySingleOrDefault<T>()` for executing the command and reading zero or one rows
-* `QueryList<T>()` for executing the command and reading all records into a `List<T>`
-* `QueryDictinary<TKey,TValue>(Func<TKey,TValue> keyFunc)` for executing the command and reading all records into a `Dictinary<TKey,TValue>` using the supplied function to get work out the key.  Note that the key must be unique.
-* `QueryLookup<TKey,TValue>(Func<TKey,TValue> keyFunc)` for executing the command and reading all records into a `HashLookup<TKey,TValue>` using the supplied function to get work out the key.  Each key may have multiple values.
-* `QueryScalar<T>()` for exeucting the command and reading the first value of the first row
+* `Execute<T>()` for runinng a command that returns no data
+* `ExecuteAsync<T>()` for asynchronously runinng a command that returns no data
+* `Query<T>()` for running a command, returns a `DataSequence<T>`
+* `QueryAsync<T>()` for running a command asynchronously, returns a `Task<DataSequence<T>>`
 
 Additional `...Async` methods exist for executing commands using tasks.
 

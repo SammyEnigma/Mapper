@@ -3,7 +3,7 @@ using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 
 [assembly: AssemblyTitle("Mapper")]
-[assembly: AssemblyDescription(".NET object mapper, cloner, and data mapper (System.Data)")]
+[assembly: AssemblyDescription(".NET object mapper, copier, and data mapper (System.Data)")]
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("Open source")]
 [assembly: AssemblyProduct("Mapper")]

@@ -5,11 +5,11 @@ using System.Linq.Expressions;
 
 namespace Mapper
 {
-    public static class ObjectMapper
+    static class ObjectMapper
     {
         static readonly MostlyReadDictionary<TypePair, Delegate> MapMethods = new MostlyReadDictionary<TypePair, Delegate>();
 
-        internal static Func<TIn, TOut, TOut> GetOrAddMapping<TIn, TOut>()
+        internal static Func<TIn, TOut, TOut> GetOrAdd<TIn, TOut>()
         {
             return (Func<TIn, TOut, TOut>)MapMethods.GetOrAdd(new TypePair(typeof(TIn), typeof(TOut)), _ => CreateMapDelegate(typeof(TIn), typeof(TOut)));
         }

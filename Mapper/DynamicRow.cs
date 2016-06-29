@@ -9,6 +9,10 @@ using System.Reflection;
 
 namespace Mapper
 {
+    /// <summary>
+    /// A row un-typed returned from the database, which can be accessed via <see cref="IReadOnlyDictionary{T1,T2}"/> methods
+    /// or dymanically by casting this object as 'dynamic'.
+    /// </summary>
     public class DynamicRow : IDynamicMetaObjectProvider, IReadOnlyDictionary<string, object>
     {
         readonly IReadOnlyDictionary<string, int> ordinalsByName;
@@ -26,6 +30,11 @@ namespace Mapper
             this.values = values;
         }
 
+        /// <summary>
+        /// Used when this object is cast to 'dynamic'
+        /// </summary>
+        public DynamicMetaObject GetMetaObject(Expression parameter) => new DynamicRowMetaObject(parameter, BindingRestrictions.Empty, this);
+
         public object this[string key]
         {
             get
@@ -40,7 +49,6 @@ namespace Mapper
         public IEnumerable<string> Keys => ordinalsByName.Keys;
         public IEnumerable<object> Values => values;
         public bool ContainsKey(string key) => ordinalsByName.ContainsKey(key);
-        public DynamicMetaObject GetMetaObject(Expression parameter) => new DynamicRowMetaObject(parameter, BindingRestrictions.Empty, this);
         IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 
         public IEnumerator<KeyValuePair<string, object>> GetEnumerator()
@@ -62,7 +70,6 @@ namespace Mapper
             value = null;
             return false;
         }
-
     }
 
     class DynamicRowMetaObject : DynamicMetaObject
@@ -97,6 +104,9 @@ namespace Mapper
         }
     }
 
+    /// <summary>
+    /// A sequence of <see cref="DynamicRow"/> where each item in the sequence is a row returned from a database query
+    /// </summary>
     public struct DynamicDataSequence : IEnumerable<DynamicRow>, IDisposable
     {
         readonly DbDataReader reader;

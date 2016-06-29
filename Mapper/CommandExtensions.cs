@@ -1,5 +1,4 @@
-﻿using System;
-using System.Diagnostics.Contracts;
+﻿using System.Diagnostics.Contracts;
 using System.Threading.Tasks;
 using System.Data.Common;
 
@@ -14,6 +13,7 @@ namespace Mapper
         {
             Contract.Requires(cmd != null);
             Contract.Requires(parameters != null);
+            Contract.Ensures(Contract.Result<DbCommand>() == cmd);
             return _cmdMapper.AddParameters(cmd, parameters);
         }
 
@@ -32,30 +32,8 @@ namespace Mapper
         public static async Task<DataSequence<T>> QueryAsync<T>(this DbCommand cmd)
         {
             Contract.Requires(cmd != null);
+            Contract.Ensures(Contract.Result<Task<DataSequence<T>>>() != null);
             return (await cmd.ExecuteReaderAsync()).AsSeqOf<T>();
-        }
-
-        /// <summary>
-        /// Executes the query, and returns the first column of the first row in the resultset returned by the query. Extra columns or rows are ignored
-        /// </summary>
-        /// <returns>Some T, or default(T) if the database returns null</returns>
-        public static T ExecuteScalar<T>(this DbCommand cmd)
-        {
-            Contract.Requires(cmd != null);
-            object obj = cmd.ExecuteScalar();
-            return obj == null || obj is DBNull? default(T) : (T)obj;
-        }
-
-        /// <summary>
-        /// Executes the query, and returns the first column of the first row in the resultset returned by the query. Extra columns or rows are ignored
-        /// </summary>
-        /// <returns>Some T, or default(T) if the database returns null</returns>
-        public static async Task<T> ExecuteScalarAsync<T>(this DbCommand cmd)
-        {
-            Contract.Requires(cmd != null);
-            Contract.Ensures(Contract.Result<Task<T>>() != null);
-            object obj = await cmd.ExecuteScalarAsync();
-            return obj == null || obj is DBNull? default(T) : (T)obj;
         }
 
         /// <summary>
@@ -73,6 +51,7 @@ namespace Mapper
         public static async Task<DynamicDataSequence> QueryAsync(this DbCommand cmd)
         {
             Contract.Requires(cmd != null);
+            Contract.Ensures(Contract.Result<Task<DynamicDataSequence>>() != null);
             return new DynamicDataSequence(await cmd.ExecuteReaderAsync());
         }
 
