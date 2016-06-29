@@ -21,7 +21,7 @@ namespace Mapper
             Contract.Requires(inType != null);
             Contract.Ensures(Contract.Result<Delegate>() != null);
 
-            List<Mapping> mapping = Mapping.CreateUsingSource(inType, outType);
+            List<Mapping> mapping = Mapping.CreateUsingSource(inType, outType, inType.Name);
             LambdaExpression lambdaExpression = CreateMappingLambda(inType, outType, mapping);
             return lambdaExpression.Compile();
         }

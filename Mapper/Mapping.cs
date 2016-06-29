@@ -26,22 +26,25 @@ namespace Mapper
         /// <summary>
         /// Creates the mapping between <paramref name="sourceMappings"/> and <paramref name="destinationMappings"/> using the DESTINATION to generate candidate names for the mapping
         /// </summary>
-        internal static List<Mapping> CreateUsingDestination(Type source, Type destination) => CreateUsingDestination(Types.WriteablePublicThings(source), Types.WriteablePublicThings(destination));
+        internal static List<Mapping> CreateUsingDestination(Type source, Type destination, string removablePrefix = null) 
+            => CreateUsingDestination(Types.WriteablePublicThings(source), Types.WriteablePublicThings(destination), removablePrefix);
 
         /// <summary>
         /// Creates the mapping between <paramref name="sourceMappings"/> and <paramref name="destinationMappings"/> using the DESTINATION to generate candidate names for the mapping
         /// </summary>
-        internal static List<Mapping> CreateUsingDestination(Type source, IReadOnlyCollection<Thing> destinationMappings) => CreateUsingDestination(Types.WriteablePublicThings(source), destinationMappings);
+        internal static List<Mapping> CreateUsingDestination(Type source, IReadOnlyCollection<Thing> destinationMappings, string removablePrefix = null) 
+            => CreateUsingDestination(Types.WriteablePublicThings(source), destinationMappings, removablePrefix);
 
         /// <summary>
         /// Creates the mapping between <paramref name="sourceMappings"/> and <paramref name="destinationMappings"/> using the DESTINATION to generate candidate names for the mapping
         /// </summary>
-        internal static List<Mapping> CreateUsingDestination(IReadOnlyCollection<Thing> sourceMappings, Type destination) => CreateUsingDestination(sourceMappings, Types.WriteablePublicThings(destination));
+        internal static List<Mapping> CreateUsingDestination(IReadOnlyCollection<Thing> sourceMappings, Type destination, string removablePrefix = null) 
+            => CreateUsingDestination(sourceMappings, Types.WriteablePublicThings(destination), removablePrefix);
 
         /// <summary>
         /// Creates the mapping between <paramref name="sourceMappings"/> and <paramref name="destinationMappings"/> using the DESTINATION to generate candidate names for the mapping
         /// </summary>
-        internal static List<Mapping> CreateUsingDestination(IReadOnlyCollection<Thing> sourceMappings, IReadOnlyCollection<Thing> destinationMappings, string canRemovePrefix = null)
+        internal static List<Mapping> CreateUsingDestination(IReadOnlyCollection<Thing> sourceMappings, IReadOnlyCollection<Thing> destinationMappings, string removablePrefix = null)
         {
             Contract.Requires(sourceMappings != null);
             Contract.Requires(sourceMappings.Count > 0);
@@ -52,7 +55,7 @@ namespace Mapper
             var sourceByName = sourceMappings.ToDictionary(m => m.Name, StringComparer.OrdinalIgnoreCase);
             foreach (Thing dest in destinationMappings)
             {
-                var source = Names.Candidates(dest.Name, dest.Type, canRemovePrefix)
+                var source = Names.Candidates(dest.Name, dest.Type, removablePrefix)
                     .Where(name => sourceByName.ContainsKey(name))
                     .Select(name => sourceByName[name])
                     .Where(src => Types.AreInSomeSenseCompatible(src.Type, dest.Type))
@@ -64,7 +67,10 @@ namespace Mapper
                     sourceByName.Remove(source.Name); // don't map the same thing twice
                 }
                 else
-                    _trace.OnNext($"Cannot find a mapping for target {dest.Name} or type is not compatible");
+                {
+                    var type = string.IsNullOrWhiteSpace(removablePrefix) ? string.Empty : removablePrefix + ": ";
+                    _trace.OnNext($"{type}Cannot find a mapping for target {dest.Name} or type is not compatible");
+                }
             }
             return result;
         }
@@ -72,17 +78,19 @@ namespace Mapper
         /// <summary>
         /// Creates the mapping between <paramref name="source"/> and <paramref name="destination"/> using the SOURCE to generate candidate names for the mapping
         /// </summary>
-        internal static List<Mapping> CreateUsingSource(Type source, Type destination) => CreateUsingSource(Types.WriteablePublicThings(source), Types.WriteablePublicThings(destination));
+        internal static List<Mapping> CreateUsingSource(Type source, Type destination, string removablePrefix = null) 
+            => CreateUsingSource(Types.WriteablePublicThings(source), Types.WriteablePublicThings(destination), removablePrefix);
 
         /// <summary>
         /// Creates the mapping between <paramref name="sourceMappings"/> and <paramref name="destination"/> using the SOURCE to generate candidate names for the mapping
         /// </summary>
-        internal static List<Mapping> CreateUsingSource(IReadOnlyCollection<Thing> sourceMappings, Type destination) => CreateUsingSource(sourceMappings, Types.WriteablePublicThings(destination));
+        internal static List<Mapping> CreateUsingSource(IReadOnlyCollection<Thing> sourceMappings, Type destination, string removablePrefix = null) 
+            => CreateUsingSource(sourceMappings, Types.WriteablePublicThings(destination), removablePrefix);
 
         /// <summary>
         /// Creates the mapping between <paramref name="sourceMappings"/> and <paramref name="destinationMappings"/> using the SOURCE to generate candidate names for the mapping
         /// </summary>
-        internal static List<Mapping> CreateUsingSource(IReadOnlyCollection<Thing> sourceMappings, IReadOnlyCollection<Thing> destinationMappings, string canRemovePrefix = null)
+        internal static List<Mapping> CreateUsingSource(IReadOnlyCollection<Thing> sourceMappings, IReadOnlyCollection<Thing> destinationMappings, string removablePrefix = null)
         {
             Contract.Requires(sourceMappings != null);
             Contract.Requires(sourceMappings.Count > 0);
@@ -93,7 +101,7 @@ namespace Mapper
             var destByName = destinationMappings.ToDictionary(m => m.Name, StringComparer.OrdinalIgnoreCase);
             foreach (Thing source in sourceMappings)
             {
-                var dest = Names.Candidates(source.Name, source.Type, canRemovePrefix)
+                var dest = Names.Candidates(source.Name, source.Type, removablePrefix)
                     .Where(name => destByName.ContainsKey(name))
                     .Select(name => destByName[name])
                     .Where(d => Types.AreInSomeSenseCompatible(source.Type, d.Type))
@@ -105,7 +113,10 @@ namespace Mapper
                     destByName.Remove(source.Name); // don't map the same thing twice
                 }
                 else
-                    _trace.OnNext($"Cannot find a mapping for target {source.Name} or type is not compatible");
+                {
+                    var type = string.IsNullOrWhiteSpace(removablePrefix) ? string.Empty : removablePrefix + ": ";
+                    _trace.OnNext($"{type}Cannot find a mapping for target {source.Name} or type is not compatible");
+                }
             }
             return result;
         }
