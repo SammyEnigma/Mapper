@@ -170,8 +170,6 @@ For convenience `Mapper` adds the following extension method to `System.Data.Com
 * `Query<T>()` for running a command, returns a `DataSequence<T>`
 * `QueryAsync<T>()` for running a command asynchronously, returns a `Task<DataSequence<T>>`
 
-Additional `...Async` methods exist for executing commands using tasks.
-
 ### SqlDataRecord methods
 
 `Mapper` has a extension method `ToTableType<T>()` for converting a source `IEnumerable<T>` into an `IEnumerable<SqlDataRecord>` such that it can be passed as a [table valued parameter](https://msdn.microsoft.com/en-us/library/bb675163(v=vs.110).aspx) to SQL Server.
