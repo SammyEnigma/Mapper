@@ -303,6 +303,15 @@ namespace Mapper
             return await seq.ToListAsync();
         }
 
+        public static async Task<HashSet<T>> ToHashSetAsync<T>(this Task<DataSequence<T>> task)
+        {
+            Contract.Requires(task != null);
+            Contract.Ensures(Contract.Result<Task<HashSet<T>>>() != null);
+            Contract.Ensures(Contract.Result<Task<HashSet<T>>>().Result != null);
+            var seq = await task;
+            return await seq.ToHashSetAsync();
+        }
+
         public static async Task<Dictionary<TKey, TValue>> ToDictionaryAsync<TKey, TValue>(this Task<DataSequence<TValue>> task, Func<TValue, TKey> keyFunc)
         {
             Contract.Requires(task != null);
