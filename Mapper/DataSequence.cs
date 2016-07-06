@@ -29,6 +29,10 @@ namespace Mapper
         /// <remarks>The underlying <see cref="DbDataReader"/> is disposed the <see cref="DataSequenceEnumerator"/> has been enumerated, i.e. after a foreach() loop on it</remarks>
         IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 
+        /// <summary>Reads the next value from the underlying data reader</summary>
+        /// <returns>Default for T if there is no next record</returns>
+        public async Task<T> NextOrDefaultAsync() => await reader.ReadAsync() ? map(reader) : default(T);
+
         /// <summary>Reads exactly one item from the reader</summary>
         /// <exception cref="InvalidOperationException"> when zero values read or more than one value can be read</exception>
         /// <remarks>The underlying <see cref="DbDataReader"/> is disposed after this method has been called</remarks>
@@ -111,6 +115,39 @@ namespace Mapper
                     list.Add(map(reader));
                 }
                 return list;
+            }
+        }
+
+        /// <summary>Reads all the records in the reader into a <see cref="HashSet{T}"/></summary>
+        /// <remarks>The underlying <see cref="DbDataReader"/> is disposed after this method has been called</remarks>
+        public HashSet<T> ToHashSet()
+        {
+            Contract.Ensures(Contract.Result<HashSet<T>>() != null);
+            using (reader)
+            {
+                var set = new HashSet<T>();
+                while (reader.Read())
+                {
+                    set.Add(map(reader));
+                }
+                return set;
+            }
+        }
+
+        /// <summary>Reads all the records in the reader into a <see cref="HashSet{T}"/></summary>
+        /// <remarks>The underlying <see cref="DbDataReader"/> is disposed after this method has been called</remarks>
+        public async Task<HashSet<T>> ToHashSetAsync()
+        {
+            Contract.Ensures(Contract.Result<Task<HashSet<T>>>() != null);
+            Contract.Ensures(Contract.Result<Task<HashSet<T>>>().Result != null);
+            using (reader)
+            {
+                var set = new HashSet<T>();
+                while (await reader.ReadAsync())
+                {
+                    set.Add(map(reader));
+                }
+                return set;
             }
         }
 
