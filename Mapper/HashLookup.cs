@@ -183,4 +183,18 @@ namespace Mapper
             _groupings = newGroupings;
         }
     }
+
+
+    public partial class Extensions
+    {
+        public static HashLookup<TKey, TValue> ToHashLookup<TKey, TValue>(this IEnumerable<TValue> source, Func<TValue, TKey> keyFunc)
+        {
+            Contract.Requires(source != null);
+            Contract.Ensures(Contract.Result<HashLookup<TKey, TValue>>() != null);
+            var lookup = new HashLookup<TKey, TValue>();
+            lookup.AddRange(source, keyFunc);
+            return lookup;
+        }
+    }
 }
+
