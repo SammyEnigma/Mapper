@@ -76,6 +76,29 @@ namespace Mapper.UnitTests
         }
 
         [Test]
+        public void can_add_nullable_long_with_value()
+        {
+            SqlCommand cmd = new SqlCommand();
+            cmd.AddParameters(new {Id = (long?)1});
+            Assert.AreEqual(1, cmd.Parameters.Count);
+            Assert.AreEqual("@Id", cmd.Parameters[0].ParameterName);
+            Assert.AreEqual(DbType.Int64, cmd.Parameters[0].DbType);
+            Assert.AreEqual(1L, cmd.Parameters[0].Value);
+            Assert.AreEqual(typeof(long), cmd.Parameters[0].Value.GetType());
+        }
+
+        [Test]
+        public void can_add_nullable_long_without_value()
+        {
+            SqlCommand cmd = new SqlCommand();
+            cmd.AddParameters(new {Id = (long?)null});
+            Assert.AreEqual(1, cmd.Parameters.Count);
+            Assert.AreEqual("@Id", cmd.Parameters[0].ParameterName);
+            Assert.AreEqual(DbType.Int64, cmd.Parameters[0].DbType);
+            Assert.AreEqual(DBNull.Value, cmd.Parameters[0].Value);
+        }
+
+        [Test]
         public void can_add_float_with_value()
         {
             SqlCommand cmd = new SqlCommand();
