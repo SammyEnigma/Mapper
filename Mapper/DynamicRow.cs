@@ -7,7 +7,7 @@ using System.Dynamic;
 using System.Linq.Expressions;
 using System.Reflection;
 
-namespace Mapper
+namespace BusterWood.Mapper
 {
     /// <summary>
     /// A row un-typed returned from the database, which can be accessed via <see cref="IReadOnlyDictionary{T1,T2}"/> methods

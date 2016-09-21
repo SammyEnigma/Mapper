@@ -8,7 +8,7 @@ using System.Collections.Generic;
 using System.Diagnostics.Contracts;
 using System.Linq;
 
-namespace Mapper
+namespace BusterWood.Mapper
 {
     /// <summary>
     /// A key to many value dictionary data type

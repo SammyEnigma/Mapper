@@ -6,7 +6,7 @@ using System.Linq;
 using System.Linq.Expressions;
 using Microsoft.SqlServer.Server;
 
-namespace Mapper
+namespace BusterWood.Mapper
 {
     public static partial class Extensions
     {

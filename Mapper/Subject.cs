@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Threading;
 
-namespace Mapper
+namespace BusterWood.Mapper
 {
     /// <summary>
     /// Represents an object that is both an observable sequence as well as an observer.

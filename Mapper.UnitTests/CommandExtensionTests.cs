@@ -4,7 +4,7 @@ using System.Data.SqlClient;
 using Microsoft.SqlServer.Server;
 using NUnit.Framework;
 
-namespace Mapper.UnitTests
+namespace BusterWood.Mapper.UnitTests
 {
     [TestFixture]
     public class CommandExtensionTests

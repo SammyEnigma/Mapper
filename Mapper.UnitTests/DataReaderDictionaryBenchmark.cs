@@ -6,7 +6,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Mapper.UnitTests
+namespace BusterWood.Mapper.UnitTests
 {
     [TestFixture, Category("Performance")]
     public class DataReaderDictionaryBenchmark

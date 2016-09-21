@@ -3,7 +3,7 @@ using System.Data.Common;
 using System.Diagnostics.Contracts;
 using System.Threading.Tasks;
 
-namespace Mapper
+namespace BusterWood.Mapper
 {
     /// <summary>
     /// Easy to use extension methods that build on the command and data reader extensions 

@@ -6,7 +6,7 @@ using System.Diagnostics.Contracts;
 using System.Linq;
 using System.Text;
 
-namespace Mapper
+namespace BusterWood.Mapper
 {
     public static partial class CodeGen
     {

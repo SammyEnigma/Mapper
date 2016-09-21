@@ -4,7 +4,7 @@ using System.Diagnostics.Contracts;
 using System.Linq;
 using System.Reflection;
 
-namespace Mapper
+namespace BusterWood.Mapper
 {
     /// <remarks>This is marked as public so users can observe <see cref="Trace"/> for things that have not been mapped</remarks>
     public struct Mapping

@@ -2,7 +2,7 @@
 using System.Collections;
 using System.Data.Common;
 
-namespace Mapper.UnitTests
+namespace BusterWood.Mapper.UnitTests
 {
     class StubDataReader : DbDataReader
     {

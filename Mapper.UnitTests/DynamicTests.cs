@@ -1,6 +1,6 @@
 ﻿using NUnit.Framework;
 
-namespace Mapper.UnitTests
+namespace BusterWood.Mapper.UnitTests
 {
     [TestFixture]
     public class DynamicTests

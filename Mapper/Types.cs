@@ -6,7 +6,7 @@ using System.Linq;
 using System.Reflection;
 using Microsoft.SqlServer.Server;
 
-namespace Mapper
+namespace BusterWood.Mapper
 {
     static class Types
     {

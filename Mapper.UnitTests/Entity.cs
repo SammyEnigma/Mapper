@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 
-namespace Mapper.UnitTests
+namespace BusterWood.Mapper.UnitTests
 {
     public class Entity
     {

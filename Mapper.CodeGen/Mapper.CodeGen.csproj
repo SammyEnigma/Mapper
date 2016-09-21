@@ -7,8 +7,8 @@
     <ProjectGuid>{918A2A4B-C2FB-43F0-9439-BB2473F425E0}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>Mapper.CodeGen</RootNamespace>
-    <AssemblyName>Mapper.CodeGen</AssemblyName>
+    <RootNamespace>BusterWood.Mapper.CodeGen</RootNamespace>
+    <AssemblyName>BusterWood.Mapper.CodeGen</AssemblyName>
     <TargetFrameworkVersion>v4.5.1</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
   </PropertyGroup>

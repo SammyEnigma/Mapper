@@ -5,7 +5,7 @@ using System.Data.Common;
 using System.Diagnostics.Contracts;
 using System.Threading.Tasks;
 
-namespace Mapper
+namespace BusterWood.Mapper
 {
     public struct DataSequence<T> : IEnumerable<T>, IDisposable
     {

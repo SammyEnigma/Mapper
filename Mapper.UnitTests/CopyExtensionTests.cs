@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using NUnit.Framework;
 using System.Linq;
 
-namespace Mapper.UnitTests
+namespace BusterWood.Mapper.UnitTests
 {
     [TestFixture]
     public class CopyExtensionTests

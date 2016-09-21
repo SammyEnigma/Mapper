@@ -7,8 +7,8 @@
     <ProjectGuid>{3EA96AE9-E485-48EC-AD40-CAC5B1A8B8E2}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>Mapper</RootNamespace>
-    <AssemblyName>Mapper</AssemblyName>
+    <RootNamespace>BusterWood.Mapper</RootNamespace>
+    <AssemblyName>BusterWood.Mapper</AssemblyName>
     <TargetFrameworkVersion>v4.5.1</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <CodeContractsAssemblyMode>0</CodeContractsAssemblyMode>
@@ -115,7 +115,7 @@
     <CodeContractsRuntimeCheckingLevel>Preconditions</CodeContractsRuntimeCheckingLevel>
     <CodeContractsReferenceAssembly>Build</CodeContractsReferenceAssembly>
     <CodeContractsAnalysisWarningLevel>0</CodeContractsAnalysisWarningLevel>
-    <DocumentationFile>bin\Release\Mapper.XML</DocumentationFile>
+    <DocumentationFile>bin\Release\BusterWood.Mapper.xml</DocumentationFile>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|x64'">
     <DebugSymbols>true</DebugSymbols>

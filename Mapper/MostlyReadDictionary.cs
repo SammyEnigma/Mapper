@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Diagnostics.Contracts;
 using System.Threading;
 
-namespace Mapper
+namespace BusterWood.Mapper
 {
     /// <summary>A dictionary that is mostly read from, hardly ever written too</summary>
     class MostlyReadDictionary<TKey, TValue>

@@ -8,7 +8,7 @@ using System.Diagnostics.Contracts;
 using System.Linq.Expressions;
 using System.Reflection;
 
-namespace Mapper
+namespace BusterWood.Mapper
 {
     class CommandParameterMapper
     {

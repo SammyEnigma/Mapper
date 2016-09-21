@@ -1,9 +1,9 @@
 ﻿<NUnitProject>
-  <Settings activeconfig="Debug" processModel="Default" domainUsage="Default" />
-  <Config name="Debug" binpathtype="Auto" runtimeFramework="net-4.0.21006">
-    <assembly path="bin\Debug\Mapper.UnitTests.dll" />
+  <Settings activeconfig="Release" />
+  <Config name="Debug" binpathtype="Auto" runtimeFramework="net-4.0">
+    <assembly path="bin\Debug\BusterWood.Mapper.UnitTests.dll" />
   </Config>
-  <Config name="Release" binpathtype="Auto" runtimeFramework="net-4.0.21006">
-    <assembly path="bin\Release\Mapper.UnitTests.dll" />
+  <Config name="Release" binpathtype="Auto" runtimeFramework="net-4.0">
+    <assembly path="bin\Release\BusterWood.Mapper.UnitTests.dll" />
   </Config>
 </NUnitProject>

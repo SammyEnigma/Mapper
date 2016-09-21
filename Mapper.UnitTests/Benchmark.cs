@@ -5,7 +5,7 @@ using FILETIME = System.Runtime.InteropServices.ComTypes.FILETIME;
 using System.Runtime.InteropServices;
 using System.ComponentModel;
 
-namespace Mapper.UnitTests
+namespace BusterWood.Mapper.UnitTests
 {
     class Benchmark
     {

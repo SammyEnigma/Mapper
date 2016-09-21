@@ -7,8 +7,8 @@
     <ProjectGuid>{AD2B32F7-7DF4-4B7F-9115-BDB6ACA20EB1}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>Mapper.UnitTests</RootNamespace>
-    <AssemblyName>Mapper.UnitTests</AssemblyName>
+    <RootNamespace>BusterWood.Mapper.UnitTests</RootNamespace>
+    <AssemblyName>BusterWood.Mapper.UnitTests</AssemblyName>
     <TargetFrameworkVersion>v4.5.1</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
   </PropertyGroup>

@@ -1,6 +1,6 @@
 ﻿using NUnit.Framework;
 
-namespace Mapper.UnitTests.MappingTests
+namespace BusterWood.Mapper.UnitTests.MappingTests
 {
     [TestFixture]
     public class UsingSource

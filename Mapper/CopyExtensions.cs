@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Diagnostics.Contracts;
 using System.Linq;
 
-namespace Mapper
+namespace BusterWood.Mapper
 {
     public static partial class Extensions
     {

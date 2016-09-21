@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Mapper.UnitTests
+namespace BusterWood.Mapper.UnitTests
 {
     class ConsoleObserver : IObserver<string>
     {

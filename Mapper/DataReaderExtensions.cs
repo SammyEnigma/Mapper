@@ -2,7 +2,7 @@ using System;
 using System.Data.Common;
 using System.Diagnostics.Contracts;
 
-namespace Mapper
+namespace BusterWood.Mapper
 {
     public static partial class Extensions
     {

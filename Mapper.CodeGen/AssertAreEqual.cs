@@ -2,7 +2,7 @@
 using System.Diagnostics.Contracts;
 using System.Text;
 
-namespace Mapper
+namespace BusterWood.Mapper
 {
     public static partial class CodeGen
     {

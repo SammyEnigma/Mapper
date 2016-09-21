@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Diagnostics.Contracts;
 using System.Linq.Expressions;
 
-namespace Mapper
+namespace BusterWood.Mapper
 {
     static class ObjectMapper
     {
