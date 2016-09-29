@@ -10,6 +10,16 @@ namespace Mapper
         /// <summary>Create an output object using the parameter-less constructor and setting public fields and properties</summary>
         public static T Copy<T>(this T input) => Copy<T, T>(input);
 
+        /// <summary>Makes a shallow copy of an object, changing the copy via the <see cref="Action{T}"/></summary>
+        /// <remarks>Create an output object using the parameter-less constructor and setting public fields and properties</remarks>
+        public static T CopyWith<T>(this T input, Action<T> with)
+        {
+            Contract.Requires(with != null);
+            var copy = Copy<T, T>(input);
+            with(copy);
+            return copy;
+        }
+
         /// <summary>Create shallow copies of the <paramref name="input"/> objects using the parameter-less constructor and setting public fields and properties</summary>
         public static IEnumerable<T> CopyAll<T>(this IEnumerable<T> input)
         {
