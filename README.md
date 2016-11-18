@@ -1,4 +1,6 @@
-# mapper
+# BusterWood.Mapper
+[![Build status](https://ci.appveyor.com/api/projects/status/vdlxdx8t62mfrrol/branch/master?svg=true)](https://ci.appveyor.com/project/busterwood/mapper/branch/master)
+
 .NET composable mapping library for objects and data (System.Data).
 
 Sort of a replacement for Dapper (150K) and Automapper (350K) but `Mapper` is *much smaller* at around 75K.
