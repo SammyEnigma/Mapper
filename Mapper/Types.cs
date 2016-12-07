@@ -145,6 +145,14 @@ namespace BusterWood.Mapper
         }
 
         [Pure]
+        internal static bool IsNullablePrimitiveOrEnum(this Type type)
+        {
+            Contract.Requires(type != null);
+            if (IsPrimitiveOrEnum(type)) return true;
+            return type.IsConstructedGenericType && type.GetGenericTypeDefinition() == typeof(Nullable<>) && IsPrimitiveOrEnum(type.GetGenericArguments()[0]);
+        }
+
+        [Pure]
         internal static bool IsPrimitiveOrEnum(this Type type)
         {
             Contract.Requires(type != null);
