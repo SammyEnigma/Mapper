@@ -21,12 +21,12 @@ namespace BusterWood.Mapper
             Contract.Requires(inType != null);
             Contract.Ensures(Contract.Result<Delegate>() != null);
 
-            List<Mapping> mapping = Mapping.CreateUsingSource(inType, outType, inType.Name);
-            LambdaExpression lambdaExpression = CreateMappingLambda(inType, outType, mapping);
+            var result = Mapping.CreateFromSource(inType, outType, inType.Name);
+            LambdaExpression lambdaExpression = CreateMappingLambda(inType, outType, result.Mapped);
             return lambdaExpression.Compile();
         }
 
-        static LambdaExpression CreateMappingLambda(Type inType, Type outType, List<Mapping> mapping)
+        static LambdaExpression CreateMappingLambda(Type inType, Type outType, List<Mapping<Thing, Thing>> mapping)
         {
             Contract.Requires(mapping != null);
             Contract.Requires(outType != null);
@@ -46,7 +46,7 @@ namespace BusterWood.Mapper
                 // result = to ?? new outType
                 lines.Add(Expression.Assign(result, Expression.Coalesce(to, Expression.New(outType.GetConstructor(Type.EmptyTypes)))));
             }
-            foreach (Mapping map in mapping)
+            foreach (var map in mapping)
             {
                 Expression readValue = ReadValue(from, map);
                 lines.Add(Expression.Assign(Expression.PropertyOrField(result, map.To.Name), readValue));
@@ -60,7 +60,7 @@ namespace BusterWood.Mapper
             return lambdaExpression;
         }
 
-        static Expression ReadValue(ParameterExpression input, Mapping map)
+        static Expression ReadValue(ParameterExpression input, Mapping<Thing, Thing> map)
         {
             Expression value = Expression.PropertyOrField(input, map.From.Name);
             var fromType = map.From.Type;

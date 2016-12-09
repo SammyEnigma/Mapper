@@ -230,4 +230,13 @@ namespace BusterWood.Mapper
         }
 
     }
+
+    [Flags]
+    enum TypeFlags
+    {
+        Primative,
+        Enum,
+        NullablePrimative,
+        NullableEnum,
+    }
 }

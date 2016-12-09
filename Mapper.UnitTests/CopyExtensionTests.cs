@@ -249,9 +249,13 @@ namespace BusterWood.Mapper.UnitTests
         [Test]
         public void can_copy_name_without_id_to_name_ending_in_id_enum()
         {
-            var input = new SingleProp<TestEnum> { Value = TestEnum.Something };
-            var output = input.Copy<SingleProp<TestEnum>, SingleId<int>>();
-            Assert.AreEqual(1, output.ValueId);
+            var ob = new ConsoleObserver();
+            using (Mapping.Trace.Subscribe(ob))
+            {
+                var input = new SingleProp<TestEnum> { Value = TestEnum.Something };
+                var output = input.Copy<SingleProp<TestEnum>, SingleId<int>>();
+                Assert.AreEqual(1, output.ValueId);
+            }
         }
 
         [Test]

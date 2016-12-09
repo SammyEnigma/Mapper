@@ -45,10 +45,10 @@ namespace BusterWood.Mapper
                 return CreatePrimativeMapFunc(typeT, columns);
             }
 
-            var map = Mapping.CreateUsingSource(columns.Cast<Thing>().ToList(), Types.WriteablePublicThings(typeT), typeT.Name);
+            MappingResult<Thing, Thing> result = Mapping.CreateFromSource(columns.Cast<Thing>().ToList(), Types.WriteablePublicThings(typeT), typeT.Name);
             var readerParam = Expression.Parameter(typeof(DbDataReader), "reader");
             var resultParam = Expression.Parameter(typeT, "result");
-            var block = CreateMapBlock(typeT, map, readerParam, resultParam);
+            var block = CreateMapBlock(typeT, result.Mapped, readerParam, resultParam);
             var func = typeof(Func<,>).MakeGenericType(new[] { typeof(DbDataReader), typeT });
             return Expression.Lambda(func, block, new[] { readerParam }).Compile();
         }
@@ -82,7 +82,7 @@ namespace BusterWood.Mapper
             return Expression.Lambda(func, body, new[] { readerParam }).Compile();
         }
 
-        static BlockExpression CreateMapBlock(Type type, IReadOnlyList<Mapping> mappping, ParameterExpression reader, ParameterExpression result)
+        static BlockExpression CreateMapBlock(Type type, IReadOnlyList<Mapping<Thing, Thing>> mappping, ParameterExpression reader, ParameterExpression result)
         {
             Contract.Requires(type != null);
             Contract.Requires(mappping != null);

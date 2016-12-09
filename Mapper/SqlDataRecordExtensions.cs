@@ -111,17 +111,12 @@ namespace BusterWood.Mapper
         static Delegate CreateMappingFunc(Type typeT, SqlMetaData[] metaData)
         {
             var columns = metaData.Select((md, i) => (Thing)new Column(i, md.Name, Types.DBTypeToType[md.DbType])).ToList();
-
-            List<Mapping> mapping;
-            if (columns.Count == 1 && typeT.IsNullablePrimitiveOrEnum())
-                mapping = new List<Mapping> { new Mapping(Types.ReadablePublicFieldsAndProperties, columns[0]) };
-            else
-                mapping = Mapping.CreateUsingDestination(Types.ReadablePublicThings(typeT), columns, typeT.Name);
-            LambdaExpression lambdaExpression = CreateMappingLambda(typeT, mapping);
+            var result = Mapping.CreateFromDestination(Types.ReadablePublicThings(typeT), columns, typeT.Name);
+            LambdaExpression lambdaExpression = CreateMappingLambda(typeT, result.Mapped);
             return lambdaExpression.Compile();
         }
 
-        static LambdaExpression CreateMappingLambda(Type typeT, List<Mapping> mapping)
+        static LambdaExpression CreateMappingLambda(Type typeT, List<Mapping<Thing, Thing>> mapping)
         {
             var result = Expression.Parameter(typeof(SqlDataRecord), "rec");
             var metaDataParam = Expression.Parameter(typeof(SqlMetaData[]), "metaData");

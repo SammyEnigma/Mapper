@@ -14,7 +14,8 @@ namespace BusterWood.Mapper.UnitTests.MappingTests
             using (Mapping.Trace.Subscribe(new ConsoleObserver()))
             {
                 var col = new Column(0, colName, typeof(int));
-                var mapping = Mapping.CreateUsingSource(new Thing[] { col }, new TestPropertyId { OrderId = 1 }.GetType());
+                var result = Mapping.CreateFromSource(new Thing[] { col }, new TestPropertyId { OrderId = 1 }.GetType());
+                var mapping = result.Mapped;
                 Assert.AreEqual(1, mapping.Count, "count");
                 var map = mapping[0];
                 Assert.AreEqual(col, map.From);
@@ -31,7 +32,8 @@ namespace BusterWood.Mapper.UnitTests.MappingTests
             using (Mapping.Trace.Subscribe(new ConsoleObserver()))
             {
                 var col = new Column(0, colName, typeof(int));
-                var mapping = Mapping.CreateUsingSource(new Thing[] { col }, new TestFieldId { OrderId = 1 }.GetType());
+                var result = Mapping.CreateFromSource(new Thing[] { col }, new TestFieldId { OrderId = 1 }.GetType());
+                var mapping = result.Mapped;
                 Assert.AreEqual(1, mapping.Count, "count");
                 var map = mapping[0];
                 Assert.AreEqual(col, map.From);
@@ -50,7 +52,8 @@ namespace BusterWood.Mapper.UnitTests.MappingTests
             using (Mapping.Trace.Subscribe(new ConsoleObserver()))
             {
                 var col = new Column(0, colName, typeof(int));
-                var mapping = Mapping.CreateUsingSource(new Thing[] { col }, new TestProperty { Order = 1 }.GetType());
+                var result = Mapping.CreateFromSource(new Thing[] { col }, new TestProperty { Order = 1 }.GetType());
+                var mapping = result.Mapped;
                 Assert.AreEqual(1, mapping.Count, "count");
                 var map = mapping[0];
                 Assert.AreEqual(col, map.From);
@@ -69,7 +72,8 @@ namespace BusterWood.Mapper.UnitTests.MappingTests
             using (Mapping.Trace.Subscribe(new ConsoleObserver()))
             {
                 var col = new Column(0, colName, typeof(int));
-                var mapping = Mapping.CreateUsingSource(new Thing[] { col }, new TestField { Order = 1 }.GetType());
+                var result = Mapping.CreateFromSource(new Thing[] { col }, new TestField { Order = 1 }.GetType());
+                var mapping = result.Mapped;
                 Assert.AreEqual(1, mapping.Count, "count");
                 var map = mapping[0];
                 Assert.AreEqual(col, map.From);
@@ -83,9 +87,9 @@ namespace BusterWood.Mapper.UnitTests.MappingTests
             var ob = new ConsoleObserver();
             using (Mapping.Trace.Subscribe(ob))
             {
-                Mapping.CreateUsingSource(typeof(SingleProp<string>), typeof(SingleProp<int>), "Things");
+                Mapping.CreateFromSource(typeof(SingleProp<string>), typeof(SingleProp<int>), "Things");
                 Assert.AreEqual(1, ob.Values.Count, "count");
-                Assert.IsTrue(ob.Values[0].StartsWith("Things: "));
+                Assert.IsTrue(ob.Values[0].StartsWith("Things: "), ob.Values[0]);
             }
         }
     }
@@ -102,7 +106,8 @@ namespace BusterWood.Mapper.UnitTests.MappingTests
             using (Mapping.Trace.Subscribe(new ConsoleObserver()))
             {
                 var col = new Column(0, colName, typeof(int));
-                var mapping = Mapping.CreateUsingDestination(new TestPropertyId { OrderId = 1 }.GetType(), new Thing[] { col });
+                var result = Mapping.CreateFromDestination(new TestPropertyId { OrderId = 1 }.GetType(), new Thing[] { col });
+                var mapping = result.Mapped;
                 Assert.AreEqual(1, mapping.Count, "count");
                 var map = mapping[0];
                 Assert.AreEqual(col, map.To);
@@ -119,7 +124,8 @@ namespace BusterWood.Mapper.UnitTests.MappingTests
             using (Mapping.Trace.Subscribe(new ConsoleObserver()))
             {
                 var col = new Column(0, colName, typeof(int));
-                var mapping = Mapping.CreateUsingDestination(new TestFieldId { OrderId = 1 }.GetType(), new Thing[] { col });
+                var result = Mapping.CreateFromDestination(new TestFieldId { OrderId = 1 }.GetType(), new Thing[] { col });
+                var mapping = result.Mapped;
                 Assert.AreEqual(1, mapping.Count, "count");
                 var map = mapping[0];
                 Assert.AreEqual(col, map.To);
@@ -138,7 +144,8 @@ namespace BusterWood.Mapper.UnitTests.MappingTests
             using (Mapping.Trace.Subscribe(new ConsoleObserver()))
             {
                 var col = new Column(0, colName, typeof(int));
-                var mapping = Mapping.CreateUsingDestination(new TestProperty { Order = 1 }.GetType(), new Thing[] { col });
+                var result = Mapping.CreateFromDestination(new TestProperty { Order = 1 }.GetType(), new Thing[] { col });
+                var mapping = result.Mapped;
                 Assert.AreEqual(1, mapping.Count, "count");
                 var map = mapping[0];
                 Assert.AreEqual(col, map.To);
@@ -157,7 +164,8 @@ namespace BusterWood.Mapper.UnitTests.MappingTests
             using (Mapping.Trace.Subscribe(new ConsoleObserver()))
             {
                 var col = new Column(0, colName, typeof(int));
-                var mapping = Mapping.CreateUsingDestination(new TestField { Order = 1 }.GetType(), new Thing[] { col });
+                var result = Mapping.CreateFromDestination(new TestField { Order = 1 }.GetType(), new Thing[] { col });
+                var mapping = result.Mapped;
                 Assert.AreEqual(1, mapping.Count, "count");
                 var map = mapping[0];
                 Assert.AreEqual(col, map.To);
@@ -171,7 +179,7 @@ namespace BusterWood.Mapper.UnitTests.MappingTests
             var ob = new ConsoleObserver();
             using (Mapping.Trace.Subscribe(ob))
             {
-                Mapping.CreateUsingDestination(typeof(SingleProp<string>), typeof(SingleProp<int>), "Things");
+                Mapping.CreateFromDestination(typeof(SingleProp<string>), typeof(SingleProp<int>), "Things");
                 Assert.AreEqual(1, ob.Values.Count, "count");
                 Assert.IsTrue(ob.Values[0].StartsWith("Things: "));
             }

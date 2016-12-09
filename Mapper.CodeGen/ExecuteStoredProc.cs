@@ -40,11 +40,11 @@ order by p.parameter_id";
             {
                 cols.Add(ProcColToColumn(pc, i++));
             }
-            var mappings = Mapping.CreateUsingSource(cols, Types.WriteablePublicThings(parameter.GetType()));
+            var mappings = Mapping.CreateFromSource(cols, Types.WriteablePublicThings(parameter.GetType()));
 
             var sb = new StringBuilder(100);
             sb.Append("EXEC ").Append(procName).Append(" ");
-            foreach (var map in mappings)
+            foreach (var map in mappings.Mapped)
             {
                 sb.AppendLine().Append("    @").Append(map.To.Name).Append(" = @").Append(map.From.Name).Append(",");
             }

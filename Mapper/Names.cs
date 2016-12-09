@@ -10,7 +10,7 @@ namespace BusterWood.Mapper
             var names = new List<string>(2) { name };
 
             // special handling of xxxId to xxx for primitive types (int, long, etc)
-            if (type.IsPrimitiveOrEnum() || (Types.IsNullable(type) && type.NullableOf().IsPrimitiveOrEnum()))
+            if (type.IsPrimitiveOrEnum() || type.IsNullablePrimitiveOrEnum())
             {
                 if (name.EndsWith("Id", StringComparison.OrdinalIgnoreCase))
                 {
