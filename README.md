@@ -21,7 +21,7 @@ To allow for customized copying the following overloads of `CopyAll<T>()` take a
 
 You can copy an object of one type to another type using the `Copy<TFrom,TTo>()` extension method.  The type being mapped *to* **must** have a parameterless contructor, then all readable public properties (and fields) of the source type are copied to properties (or fields) of the target type.  
 
-`Mapper` can also copy sequences of objects via the `CopyAll<TFrom,TTo>()` extension which takes a `IEnumerable<TFrom>` and returns an `IEnumerable<TTo>`.  `MapSome<TFrom,TTo>()` has overloads that allow the mapping to be customized:
+`Mapper` can also copy sequences of objects via the `CopyAll<TFrom,TTo>()` extension which takes a `IEnumerable<TFrom>` and returns an `IEnumerable<TTo>`.  `CopyAll<TFrom,TTo>()` has overloads that allow the mapping to be customized:
 
 * `CopyAll<TFrom,TTo>(Func<TFrom,TTo>)` calls the supplied function for each mapped object
 * `CopyAll<TFrom,TTo>(Func<TFrom,TTo, int>)` calls the supplied function for each mapped object passing the zero based index of the object 
