@@ -61,68 +61,81 @@ Note: name comparison is *case insensitive*.
 
 ## Data extensions
 
-ADO.NET connections have `Query<T>()` and `Execute()` extension methods added.
+ADO.NET connections have `Query()` and `Execute()` extension methods added.
 
-The `Query<T>()` methods return a `DataSequence<T>` which has method to convert to Lists, Dictionary and Lookups, as well as allow custom collection creation by being `IEnumerable<T>`.
+The `Query()` methods return a `DbDataReader`. You then use the `Read<T>()` extension to create read object from the `DbDataReader`, the `Read<T>()` method takes an optional `Action<DbDataReader, T>` parameter that allow the mapping to be customized.
+Finally use the extension methods to convert to Lists, Dictionary and Lookups, as well as allow custom collection creation by being `IEnumerable<T>`.
 
 Query returning a list:
 ```
-List<Order> list = connection.Query<Order>("select * from dbo.[Order] where order_id = @OrderId", new { OrderId = 123 }).ToList();
+List<Order> list = connection.Query("select * from dbo.[Order] where order_id = @OrderId", new { OrderId = 123 })
+	.Read<Order>().ToList();
 ```
 
 Asynchronously query returning a list:
 ```
-List<Order> list = await connection.QueryAsync<Order>("select * from dbo.[Order] where order_id = @OrderId", new { OrderId = 123 }).ToListAsync();
+List<Order> list = await connection.QueryAsync("select * from dbo.[Order] where order_id = @OrderId", new { OrderId = 123 })
+	.Read<Order>().ToListAsync();
 ```
 
 Query returning a dictionary for a unqiue key:
 ```
-Dictionary<int, Order> byId = connection.Query<Order>("select * from dbo.[Order] where status = @Status", new { Status = 1 }).ToDictionary(order => order.Id);
+Dictionary<int, Order> byId = connection.Query("select * from dbo.[Order] where status = @Status", new { Status = 1 })
+	.Read<Order>().ToDictionary(order => order.Id);
 ```
 
 Asynchronously query returning a dictionary for a unqiue key::
 ```
-Dictionary<int, Order> byId = await connection.QueryAsync<Order>("select * from dbo.[Order] where status = @Status", new { Status = 1 }).ToDictionaryAsync(order => order.Id);
+Dictionary<int, Order> byId = await connection.QueryAsync("select * from dbo.[Order] where status = @Status", new { Status = 1 })
+	.Read<Order>().ToDictionaryAsync(order => order.Id);
 ```
 
 Query returning `HashLookup` for a non-unqiue key:
 ```
-HashLookup<int, Order> byStatus = connection.Query<Order>("select * from dbo.[Order] where order_date > @OrderDate", new { OrderDate = new DateTime(2016, 8, 1) }).ToLookup(order => order.Status);
+HashLookup<int, Order> byStatus = connection.Query("select * from dbo.[Order] where order_date > @OrderDate", new { OrderDate = new DateTime(2016, 8, 1) })
+	.Read<Order>().ToLookup(order => order.Status);
 ```
 
 Asynchronously query returning `HashLookup` for a non-unqiue key:
 ```
-HashLookup<int, Order> byStatus = await connection.QueryAsync<Order>("select * from dbo.[Order] where order_date > @OrderDate", new { OrderDate = new DateTime(2016, 8, 1) }).ToLookupAsync(order => order.Status);
+HashLookup<int, Order> byStatus = await connection.QueryAsync("select * from dbo.[Order] where order_date > @OrderDate", new { OrderDate = new DateTime(2016, 8, 1) })
+	.Read<Order>().ToLookupAsync(order => order.Status);
 ```
 
 Query returning exactly one row:
 ```
-Order order = connection.Query<Order>("select * from dbo.[Order] where order_id = @OrderId", new { OrderId = 123 }).ToSingle();
+Order order = connection.Query("select * from dbo.[Order] where order_id = @OrderId", new { OrderId = 123 })
+	.Read<Order>().ToSingle();
 ```
 
 Asynchronously query returning exactly one row:
 ```
-Order order = await connection.QueryAsync<Order>("select * from dbo.[Order] where order_id = @OrderId", new { OrderId = 123 }).ToSingleAsync();
+Order order = await connection.QueryAsync("select * from dbo.[Order] where order_id = @OrderId", new { OrderId = 123 })
+	.Read<Order>().ToSingleAsync();
 ```
 
 Query returning exactly one row of a primative type:
 ```
-int count = connection.Query<int>("select count(*) from dbo.[Order] where order_type = @orderType", new { orderType = 3 }).ToSingle();
+int count = connection.Query("select count(*) from dbo.[Order] where order_type = @orderType", new { orderType = 3 })
+	.Read<int>().ToSingle();
 ```
 
 Query returning exactly zero or one rows:
 ```
-Order order = connection.Query<Order>("select * from dbo.[Order] where order_id = @OrderId", new { OrderId = 123 }).ToSingleOrDefault();
+Order order = connection.Query("select * from dbo.[Order] where order_id = @OrderId", new { OrderId = 123 })
+	.Read<Order>().ToSingleOrDefault();
 ```
 
 Asynchronously query returning zero or one rows:
 ```
-Order order = await connection.QueryAsync<Order>("select * from dbo.[Order] where order_id = @OrderId", new { OrderId = 123 }).ToSingleOrDefaultAsync();
+Order order = await connection.QueryAsync("select * from dbo.[Order] where order_id = @OrderId", new { OrderId = 123 })
+	.Read<Order>().ToSingleOrDefaultAsync();
 ```
 
 Query returning zero or one rows of a enum:
 ```
-OrderType? orderType = connection.Query<OrderType?>("select order_type_id from dbo.[Order] where order_id = @OrderId", new { OrderId = 123 }).ToSingleOrDefault();
+OrderType? orderType = connection.Query("select order_type_id from dbo.[Order] where order_id = @OrderId", new { OrderId = 123 })
+	.Read<OrderType?>().ToSingleOrDefault();
 ```
 
 Call a stored procedure that does not return results set(s)
@@ -141,7 +154,7 @@ int rowsChanged = await connection.ExecuteAsync("EXEC update_user_name @user_id=
 
 `System.Data.Common.DbDataReader` has the following extension method:
 
-* `AsSeqOf<T>` which return a `DataSequence<T>` 
+* `Read<T>` which return a `DataSequence<T>`
 
 ### DataSequence<T> methods
 `System.Data.Common.DbDataReader` has the following extension methods:
@@ -158,19 +171,14 @@ Additional `...Async` methods exist for reading data using tasks.
 
 `Mapper` adds `AddParameters(object parameters)` extension method to `System.Data.Common.DbCommand`. `AddParameters` will add a `DbDataParameter` to the commands `Parameters` collection for each readable public property (and field) of `parameters`, setting the type and value.
 
-For convenience `Mapper` adds the following extension method to `System.Data.Common.DbCommand`:
-
-* `Query<T>()` for running a command, returns a `DataSequence<T>`
-* `QueryAsync<T>()` for running a command asynchronously, returns a `Task<DataSequence<T>>`
-
 ### DbConnetion methods
 
 For convenience `Mapper` adds the following extension method to `System.Data.Common.DbConnection`:
 
-* `Execute<T>()` for runinng a command that returns no data
-* `ExecuteAsync<T>()` for asynchronously runinng a command that returns no data
-* `Query<T>()` for running a command, returns a `DataSequence<T>`
-* `QueryAsync<T>()` for running a command asynchronously, returns a `Task<DataSequence<T>>`
+* `Execute()` for runinng a command that returns no data
+* `ExecuteAsync()` for asynchronously runinng a command that returns no data
+* `Query()` for running a command, returns a `DbDataReader`
+* `QueryAsync()` for running a command asynchronously, returns a `Task<DbDataReader>`
 
 ### SqlDataRecord methods
 

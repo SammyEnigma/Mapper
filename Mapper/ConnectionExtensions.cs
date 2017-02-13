@@ -13,27 +13,23 @@ namespace BusterWood.Mapper
         /// <summary>
         /// Executes some <paramref name="sql"/> using the optional <paramref name="parameters"/> and return a sequence of data
         /// </summary>
-        public static DataSequence<T> Query<T>(this DbConnection cnn, string sql, object parameters = null)
+        public static DbDataReader Query(this DbConnection cnn, string sql, object parameters = null)
         {
             CheckConnectionAndSql(cnn, sql);
-            using (var cmd = cnn.CreateCommand())
-            {
-                SetupCommand(cmd, cnn, sql, parameters);
-                return cmd.Query<T>();
-            }
+            var cmd = cnn.CreateCommand();
+            SetupCommand(cmd, cnn, sql, parameters);
+            return cmd.ExecuteReader(CommandBehavior.CloseConnection);
         }
 
         /// <summary>
         /// Asynchronously executes some <paramref name="sql"/> using the optional <paramref name="parameters"/> and return a sequence of data
         /// </summary>
-        public static Task<DataSequence<T>> QueryAsync<T>(this DbConnection cnn, string sql, object parameters = null)
+        public static Task<DbDataReader> QueryAsync(this DbConnection cnn, string sql, object parameters = null)
         {
             CheckConnectionAndSql(cnn, sql);
-            using (var cmd = cnn.CreateCommand())
-            {
-                SetupCommand(cmd, cnn, sql, parameters);
-                return cmd.QueryAsync<T>();
-            }
+            var cmd = cnn.CreateCommand();
+            SetupCommand(cmd, cnn, sql, parameters);
+            return cmd.ExecuteReaderAsync(CommandBehavior.CloseConnection);
         }
 
         /// <summary>
@@ -59,32 +55,6 @@ namespace BusterWood.Mapper
             {
                 SetupCommand(cmd, cnn, sql, parameters);
                 return cmd.ExecuteNonQueryAsync();
-            }
-        }
-
-        /// <summary>
-        /// Executes some <paramref name="sql"/> using the optional <paramref name="parameters"/> and return a sequence of dynamic data
-        /// </summary>
-        public static DynamicDataSequence Query(this DbConnection cnn, string sql, object parameters = null)
-        {
-            CheckConnectionAndSql(cnn, sql);
-            using (var cmd = cnn.CreateCommand())
-            {
-                SetupCommand(cmd, cnn, sql, parameters);
-                return cmd.Query();
-            }
-        }
-
-        /// <summary>
-        /// Asynchronously executes some <paramref name="sql"/> using the optional <paramref name="parameters"/> and return a sequence of dynamic data
-        /// </summary>
-        public static Task<DynamicDataSequence> QueryAsync(this DbConnection cnn, string sql, object parameters = null)
-        {
-            CheckConnectionAndSql(cnn, sql);
-            using (var cmd = cnn.CreateCommand())
-            {
-                SetupCommand(cmd, cnn, sql, parameters);
-                return cmd.QueryAsync();
             }
         }
 

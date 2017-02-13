@@ -11,12 +11,14 @@ namespace BusterWood.Mapper
     {
         readonly Func<DbDataReader, T> map;
         readonly DbDataReader reader;
+        readonly Action<DbDataReader, T> extraAction;
 
-        public DataSequence(DbDataReader reader)
+        public DataSequence(DbDataReader reader, Action<DbDataReader, T> extraAction)
         {
             Contract.Requires(reader != null);
             Contract.Requires(reader.IsClosed == false);
             this.reader = reader;
+            this.extraAction = extraAction;
             map = Extensions.GetMappingFunc<T>(reader);
         }
 
@@ -42,6 +44,7 @@ namespace BusterWood.Mapper
             {
                 if (!reader.Read()) throw new InvalidOperationException("Expected one value to be read but reader is empty");
                 var item = map(reader);
+                extraAction?.Invoke(reader, item);
                 if (reader.Read()) throw new InvalidOperationException("Expected one value to be read but more than one value can be read");
                 return item;
             }
@@ -56,6 +59,7 @@ namespace BusterWood.Mapper
             {
                 if (!await reader.ReadAsync()) throw new InvalidOperationException("Expected one value to be read but reader is empty");
                 var single = map(reader);
+                extraAction?.Invoke(reader, single);
                 if (await reader.ReadAsync()) throw new InvalidOperationException("Expected one value to be read but more than one value can be read");
                 return single;
             }
@@ -69,7 +73,9 @@ namespace BusterWood.Mapper
             using (reader)
             {
                 if (!reader.Read()) return default(T);
-                return map(reader);
+                var item = map(reader);
+                extraAction?.Invoke(reader, item);
+                return item;
             }
         }
 
@@ -81,7 +87,9 @@ namespace BusterWood.Mapper
             using (reader)
             {
                 if (!await reader.ReadAsync()) return default(T);
-                return map(reader);
+                var item = map(reader);
+                extraAction?.Invoke(reader, item);
+                return item;
             }
         }
 
@@ -95,7 +103,9 @@ namespace BusterWood.Mapper
                 var list = new List<T>();
                 while (reader.Read())
                 {
-                    list.Add(map(reader));
+                    var item = map(reader);
+                    extraAction?.Invoke(reader, item);
+                    list.Add(item);
                 }
                 return list;
             }
@@ -112,7 +122,9 @@ namespace BusterWood.Mapper
                 var list = new List<T>();
                 while (await reader.ReadAsync())
                 {
-                    list.Add(map(reader));
+                    var item = map(reader);
+                    extraAction?.Invoke(reader, item);
+                    list.Add(item);
                 }
                 return list;
             }
@@ -128,7 +140,9 @@ namespace BusterWood.Mapper
                 var set = new HashSet<T>();
                 while (reader.Read())
                 {
-                    set.Add(map(reader));
+                    var item = map(reader);
+                    extraAction?.Invoke(reader, item);
+                    set.Add(item);
                 }
                 return set;
             }
@@ -145,7 +159,9 @@ namespace BusterWood.Mapper
                 var set = new HashSet<T>();
                 while (await reader.ReadAsync())
                 {
-                    set.Add(map(reader));
+                    var item = map(reader);
+                    extraAction?.Invoke(reader, item);
+                    set.Add(item);
                 }
                 return set;
             }
@@ -162,6 +178,7 @@ namespace BusterWood.Mapper
                 while (reader.Read())
                 {
                     T value = map(reader);
+                    extraAction?.Invoke(reader, value);
                     TKey key = keyFunc(value);
                     dict.Add(key, value);
                 }
@@ -182,6 +199,7 @@ namespace BusterWood.Mapper
                 while (reader.Read())
                 {
                     T item = map(reader);
+                    extraAction?.Invoke(reader, item);
                     TKey key = keyFunc(item);
                     TValue value = valueFunc(item);
                     dict.Add(key, value);
@@ -202,9 +220,10 @@ namespace BusterWood.Mapper
                 var dict = new Dictionary<TKey, T>();
                 while (await reader.ReadAsync())
                 {
-                    T item = map(reader);
-                    TKey key = keyFunc(item);
-                    dict.Add(key, item);
+                    T value = map(reader);
+                    extraAction?.Invoke(reader, value);
+                    TKey key = keyFunc(value);
+                    dict.Add(key, value);
                 }
                 return dict;
             }
@@ -225,6 +244,7 @@ namespace BusterWood.Mapper
                 while (await reader.ReadAsync())
                 {
                     T item = map(reader);
+                    extraAction?.Invoke(reader, item);
                     TKey key = keyFunc(item);
                     TValue value = valueFunc(item);
                     dict.Add(key, value);
@@ -244,6 +264,7 @@ namespace BusterWood.Mapper
                 while (reader.Read())
                 {
                     T value = map(reader);
+                    extraAction?.Invoke(reader, value);
                     TKey key = keyFunc(value);
                     lookup.Add(key, value);
                 }
@@ -263,6 +284,7 @@ namespace BusterWood.Mapper
                 while (await reader.ReadAsync())
                 {
                     T value = map(reader);
+                    extraAction?.Invoke(reader, value);
                     TKey key = keyFunc(value);
                     lookup.Add(key, value);
                 }
