@@ -67,84 +67,84 @@ The `Query()` methods return a `DbDataReader`. You then use the `Read<T>()` exte
 Finally use the extension methods to convert to Lists, Dictionary and Lookups, as well as allow custom collection creation by being `IEnumerable<T>`.
 
 Query returning a list:
-```
+```csharp
 List<Order> list = connection.Query("select * from dbo.[Order] where order_id = @OrderId", new { OrderId = 123 })
 	.Read<Order>().ToList();
 ```
 
 Asynchronously query returning a list:
-```
+```csharp
 List<Order> list = await connection.QueryAsync("select * from dbo.[Order] where order_id = @OrderId", new { OrderId = 123 })
 	.Read<Order>().ToListAsync();
 ```
 
 Query returning a dictionary for a unqiue key:
-```
+```csharp
 Dictionary<int, Order> byId = connection.Query("select * from dbo.[Order] where status = @Status", new { Status = 1 })
 	.Read<Order>().ToDictionary(order => order.Id);
 ```
 
 Asynchronously query returning a dictionary for a unqiue key::
-```
+```csharp
 Dictionary<int, Order> byId = await connection.QueryAsync("select * from dbo.[Order] where status = @Status", new { Status = 1 })
 	.Read<Order>().ToDictionaryAsync(order => order.Id);
 ```
 
 Query returning `HashLookup` for a non-unqiue key:
-```
+```csharp
 HashLookup<int, Order> byStatus = connection.Query("select * from dbo.[Order] where order_date > @OrderDate", new { OrderDate = new DateTime(2016, 8, 1) })
 	.Read<Order>().ToLookup(order => order.Status);
 ```
 
 Asynchronously query returning `HashLookup` for a non-unqiue key:
-```
+```csharp
 HashLookup<int, Order> byStatus = await connection.QueryAsync("select * from dbo.[Order] where order_date > @OrderDate", new { OrderDate = new DateTime(2016, 8, 1) })
 	.Read<Order>().ToLookupAsync(order => order.Status);
 ```
 
 Query returning exactly one row:
-```
+```csharp
 Order order = connection.Query("select * from dbo.[Order] where order_id = @OrderId", new { OrderId = 123 })
 	.Read<Order>().ToSingle();
 ```
 
 Asynchronously query returning exactly one row:
-```
+```csharp
 Order order = await connection.QueryAsync("select * from dbo.[Order] where order_id = @OrderId", new { OrderId = 123 })
 	.Read<Order>().ToSingleAsync();
 ```
 
 Query returning exactly one row of a primative type:
-```
+```csharp
 int count = connection.Query("select count(*) from dbo.[Order] where order_type = @orderType", new { orderType = 3 })
 	.Read<int>().ToSingle();
 ```
 
 Query returning exactly zero or one rows:
-```
+```csharp
 Order order = connection.Query("select * from dbo.[Order] where order_id = @OrderId", new { OrderId = 123 })
 	.Read<Order>().ToSingleOrDefault();
 ```
 
 Asynchronously query returning zero or one rows:
-```
+```csharp
 Order order = await connection.QueryAsync("select * from dbo.[Order] where order_id = @OrderId", new { OrderId = 123 })
 	.Read<Order>().ToSingleOrDefaultAsync();
 ```
 
 Query returning zero or one rows of a enum:
-```
+```csharp
 OrderType? orderType = connection.Query("select order_type_id from dbo.[Order] where order_id = @OrderId", new { OrderId = 123 })
 	.Read<OrderType?>().ToSingleOrDefault();
 ```
 
 Call a stored procedure that does not return results set(s)
-```
+```csharp
 int rowsChanged = connection.Execute("EXEC update_user_name @user_id=@id, @name=@name", new { id=123, name="fred" });
 ```
 
 Asynchronously call a stored procedure that does not return results set(s)
-```
+```csharp
 int rowsChanged = await connection.ExecuteAsync("EXEC update_user_name @user_id=@id, @name=@name", new { id=123, name="fred" });
 ```
 
