@@ -16,9 +16,11 @@ namespace BusterWood.Mapper
         public static DbDataReader Query(this DbConnection cnn, string sql, object parameters = null)
         {
             CheckConnectionAndSql(cnn, sql);
-            var cmd = cnn.CreateCommand();
-            SetupCommand(cmd, cnn, sql, parameters);
-            return cmd.ExecuteReader(CommandBehavior.CloseConnection);
+            using (var cmd = cnn.CreateCommand())
+            {
+                SetupCommand(cmd, cnn, sql, parameters);
+                return cmd.ExecuteReader();
+            }
         }
 
         /// <summary>
@@ -27,9 +29,12 @@ namespace BusterWood.Mapper
         public static Task<DbDataReader> QueryAsync(this DbConnection cnn, string sql, object parameters = null)
         {
             CheckConnectionAndSql(cnn, sql);
-            var cmd = cnn.CreateCommand();
-            SetupCommand(cmd, cnn, sql, parameters);
-            return cmd.ExecuteReaderAsync(CommandBehavior.CloseConnection);
+
+            using (var cmd = cnn.CreateCommand())
+            {
+                SetupCommand(cmd, cnn, sql, parameters);
+                return cmd.ExecuteReaderAsync();
+            }
         }
 
         /// <summary>
