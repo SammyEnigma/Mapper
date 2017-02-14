@@ -3,7 +3,7 @@
 
 .NET composable mapping library for objects and data (System.Data).
 
-Sort of a replacement for Dapper (150K) and Automapper (350K) but `Mapper` is *much smaller* at around 75K.
+Sort of a replacement for Dapper (150K) and Automapper (350K) but `Mapper` is *much smaller* at around 87K.
 
 Performance is "good" as `Mapper` uses the DLR to create and JIT compile methods to do the mapping, and these methods are cached.
 
