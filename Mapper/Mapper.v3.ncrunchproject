@@ -1,0 +1,12 @@
+﻿<ProjectConfiguration>
+  <Settings>
+    <AllowStaticCodeContractChecking>True</AllowStaticCodeContractChecking>
+    <IgnoredTests>
+      <AllTestsSelector />
+    </IgnoredTests>
+    <InstrumentOutputAssembly>False</InstrumentOutputAssembly>
+    <PreviouslyBuiltSuccessfully>True</PreviouslyBuiltSuccessfully>
+    <UseBuildConfiguration>Release</UseBuildConfiguration>
+    <UseCPUArchitecture>x64</UseCPUArchitecture>
+  </Settings>
+</ProjectConfiguration>
