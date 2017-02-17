@@ -237,6 +237,7 @@
   <ItemGroup>
     <Compile Include="CommandParameterMapper.cs" />
     <Compile Include="DataReaderMapper.cs" />
+    <Compile Include="DictionaryMapper.cs" />
     <Compile Include="DynamicRow.cs" />
     <Compile Include="GenericMapping.cs" />
     <Compile Include="Grouping.cs" />

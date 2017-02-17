@@ -88,4 +88,18 @@ namespace BusterWood.Mapper
             unchecked { return name.GetHashCode() * type.GetHashCode(); }
         }
     }
+
+    struct ObjectThing : Thing
+    {
+        public string ComparisonName => Name.Replace("_", "");
+        public string Name { get; }
+        public Type Type => typeof(object);
+
+        public ObjectThing(string name)
+        {
+            Contract.Requires(name != null);
+            Name = name;
+        }
+    }
+
 }

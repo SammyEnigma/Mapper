@@ -72,6 +72,7 @@
     <Compile Include="ConsoleObserver.cs" />
     <Compile Include="DataReaderDictionaryBenchmark.cs" />
     <Compile Include="DataReaderExtensionTests.cs" />
+    <Compile Include="DictionaryMapperTests.cs" />
     <Compile Include="DynamicTests.cs" />
     <Compile Include="CopyExtensionTests.cs" />
     <Compile Include="Entity.cs" />
