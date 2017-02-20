@@ -63,9 +63,9 @@ Note: name comparison is *case insensitive*.
 
 `Mapper` adds `Query()` and `Execute()` extension methods, as well as `...Async()` variants.
 
-The `Query(string sql, object parameters = null)` extension executes the supplied SQL (with option parameters) and returns a `DbDataReader`.
+The `Query(string sql, object parameters = null)` extension executes the supplied SQL (with optional parameters) and returns a `DbDataReader`.
 
-The `Execute(string sql, object parameters = null)` extension executes the supplied SQL (with option parameters) but just returns the number of rows affected.
+The `Execute(string sql, object parameters = null)` extension executes the supplied SQL (with optional parameters) but *just returns the number of rows affected*.
 
 As a conveniance, if `Query()` and `Execute()` are called on a closed connection then `Mapper` will open the connection, use it, and close/dispose the connection afterwards.
 
