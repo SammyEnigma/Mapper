@@ -85,6 +85,12 @@ As a conveniance, if `Query()` and `Execute()` are called on a closed connection
 
 Additional `...Async()` extension methods also exist.
 
+`T` can be:
+* a `class` with a parameterless constructor - in which case public set-able fields and properties are mapped
+* a `struct` - again, public set-able fields and properties are mapped
+* a single value, e.g. `long`, `string` or an enumeration
+* a `Nullable<T>` of private value (e.g. 'int') or an enumeration
+
 Note that the above methods take an optional `Action<DbDataReader,T>` parameter that allow you to add custom mapping between the current record of the data reader and the mapped version of 'T'.
 
 ## ADO.NET SqlDataRecord methods
