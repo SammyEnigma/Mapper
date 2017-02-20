@@ -130,37 +130,37 @@ HashLookup<int, Order> byStatus = await connection.QueryAsync("select * from dbo
 Query returning exactly one row:
 ```csharp
 Order order = connection.Query("select * from dbo.[Order] where order_id = @OrderId", new { OrderId = 123 })
-	.ToSingle<Order>();
+	.Single<Order>();
 ```
 
 Asynchronously query returning exactly one row:
 ```csharp
 Order order = await connection.QueryAsync("select * from dbo.[Order] where order_id = @OrderId", new { OrderId = 123 })
-	.ToSingleAsync<Order>();
+	.SingleAsync<Order>();
 ```
 
 Query returning exactly one row of a primative type:
 ```csharp
 int count = connection.Query("select count(*) from dbo.[Order] where order_type = @orderType", new { orderType = 3 })
-	.ToSingle<int>();
+	.Single<int>();
 ```
 
 Query returning exactly zero or one rows:
 ```csharp
 Order order = connection.Query("select * from dbo.[Order] where order_id = @OrderId", new { OrderId = 123 })
-	.ToSingleOrDefault<Order>();
+	.SingleOrDefault<Order>();
 ```
 
 Asynchronously query returning zero or one rows:
 ```csharp
 Order order = await connection.QueryAsync("select * from dbo.[Order] where order_id = @OrderId", new { OrderId = 123 })
-	.ToSingleOrDefaultAsync<Order>();
+	.SingleOrDefaultAsync<Order>();
 ```
 
 Query returning zero or one rows of a enum:
 ```csharp
 OrderType? orderType = connection.Query("select order_type_id from dbo.[Order] where order_id = @OrderId", new { OrderId = 123 })
-	.ToSingleOrDefault<OrderType?>();
+	.SingleOrDefault<OrderType?>();
 ```
 
 Call a stored procedure that does not return results set(s)
