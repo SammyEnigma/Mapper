@@ -66,7 +66,7 @@ Mapper adds `Query()` and `Execute()` extension methods, as well as `...Async()`
 The `Query(string sql, object parameters = null)` extension executes the supplied SQL (with option parameters) and returns a `DbDataReader`.
 The `Query(string sql, object parameters = null)` extension executes the supplied SQL (with option parameters) but just returns the number of rows affected.
 
-## DbCommand methods
+## ADO.NET DbCommand methods
 
 `Mapper` adds `AddParameters(object parameters)` extension method to `System.Data.Common.DbCommand`. `AddParameters` will add a `DbDataParameter` to the commands `Parameters` collection for each readable public property (and field) of `parameters`, setting the type and value.
 
@@ -82,11 +82,11 @@ Mapper adds the following extension methods to `DbDataReader` (as returned by `Q
 
 Additional `...Async()` extension methods also exist.
 
-### SqlDataRecord methods
+## ADO.NET SqlDataRecord methods
 
 `Mapper` has a extension method `ToTableType<T>()` for converting a source `IEnumerable<T>` into an `IEnumerable<SqlDataRecord>` such that it can be passed as a [table valued parameter](https://msdn.microsoft.com/en-us/library/bb675163(v=vs.110).aspx) to SQL Server.
 
-## Exmaples
+## Examples
 
 Query returning a list:
 ```csharp
@@ -169,4 +169,3 @@ Asynchronously call a stored procedure that does not return results set(s)
 ```csharp
 int rowsChanged = await connection.ExecuteAsync("EXEC update_user_name @user_id=@id, @name=@name", new { id=123, name="fred" });
 ```
-
