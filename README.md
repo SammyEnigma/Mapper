@@ -91,7 +91,7 @@ Additional `...Async()` extension methods also exist.
 * a single value, e.g. `long`, `string` or an enumeration
 * a `Nullable<T>` of primative value (e.g. 'int') or an enumeration
 
-Note that the above methods take an optional `Action<DbDataReader,T>` parameter that allow you to add custom mapping between the current record of the data reader and the mapped version of 'T'.
+Note that the above methods take an optional `Action<DbDataReader,T>` parameter that allow you to add custom mapping between the current record of the data reader and the mapped version of `T`.
 
 ## ADO.NET SqlDataRecord methods
 
