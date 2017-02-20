@@ -17,7 +17,7 @@ namespace BusterWood.Mapper.UnitTests
                 Values = new object[] { 1L },
             };
 
-            reader.Read<long>().Single();
+            reader.Single<long>();
         }
 
         [Test]
@@ -31,7 +31,7 @@ namespace BusterWood.Mapper.UnitTests
             };
             var task = Task.FromResult<DbDataReader>(reader);
 
-            await task.Read<long>().SingleAsync();
+            await task.SingleAsync<long>();
         }
 
     }

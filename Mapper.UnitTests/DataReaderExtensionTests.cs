@@ -50,7 +50,7 @@ namespace BusterWood.Mapper.UnitTests
                 Types = new[] { typeof(long) },
                 Values = new object[] { 1L },
             };
-            var val = stubDataReader.Read<long>().Single();
+            var val = stubDataReader.Single<long>();
         }
 
         [Test]
@@ -62,7 +62,7 @@ namespace BusterWood.Mapper.UnitTests
                 Types = new[] { typeof(long) },
                 Values = new object[] { 1L },
             };
-            var val = stubDataReader.Read<long?>().Single();
+            var val = stubDataReader.Single<long?>();
         }
 
         [Test]
@@ -74,7 +74,7 @@ namespace BusterWood.Mapper.UnitTests
                 Types = new[] { typeof(int) },
                 Values = new object[] { 1 },
             };
-            var val = stubDataReader.Read<TestEnum>().Single();
+            var val = stubDataReader.Single<TestEnum>();
         }
 
         [Test]
@@ -86,7 +86,7 @@ namespace BusterWood.Mapper.UnitTests
                 Types = new[] { typeof(int) },
                 Values = new object[] { 1 },
             };
-            var val = stubDataReader.Read<TestEnum?>().Single();
+            var val = stubDataReader.Single<TestEnum?>();
         }
 
         [Test]
@@ -98,7 +98,7 @@ namespace BusterWood.Mapper.UnitTests
                 Types = new[] { typeof(long) },
                 Values = new object[] { 1L },
             };
-            await stubDataReader.Read<long>().SingleAsync();
+            await stubDataReader.SingleAsync<long>();
         }
 
         [Test]
@@ -111,7 +111,7 @@ namespace BusterWood.Mapper.UnitTests
                 Types = new[] { g.GetType() },
                 Values = new object[] { g },
             };
-            var read = stubDataReader.Read<Guid>().Single();
+            var read = stubDataReader.Single<Guid>();
             Assert.AreEqual(g, read);
         }
 
@@ -125,7 +125,7 @@ namespace BusterWood.Mapper.UnitTests
                 Types = new[] { dt.GetType() },
                 Values = new object[] { dt },
             };
-            var read = stubDataReader.Read<DateTime>().Single();
+            var read = stubDataReader.Single<DateTime>();
             Assert.AreEqual(dt, read);
         }
 
@@ -139,7 +139,7 @@ namespace BusterWood.Mapper.UnitTests
                 Types = new[] { g.GetType() },
                 Values = new object[] { g },
             };
-            var read = stubDataReader.Read<Guid?>().Single();
+            var read = stubDataReader.Single<Guid?>();
             Assert.AreEqual(g, read.Value);
         }
 
@@ -152,7 +152,7 @@ namespace BusterWood.Mapper.UnitTests
                 Types = new[] { typeof(long) },
                 Values = new object[] { 1L },
             };
-            var val = stubDataReader.Read<TestStruct<long>>().Single();
+            var val = stubDataReader.Single<TestStruct<long>>();
             Assert.AreEqual(1L, val.Value);
         }
 

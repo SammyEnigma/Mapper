@@ -59,83 +59,105 @@ For example, if the source name is `ORDER_ID` then the following names would be 
 
 Note: name comparison is *case insensitive*.
 
-## Data extensions
+## ADO.NET Connection extensions
 
-ADO.NET connections have `Query()` and `Execute()` extension methods added.
+Mapper adds `Query()` and `Execute()` extension methods, as well as `...Async()` variants.
 
-The `Query()` methods return a `DbDataReader`. You then use the `Read<T>()` extension to create read object from the `DbDataReader`, the `Read<T>()` method takes an optional `Action<DbDataReader, T>` parameter that allow the mapping to be customized.
-Finally use the extension methods to convert to Lists, Dictionary and Lookups, as well as allow custom collection creation by being `IEnumerable<T>`.
+The `Query(string sql, object parameters = null)` extension executes the supplied SQL (with option parameters) and returns a `DbDataReader`.
+The `Query(string sql, object parameters = null)` extension executes the supplied SQL (with option parameters) but just returns the number of rows affected.
+
+## DbCommand methods
+
+`Mapper` adds `AddParameters(object parameters)` extension method to `System.Data.Common.DbCommand`. `AddParameters` will add a `DbDataParameter` to the commands `Parameters` collection for each readable public property (and field) of `parameters`, setting the type and value.
+
+## ADO.NET DbDataReader extensions
+
+Mapper adds the following extension methods to `DbDataReader` (as returned by `Query()` and `Execute()`) to read and map the data:
+
+* `Single<T>(this DbDataReader reader, ...)` reads one and only one `T`
+* `SingleOrDefault<T>(this DbDataReader reader, ...)` reads one or zero one `T`
+* `ToDictionary<TKey, TValue>(this DbDataReader reader, ...)` reads `TValue` items and creates a hash table with a unique `TKey` for each `TValue`
+* `ToList<T>(this DbDataReader reader, ...)` reads a list of `T`
+* `ToLookup<TKey, TValue>(this DbDataReader reader, ...)` reads `TValue` items but groups the items by key
+
+Additional `...Async()` extension methods also exist.
+
+### SqlDataRecord methods
+
+`Mapper` has a extension method `ToTableType<T>()` for converting a source `IEnumerable<T>` into an `IEnumerable<SqlDataRecord>` such that it can be passed as a [table valued parameter](https://msdn.microsoft.com/en-us/library/bb675163(v=vs.110).aspx) to SQL Server.
+
+## Exmaples
 
 Query returning a list:
 ```csharp
 List<Order> list = connection.Query("select * from dbo.[Order] where order_id = @OrderId", new { OrderId = 123 })
-	.Read<Order>().ToList();
+	.ToList<Order>();
 ```
 
 Asynchronously query returning a list:
 ```csharp
 List<Order> list = await connection.QueryAsync("select * from dbo.[Order] where order_id = @OrderId", new { OrderId = 123 })
-	.Read<Order>().ToListAsync();
+	.ToListAsync<Order>();
 ```
 
 Query returning a dictionary for a unqiue key:
 ```csharp
 Dictionary<int, Order> byId = connection.Query("select * from dbo.[Order] where status = @Status", new { Status = 1 })
-	.Read<Order>().ToDictionary(order => order.Id);
+	.ToDictionary<Order>(order => order.Id);
 ```
 
 Asynchronously query returning a dictionary for a unqiue key::
 ```csharp
 Dictionary<int, Order> byId = await connection.QueryAsync("select * from dbo.[Order] where status = @Status", new { Status = 1 })
-	.Read<Order>().ToDictionaryAsync(order => order.Id);
+	.ToDictionaryAsync<Order>(order => order.Id);
 ```
 
 Query returning `HashLookup` for a non-unqiue key:
 ```csharp
 HashLookup<int, Order> byStatus = connection.Query("select * from dbo.[Order] where order_date > @OrderDate", new { OrderDate = new DateTime(2016, 8, 1) })
-	.Read<Order>().ToLookup(order => order.Status);
+	.ToLookup<Order>(order => order.Status);
 ```
 
 Asynchronously query returning `HashLookup` for a non-unqiue key:
 ```csharp
 HashLookup<int, Order> byStatus = await connection.QueryAsync("select * from dbo.[Order] where order_date > @OrderDate", new { OrderDate = new DateTime(2016, 8, 1) })
-	.Read<Order>().ToLookupAsync(order => order.Status);
+	.ToLookupAsync<Order>(order => order.Status);
 ```
 
 Query returning exactly one row:
 ```csharp
 Order order = connection.Query("select * from dbo.[Order] where order_id = @OrderId", new { OrderId = 123 })
-	.Read<Order>().ToSingle();
+	.ToSingle<Order>();
 ```
 
 Asynchronously query returning exactly one row:
 ```csharp
 Order order = await connection.QueryAsync("select * from dbo.[Order] where order_id = @OrderId", new { OrderId = 123 })
-	.Read<Order>().ToSingleAsync();
+	.ToSingleAsync<Order>();
 ```
 
 Query returning exactly one row of a primative type:
 ```csharp
 int count = connection.Query("select count(*) from dbo.[Order] where order_type = @orderType", new { orderType = 3 })
-	.Read<int>().ToSingle();
+	.ToSingle<int>();
 ```
 
 Query returning exactly zero or one rows:
 ```csharp
 Order order = connection.Query("select * from dbo.[Order] where order_id = @OrderId", new { OrderId = 123 })
-	.Read<Order>().ToSingleOrDefault();
+	.ToSingleOrDefault<Order>();
 ```
 
 Asynchronously query returning zero or one rows:
 ```csharp
 Order order = await connection.QueryAsync("select * from dbo.[Order] where order_id = @OrderId", new { OrderId = 123 })
-	.Read<Order>().ToSingleOrDefaultAsync();
+	.ToSingleOrDefaultAsync<Order>();
 ```
 
 Query returning zero or one rows of a enum:
 ```csharp
 OrderType? orderType = connection.Query("select order_type_id from dbo.[Order] where order_id = @OrderId", new { OrderId = 123 })
-	.Read<OrderType?>().ToSingleOrDefault();
+	.ToSingleOrDefault<OrderType?>();
 ```
 
 Call a stored procedure that does not return results set(s)
@@ -148,38 +170,3 @@ Asynchronously call a stored procedure that does not return results set(s)
 int rowsChanged = await connection.ExecuteAsync("EXEC update_user_name @user_id=@id, @name=@name", new { id=123, name="fred" });
 ```
 
-## Data Composability
-
-`Mapper` has a series of extension methods for ADO.Net types:
-
-`System.Data.Common.DbDataReader` has the following extension method:
-
-* `Read<T>` which return a `DataSequence<T>`
-
-### DataSequence<T> methods
-`System.Data.Common.DbDataReader` has the following extension methods:
-
-* `Single<T>()` for reading exactly one row
-* `SingleOrDefault<T>()` for reading zero or one rows
-* `ToList<T>()` for reading all records into a `List<T>`
-* `ToDictinary<TKey,TValue>(Func<TKey,TValue> keyFunc)` for reading all records into a `Dictinary<TKey,TValue>` using the supplied function to get work out the key.  Note that the key must be unique.
-* `ToLookup<TKey,TValue>(Func<TKey,TValue> keyFunc)` for reading all records into a `HashLookup<TKey,TValue>` using the supplied function to get work out the key.  Each key may have multiple values.
-
-Additional `...Async` methods exist for reading data using tasks.
-
-## DbCommand methods
-
-`Mapper` adds `AddParameters(object parameters)` extension method to `System.Data.Common.DbCommand`. `AddParameters` will add a `DbDataParameter` to the commands `Parameters` collection for each readable public property (and field) of `parameters`, setting the type and value.
-
-### DbConnetion methods
-
-For convenience `Mapper` adds the following extension method to `System.Data.Common.DbConnection`:
-
-* `Execute()` for runinng a command that returns no data
-* `ExecuteAsync()` for asynchronously runinng a command that returns no data
-* `Query()` for running a command, returns a `DbDataReader`
-* `QueryAsync()` for running a command asynchronously, returns a `Task<DbDataReader>`
-
-### SqlDataRecord methods
-
-`Mapper` has a extension method `ToTableType<T>()` for converting a source `IEnumerable<T>` into an `IEnumerable<SqlDataRecord>` such that it can be passed as a [table valued parameter](https://msdn.microsoft.com/en-us/library/bb675163(v=vs.110).aspx) to SQL Server.

@@ -15,24 +15,29 @@ namespace BusterWood.Mapper
         /// </summary>
         public static DbDataReader Query(this DbConnection cnn, string sql, object parameters = null)
         {
-            CheckConnectionAndSql(cnn, sql);
+            Contract.Requires(cnn != null);
+            Contract.Requires(!string.IsNullOrWhiteSpace(sql));
+
             var openConnection = cnn.State != ConnectionState.Open;
+            var cb = CommandBehavior.Default;
             if (openConnection)
             {
                 cnn.Open();
+                cb |= CommandBehavior.CloseConnection;
             }
             try
             {
                 using (var cmd = cnn.CreateCommand())
                 {
                     SetupCommand(cmd, cnn, sql, parameters);
-                    return cmd.ExecuteReader();
+                    return cmd.ExecuteReader(cb);
                 }
             }
-            finally
+            catch
             {
                 if (openConnection)
                     cnn.Close();
+                throw;
             }
         }
 
@@ -41,24 +46,29 @@ namespace BusterWood.Mapper
         /// </summary>
         public static async Task<DbDataReader> QueryAsync(this DbConnection cnn, string sql, object parameters = null)
         {
-            CheckConnectionAndSql(cnn, sql);
+            Contract.Requires(cnn != null);
+            Contract.Requires(!string.IsNullOrWhiteSpace(sql));
+
             var openConnection = cnn.State != ConnectionState.Open;
+            var cb = CommandBehavior.Default;
             if (openConnection)
             {
                 await cnn.OpenAsync();
+                cb |= CommandBehavior.CloseConnection;
             }
             try
             {
                 using (var cmd = cnn.CreateCommand())
                 {
                     SetupCommand(cmd, cnn, sql, parameters);
-                    return await cmd.ExecuteReaderAsync();
+                    return await cmd.ExecuteReaderAsync(cb);
                 }
             }
-            finally
+            catch
             {
                 if (openConnection)
                     cnn.Close();
+                throw;
             }
         }
 
@@ -67,7 +77,9 @@ namespace BusterWood.Mapper
         /// </summary>
         public static int Execute(this DbConnection cnn, string sql, object parameters = null)
         {
-            CheckConnectionAndSql(cnn, sql);
+            Contract.Requires(cnn != null);
+            Contract.Requires(!string.IsNullOrWhiteSpace(sql));
+
             var openConnection = cnn.State != ConnectionState.Open;
             if (openConnection)
             {
@@ -93,7 +105,9 @@ namespace BusterWood.Mapper
         /// </summary>
         public static async Task<int> ExecuteAsync(this DbConnection cnn, string sql, object parameters = null)
         {
-            CheckConnectionAndSql(cnn, sql);
+            Contract.Requires(cnn != null);
+            Contract.Requires(!string.IsNullOrWhiteSpace(sql));
+
             var openConnection = cnn.State != ConnectionState.Open;
             if (openConnection)
             {
@@ -112,13 +126,6 @@ namespace BusterWood.Mapper
                 if (openConnection)
                     cnn.Close();
             }
-        }
-
-        [ContractAbbreviator]
-        static void CheckConnectionAndSql(DbConnection cnn, string sql)
-        {
-            Contract.Requires(cnn != null);
-            Contract.Requires(!string.IsNullOrWhiteSpace(sql));
         }
 
         static void SetupCommand(DbCommand cmd, DbConnection cnn, string sql, object parameters)
