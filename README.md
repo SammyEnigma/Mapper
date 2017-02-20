@@ -78,7 +78,7 @@ As a conveniance, if `Query()` and `Execute()` are called on a closed connection
 `Mapper` adds the following extension methods to `DbDataReader` (as returned by `Query()` and `Execute()`) to read and map the data:
 
 * `Single<T>(this DbDataReader reader, ...)` reads one and only one `T`
-* `SingleOrDefault<T>(this DbDataReader reader, ...)` reads one or zero one `T`
+* `SingleOrDefault<T>(this DbDataReader reader, ...)` reads one or zero `T`
 * `ToDictionary<TKey, TValue>(this DbDataReader reader, ...)` reads `TValue` items and creates a hash table with a unique `TKey` for each `TValue`
 * `ToList<T>(this DbDataReader reader, ...)` reads a list of `T`
 * `ToLookup<TKey, TValue>(this DbDataReader reader, ...)` reads `TValue` items but groups the items by key
