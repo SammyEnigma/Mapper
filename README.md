@@ -55,16 +55,18 @@ For example, if the source name is `ORDER_ID` then the following names would be 
 2. ORDER_
 3. ORDERID
 4. ORDER
-5. ID     (* this will be consider when mapping from a DbDataReader to a type called `Order`)
+5. ID     (* this will be considered when mapping from a DbDataReader to a type called `Order`)
 
 Note: name comparison is *case insensitive*.
 
 ## ADO.NET Connection extensions
 
-Mapper adds `Query()` and `Execute()` extension methods, as well as `...Async()` variants.
+`Mapper` adds `Query()` and `Execute()` extension methods, as well as `...Async()` variants.
 
 The `Query(string sql, object parameters = null)` extension executes the supplied SQL (with option parameters) and returns a `DbDataReader`.
-The `Query(string sql, object parameters = null)` extension executes the supplied SQL (with option parameters) but just returns the number of rows affected.
+
+The `Execute(string sql, object parameters = null)` extension executes the supplied SQL (with option parameters) but just returns the number of rows affected.
+
 As a conveniance, if `Query()` and `Execute()` are called on a closed connection then `Mapper` will open the connection, use it, and close/dispose the connection afterwards.
 
 ## ADO.NET DbCommand methods
@@ -73,7 +75,7 @@ As a conveniance, if `Query()` and `Execute()` are called on a closed connection
 
 ## ADO.NET DbDataReader extensions
 
-Mapper adds the following extension methods to `DbDataReader` (as returned by `Query()` and `Execute()`) to read and map the data:
+`Mapper` adds the following extension methods to `DbDataReader` (as returned by `Query()` and `Execute()`) to read and map the data:
 
 * `Single<T>(this DbDataReader reader, ...)` reads one and only one `T`
 * `SingleOrDefault<T>(this DbDataReader reader, ...)` reads one or zero one `T`
@@ -85,7 +87,7 @@ Additional `...Async()` extension methods also exist.
 
 ## ADO.NET SqlDataRecord methods
 
-`Mapper` has a extension method `ToTableType<T>()` for converting a source `IEnumerable<T>` into an `IEnumerable<SqlDataRecord>` such that it can be passed as a [table valued parameter](https://msdn.microsoft.com/en-us/library/bb675163(v=vs.110).aspx) to SQL Server.
+`Mapper` adds a `ToTableType<T>()` extension method to `IEnumerable<T>` that convert it into a `IEnumerable<SqlDataRecord>` such that it can be passed as a [table valued parameter](https://msdn.microsoft.com/en-us/library/bb675163(v=vs.110).aspx) to SQL Server.
 
 ## Examples
 
