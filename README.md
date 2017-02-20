@@ -85,6 +85,8 @@ As a conveniance, if `Query()` and `Execute()` are called on a closed connection
 
 Additional `...Async()` extension methods also exist.
 
+Note that the above methods take an optional `Action<DbDataReader,T>` parameter that allow you to add custom mapping between the current record of the data reader and the mapped version of 'T'.
+
 ## ADO.NET SqlDataRecord methods
 
 `Mapper` adds a `ToTableType<T>()` extension method to `IEnumerable<T>` that convert it into a `IEnumerable<SqlDataRecord>` such that it can be passed as a [table valued parameter](https://msdn.microsoft.com/en-us/library/bb675163(v=vs.110).aspx) to SQL Server.
