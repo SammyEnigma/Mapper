@@ -59,7 +59,7 @@ For example, if the source name is `ORDER_ID` then the following names would be 
 
 Note: name comparison is *case insensitive*.
 
-## ADO.NET Connection extensions
+## ADO.NET DbConnection extensions
 
 `Mapper` adds `Query()` and `Execute()` extension methods, as well as `...Async()` variants.
 
