@@ -1,5 +1,5 @@
 # BusterWood.Mapper
-[![Build status](https://ci.appveyor.com/api/projects/status/vdlxdx8t62mfrrol/branch/master?svg=true)](https://ci.appveyor.com/project/busterwood/mapper/branch/master)
+[![Build status](https://ci.appveyor.com/api/projects/status/vdlxdx8t62mfrrol/branch/master?svg=true)](https://ci.appveyor.com/project/busterwood/mapper/branch/master) [![Nuget](https://img.shields.io/nuget/v/BusterWood.Mapper.svg)](https://www.nuget.org/packages/BusterWood.Mapper)
 
 .NET composable mapping library for objects and data (System.Data).
 
