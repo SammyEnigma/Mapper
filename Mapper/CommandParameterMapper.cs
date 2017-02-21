@@ -35,16 +35,16 @@ namespace BusterWood.Mapper
                 Expression.Assign(parameters, Expression.Convert(obj, type))
             };
             var createParameter = typeof(DbCommand).GetMethod("CreateParameter", Type.EmptyTypes);
-            foreach (var prop in type.GetProperties(BindingFlags.Public | BindingFlags.Instance))
+            foreach (var prop in Types.ReadablePublicFieldsAndProperties(type))
             {
-                var propertyType = prop.PropertyType;
-                if (!IsSupportedType(propertyType)) continue;
+                var fieldOrProperty = Types.PropertyOrFieldType(prop);
+                if (!IsSupportedType(fieldOrProperty)) continue;
                 lines.Add(Expression.Assign(dataParam, Expression.Call(cmd, createParameter)));
                 lines.Add(Expression.Assign(Expression.Property(dataParam, "ParameterName"), Expression.Constant("@" + prop.Name)));
 
-                if (Types.IsStructured(propertyType))
+                if (Types.IsStructured(fieldOrProperty))
                 {
-                    if (propertyType != typeof(TableType))
+                    if (fieldOrProperty != typeof(TableType))
                         throw new NotSupportedException($"Parameter {dataParam.Name} implements {nameof(IEnumerable<SqlDataRecord>)} but type name is unknown.  Please wrap parameter by calling {nameof(Extensions.WithTypeName)}");
 
                     lines.Add(Expression.IfThen(
@@ -54,26 +54,31 @@ namespace BusterWood.Mapper
                     lines.Add(Expression.Assign(Expression.Property(Expression.Convert(dataParam, typeof(SqlParameter)), "SqlDbType"), Expression.Constant(SqlDbType.Structured)));
                     lines.Add(Expression.Assign(Expression.Property(Expression.Convert(dataParam, typeof(SqlParameter)), "TypeName"), Expression.Property(Expression.Property(parameters, prop.Name), "TypeName")));
                 }
-                else if (propertyType.IsEnum)
+                else if (fieldOrProperty.IsEnum)
                 {
                     lines.Add(Expression.Assign(Expression.Property(dataParam, "DbType"), Expression.Constant(DbType.Int32)));
                 }
                 else
                 {
-                    lines.Add(Expression.Assign(Expression.Property(dataParam, "DbType"), Expression.Constant(Types.TypeToDbType[propertyType])));
+                    lines.Add(Expression.Assign(Expression.Property(dataParam, "DbType"), Expression.Constant(Types.TypeToDbType[fieldOrProperty])));
                 }
 
-                if (Types.CanBeNull(propertyType))
+                if (Types.CanBeNull(fieldOrProperty))
                 {
-                    lines.Add(Expression.IfThenElse(
-                        Expression.Equal(Expression.Property(parameters, prop.Name), Expression.Constant(null)),
-                        Expression.Assign(Expression.Property(dataParam, "Value"), Expression.Convert(Expression.Field(null, typeof(DBNull), "Value"), typeof(object))),
-                        Expression.Assign(Expression.Property(dataParam, "Value"), PropertyValue(parameters, prop))
-                        ));
+                    lines.Add(
+                        Expression.Assign(
+                            Expression.Property(dataParam, "Value"),
+                            Expression.Condition(
+                                Expression.Equal(Expression.Property(parameters, prop.Name), Expression.Constant(null)),
+                                Expression.Convert(Expression.Field(null, typeof(DBNull), "Value"), typeof(object)),
+                                PropertyValueCastToObject(parameters, prop)
+                            )
+                        )
+                    );
                 }
                 else
                 {
-                    lines.Add(Expression.Assign(Expression.Property(dataParam, "Value"), PropertyValue(parameters, prop)));
+                    lines.Add(Expression.Assign(Expression.Property(dataParam, "Value"), PropertyValueCastToObject(parameters, prop)));
                 }
 
                 lines.Add(Expression.Call(Expression.Property(cmd, "Parameters"), typeof(DbParameterCollection).GetMethod("Add", new[] { typeof(object) }), dataParam));
@@ -87,10 +92,10 @@ namespace BusterWood.Mapper
             return Types.IsStructured(propertyType) || Types.TypeToDbType.ContainsKey(propertyType) || propertyType.IsEnum;
         }
 
-        static UnaryExpression PropertyValue(ParameterExpression obj, PropertyInfo prop)
+        static UnaryExpression PropertyValueCastToObject(ParameterExpression obj, MemberInfo propOrField)
         {
-            Expression value = Expression.Property(obj, prop.Name);
-            if (prop.PropertyType.IsEnum)
+            Expression value = Expression.PropertyOrField(obj, propOrField.Name);
+            if (Types.PropertyOrFieldType(propOrField).IsEnum)
             {
                 value = Expression.Convert(value, typeof(int));
             }

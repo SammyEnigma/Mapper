@@ -211,5 +211,21 @@ namespace BusterWood.Mapper.UnitTests
             Assert.AreEqual(SqlDbType.Structured, cmd.Parameters[0].SqlDbType);
             Assert.AreEqual("SOME_TYPE", cmd.Parameters[0].TypeName);
         }
+
+        [Test]
+        public void can_add_int_from_public_field()
+        {
+            SqlCommand cmd = new SqlCommand();
+            cmd.AddParameters(new TestField { Id = 1 });
+            Assert.AreEqual(1, cmd.Parameters.Count);
+            Assert.AreEqual("@Id", cmd.Parameters[0].ParameterName);
+            Assert.AreEqual(DbType.Int32, cmd.Parameters[0].DbType);
+            Assert.AreEqual(1, cmd.Parameters[0].Value);
+        }
+
+        class TestField
+        {
+            public int Id;
+        }
     }
 }
