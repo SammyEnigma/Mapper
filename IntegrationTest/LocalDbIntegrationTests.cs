@@ -16,7 +16,10 @@ namespace IntegrationTest
 
         public CreateDb()
         {
-            master = ConfigurationManager.ConnectionStrings["local"].ConnectionString;
+            if (string.IsNullOrEmpty(Environment.GetEnvironmentVariable("APPVEYOR")))
+                master = ConfigurationManager.ConnectionStrings["local"].ConnectionString;
+            else
+                master = ConfigurationManager.ConnectionStrings["AppVeyor"].ConnectionString;
         }
 
         [SetUp]
