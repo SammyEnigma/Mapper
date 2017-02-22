@@ -130,6 +130,20 @@ namespace BusterWood.Mapper.UnitTests
         }
 
         [Test]
+        public void can_read_single_DateTimeOffset()
+        {
+            var dt = DateTimeOffset.Now;
+            var stubDataReader = new StubDataReader
+            {
+                Names = new[] { "ID" },
+                Types = new[] { dt.GetType() },
+                Values = new object[] { dt },
+            };
+            var read = stubDataReader.Single<DateTimeOffset>();
+            Assert.AreEqual(dt, read);
+        }
+
+        [Test]
         public void can_read_single_object_containing_guid()
         {
             var g = Guid.NewGuid();

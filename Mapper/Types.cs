@@ -32,7 +32,7 @@ namespace BusterWood.Mapper
                 [typeof(string)] = DbType.String,
                 [typeof(char)] = DbType.StringFixedLength,
                 [typeof(Guid)] = DbType.Guid,
-                [typeof(DateTime)] = DbType.DateTime,
+                [typeof(DateTime)] = DbType.DateTime2,  // note: explicit use to datetime2, rather than datetime
                 [typeof(DateTimeOffset)] = DbType.DateTimeOffset,
                 [typeof(byte[])] = DbType.Binary,
                 [typeof(byte?)] = DbType.Byte,

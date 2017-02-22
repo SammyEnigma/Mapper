@@ -40,7 +40,7 @@ namespace BusterWood.Mapper
             Contract.Requires(typeT != null);
             Contract.Ensures(Contract.Result<Delegate>() != null);
 
-            if (typeT.IsPrimitiveOrEnum() || typeT.IsNullable() || typeT == typeof(Guid) || typeT == typeof(DateTime))
+            if (typeT.IsPrimitiveOrEnum() || typeT.IsNullable() || typeT == typeof(Guid) || typeT == typeof(DateTime) || typeT == typeof(DateTimeOffset))
             {
                 return CreatePrimativeMapFunc(typeT, columns);
             }
@@ -66,12 +66,15 @@ namespace BusterWood.Mapper
             var readerParam = Expression.Parameter(typeof(DbDataReader), "reader");
             var resultParam = Expression.Parameter(typeT, "result");
 
-            var getMethod = DataReaderGetMethod(col0.Type);
+            bool readAsObject;
+            var getMethod = DataReaderGetMethod(col0.Type, out readAsObject);
             Expression value = Expression.Call(readerParam, getMethod, Expression.Constant(0));
+
+            if (readAsObject)
+                value = Expression.Convert(value, col0.Type);
+
             if (col0.Type != typeT)
-            {
                 value = Expression.Convert(value, typeT);
-            }
 
             var body = Expression.Condition(
                 Expression.IsTrue(Expression.Call(readerParam, typeof(DbDataReader).GetMethod("IsDBNull", new[] { typeof(int) }), Expression.Constant(0))),
@@ -114,8 +117,12 @@ namespace BusterWood.Mapper
                 return AssignRowVersionTimestampValue(from, to, result, reader);
             }
 
-            var getMethod = DataReaderGetMethod(from.Type);
+            bool readAsObject;
+            var getMethod = DataReaderGetMethod(from.Type, out readAsObject);
             Expression value = Expression.Call(reader, getMethod, Expression.Constant(from.Ordinal));
+            if (readAsObject)
+                value = Expression.Convert(value, from.Type);
+
             var outType = to.Type;
             if (from.Type != outType)
             {
@@ -137,11 +144,12 @@ namespace BusterWood.Mapper
             );
         }
 
-        static MethodInfo DataReaderGetMethod(Type columnType)
+        static MethodInfo DataReaderGetMethod(Type columnType, out bool readAsObject)
         {
             Contract.Requires(columnType != null);
             Contract.Ensures(Contract.Result<MethodInfo>() != null);
             var dataReader = typeof(DbDataReader);
+            readAsObject = false;
             var ordinal = new[] { typeof(int) };
             if (columnType == typeof(byte))
                 return dataReader.GetMethod("GetByte", ordinal);
@@ -169,6 +177,11 @@ namespace BusterWood.Mapper
                 return dataReader.GetMethod("GetChar", ordinal);
             if (columnType == typeof(Guid))
                 return dataReader.GetMethod("GetGuid", ordinal);
+            if (columnType == typeof(DateTimeOffset))
+            {
+                readAsObject = true;
+                return dataReader.GetMethod("GetValue", ordinal);
+            }
             throw new NotSupportedException(columnType.ToString());
         }
 

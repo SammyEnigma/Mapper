@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 14
-VisualStudioVersion = 14.0.25123.0
+VisualStudioVersion = 14.0.25420.1
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Mapper", "Mapper\Mapper.csproj", "{3EA96AE9-E485-48EC-AD40-CAC5B1A8B8E2}"
 EndProject
@@ -14,6 +14,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 	EndProjectSection
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Mapper.CodeGen", "Mapper.CodeGen\Mapper.CodeGen.csproj", "{918A2A4B-C2FB-43F0-9439-BB2473F425E0}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "IntegrationTest", "IntegrationTest\IntegrationTest.csproj", "{9C8345DA-352D-4947-B571-D9F7EE014EAE}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -33,6 +35,10 @@ Global
 		{918A2A4B-C2FB-43F0-9439-BB2473F425E0}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{918A2A4B-C2FB-43F0-9439-BB2473F425E0}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{918A2A4B-C2FB-43F0-9439-BB2473F425E0}.Release|Any CPU.Build.0 = Release|Any CPU
+		{9C8345DA-352D-4947-B571-D9F7EE014EAE}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{9C8345DA-352D-4947-B571-D9F7EE014EAE}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{9C8345DA-352D-4947-B571-D9F7EE014EAE}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{9C8345DA-352D-4947-B571-D9F7EE014EAE}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
