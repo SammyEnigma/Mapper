@@ -93,6 +93,24 @@ Additional `...Async()` extension methods also exist.
 
 Note that the above methods take an optional `Action<DbDataReader,T>` parameter that allow you to add custom mapping between the current record of the data reader and the mapped version of `T`.
 
+The above extension methods `Close()` the reader *after reading the last result*.  This means that a reader with one result will be closed (disposed) automatically, but reading multiple results is still possible, for example:
+
+```csharp
+[Test]
+public void can_read_mutliple_results()
+{
+    using (var cnn = new SqlConnection(mapperTest))
+    {
+         var rs = cnn.Query("select * from dbo.Currency where id <= 4; select * from dbo.Currency where id > 4;");
+         var small = rs.ToList<Currency>(); // read first result
+         var big = rs.ToList<Currency>();  // read second result
+         Assert.IsTrue(rs.IsClosed);
+         Assert.AreEqual(4, small.Count);
+         Assert.AreEqual(6, big.Count);
+    }
+}
+```
+
 ## ADO.NET SqlDataRecord methods
 
 `Mapper` adds a `ToTableType<T>()` extension method to `IEnumerable<T>` that convert it into a `IEnumerable<SqlDataRecord>` such that it can be passed as a [table valued parameter](https://msdn.microsoft.com/en-us/library/bb675163(v=vs.110).aspx) to SQL Server.
