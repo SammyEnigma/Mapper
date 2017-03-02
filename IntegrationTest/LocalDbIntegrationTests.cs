@@ -129,6 +129,33 @@ VALUES (3, @when)";
             }
         }
 
+        [Test]
+        public void can_read_mutliple_results()
+        {
+            using (var cnn = new SqlConnection(mapperTest))
+            {
+                var rs = cnn.Query("select * from dbo.Currency where id <= 4; select * from dbo.Currency where id > 4;");
+                var small = rs.ToList<Currency>();
+                var big = rs.ToList<Currency>();
+                Assert.IsTrue(rs.IsClosed);
+                Assert.AreEqual(4, small.Count);
+                Assert.AreEqual(6, big.Count);
+            }
+        }
+
+        [Test]
+        public async Task can_read_mutliple_results_async()
+        {
+            using (var cnn = new SqlConnection(mapperTest))
+            {
+                var rs = await cnn.QueryAsync("select * from dbo.Currency where id <= 4; select * from dbo.Currency where id > 4;");
+                var small = await rs.ToListAsync<Currency>();
+                var big = await rs.ToListAsync<Currency>();
+                Assert.IsTrue(rs.IsClosed);
+                Assert.AreEqual(4, small.Count);
+                Assert.AreEqual(6, big.Count);
+            }
+        }
     }
 
     class TimeTest

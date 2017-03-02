@@ -49,13 +49,14 @@ namespace BusterWood.Mapper
                 [typeof(bool?)] = DbType.Boolean,
                 [typeof(char?)] = DbType.StringFixedLength,
                 [typeof(Guid?)] = DbType.Guid,
-                [typeof(DateTime?)] = DbType.DateTime,
+                [typeof(DateTime?)] = DbType.DateTime2,
                 [typeof(DateTimeOffset?)] = DbType.DateTimeOffset
             };
             DBTypeToType = new Dictionary<DbType, Type>
             {
                 [DbType.AnsiString] = typeof(string),
                 [DbType.AnsiStringFixedLength] = typeof(string),
+                [DbType.DateTime] = typeof(DateTime),
             };
             foreach (var pair in TypeToDbType)
             {
@@ -89,6 +90,8 @@ namespace BusterWood.Mapper
                 case "datetime":
                 case "datetime2":
                     return typeof(DateTime);
+                case "datetimeoffset":
+                    return typeof(DateTimeOffset);
                 case "timestamp":
                     return typeof(byte[]);
                 case "uniqueidentifier":

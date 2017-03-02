@@ -53,15 +53,19 @@ namespace BusterWood.Mapper
         public static T Single<T>(this DbDataReader reader, Action<DbDataReader, T> extraAction = null)
         {
             Contract.Requires(reader != null);
-            Contract.Ensures(Contract.Result<T>() != null);
             var map = GetMappingFunc<T>(reader);
-            using (reader)
+            try
             {
                 if (!reader.Read()) throw new InvalidOperationException("Expected one value to be read but reader is empty");
                 var item = map(reader);
                 extraAction?.Invoke(reader, item);
                 if (reader.Read()) throw new InvalidOperationException("Expected one value to be read but more than one value can be read");
                 return item;
+            }
+            finally
+            {
+                if (!reader.NextResult())
+                    reader.Close();
             }
         }
 
@@ -73,7 +77,7 @@ namespace BusterWood.Mapper
             Contract.Requires(reader != null);
             Contract.Ensures(Contract.Result<T>() != null);
             var map = GetMappingFunc<T>(reader);
-            using (reader)
+            try
             {
                 if (!await reader.ReadAsync()) throw new InvalidOperationException("Expected one value to be read but reader is empty");
                 var single = map(reader);
@@ -81,6 +85,12 @@ namespace BusterWood.Mapper
                 if (await reader.ReadAsync()) throw new InvalidOperationException("Expected one value to be read but more than one value can be read");
                 return single;
             }
+            finally
+            {
+                if (!await reader.NextResultAsync())
+                    reader.Close();
+            }
+
         }
 
         /// <summary>Reads zero or one items from the reader</summary>
@@ -90,12 +100,17 @@ namespace BusterWood.Mapper
         {
             Contract.Requires(reader != null);
             var map = GetMappingFunc<T>(reader);
-            using (reader)
+            try
             {
                 if (!reader.Read()) return default(T);
                 var item = map(reader);
                 extraAction?.Invoke(reader, item);
                 return item;
+            }
+            finally
+            {
+                if (!reader.NextResult())
+                    reader.Close();
             }
         }
 
@@ -106,12 +121,17 @@ namespace BusterWood.Mapper
         {
             Contract.Requires(reader != null);
             var map = GetMappingFunc<T>(reader);
-            using (reader)
+            try
             {
                 if (!await reader.ReadAsync()) return default(T);
                 var item = map(reader);
                 extraAction?.Invoke(reader, item);
                 return item;
+            }
+            finally
+            {
+                if (!await reader.NextResultAsync())
+                    reader.Close();
             }
         }
 
@@ -122,7 +142,7 @@ namespace BusterWood.Mapper
             Contract.Requires(reader != null);
             Contract.Ensures(Contract.Result<List<T>>() != null);
             var map = GetMappingFunc<T>(reader);
-            using (reader)
+            try
             {
                 var list = new List<T>();
                 while (reader.Read())
@@ -133,6 +153,11 @@ namespace BusterWood.Mapper
                 }
                 return list;
             }
+            finally
+            {
+                if (!reader.NextResult())
+                    reader.Close();
+            }
         }
 
         /// <summary>Reads all the records in the reader into a list</summary>
@@ -141,9 +166,9 @@ namespace BusterWood.Mapper
         {
             Contract.Requires(reader != null);
             Contract.Ensures(Contract.Result<Task<List<T>>>() != null);
-            Contract.Ensures(Contract.Result<Task<List<T>>>().Result != null);
+            //Contract.Ensures(Contract.Result<Task<List<T>>>().Result != null);
             var map = GetMappingFunc<T>(reader);
-            using (reader)
+            try
             {
                 var list = new List<T>();
                 while (await reader.ReadAsync())
@@ -154,6 +179,11 @@ namespace BusterWood.Mapper
                 }
                 return list;
             }
+            finally
+            {
+                if (!await reader.NextResultAsync())
+                    reader.Close();
+            }
         }
 
         /// <summary>Reads all the records in the reader into a <see cref="HashSet{T}"/></summary>
@@ -163,7 +193,7 @@ namespace BusterWood.Mapper
             Contract.Requires(reader != null);
             Contract.Ensures(Contract.Result<HashSet<T>>() != null);
             var map = GetMappingFunc<T>(reader);
-            using (reader)
+            try
             {
                 var set = new HashSet<T>();
                 while (reader.Read())
@@ -173,6 +203,11 @@ namespace BusterWood.Mapper
                     set.Add(item);
                 }
                 return set;
+            }
+            finally
+            {
+                if (!reader.NextResult())
+                    reader.Close();
             }
         }
 
@@ -184,7 +219,7 @@ namespace BusterWood.Mapper
             Contract.Ensures(Contract.Result<Task<HashSet<T>>>() != null);
             Contract.Ensures(Contract.Result<Task<HashSet<T>>>().Result != null);
             var map = GetMappingFunc<T>(reader);
-            using (reader)
+            try
             {
                 var set = new HashSet<T>();
                 while (await reader.ReadAsync())
@@ -195,6 +230,11 @@ namespace BusterWood.Mapper
                 }
                 return set;
             }
+            finally
+            {
+                if (!await reader.NextResultAsync())
+                    reader.Close();
+            }
         }
 
         /// <summary>Reads all the records in the reader into a dictionary, using the supplied <paramref name="keyFunc"/> to generate the key</summary>
@@ -204,7 +244,7 @@ namespace BusterWood.Mapper
             Contract.Requires(reader != null);
             Contract.Ensures(Contract.Result<Dictionary<TKey, T>>() != null);
             var map = GetMappingFunc<T>(reader);
-            using (reader)
+            try
             {
                 var dict = new Dictionary<TKey, T>();
                 while (reader.Read())
@@ -215,6 +255,11 @@ namespace BusterWood.Mapper
                     dict.Add(key, value);
                 }
                 return dict;
+            }
+            finally
+            {
+                if (!reader.NextResult())
+                    reader.Close();
             }
         }
 
@@ -227,7 +272,7 @@ namespace BusterWood.Mapper
             Contract.Ensures(Contract.Result<Task<Dictionary<TKey, T>>>() != null);
             Contract.Ensures(Contract.Result<Task<Dictionary<TKey, T>>>().Result != null);
             var map = GetMappingFunc<T>(reader);
-            using (reader)
+            try
             {
                 var dict = new Dictionary<TKey, T>();
                 while (await reader.ReadAsync())
@@ -239,6 +284,11 @@ namespace BusterWood.Mapper
                 }
                 return dict;
             }
+            finally
+            {
+                if (!await reader.NextResultAsync())
+                    reader.Close();
+            }
         }
 
         /// <summary>Reads all the records in the lookup, group by key, using the supplied <paramref name="keyFunc"/> to generate the key</summary>
@@ -248,7 +298,7 @@ namespace BusterWood.Mapper
             Contract.Requires(reader != null);
             Contract.Ensures(Contract.Result<HashLookup<TKey, T>>() != null);
             var map = GetMappingFunc<T>(reader);
-            using (reader)
+            try
             {
                 var lookup = new HashLookup<TKey, T>();
                 while (reader.Read())
@@ -260,6 +310,11 @@ namespace BusterWood.Mapper
                 }
                 return lookup;
             }
+            finally
+            {
+                if (!reader.NextResult())
+                    reader.Close();
+            }
         }
 
         /// <summary>Reads all the records in the lookup, group by key, using the supplied <paramref name="keyFunc"/> to generate the key</summary>
@@ -270,7 +325,7 @@ namespace BusterWood.Mapper
             Contract.Ensures(Contract.Result<Task<HashLookup<TKey, T>>>() != null);
             Contract.Ensures(Contract.Result<Task<HashLookup<TKey, T>>>().Result != null);
             var map = GetMappingFunc<T>(reader);
-            using (reader)
+            try
             {
                 var lookup = new HashLookup<TKey, T>();
                 while (await reader.ReadAsync())
@@ -282,6 +337,11 @@ namespace BusterWood.Mapper
                 }
                 return lookup;
             }
+            finally
+            {
+                if (!await reader.NextResultAsync())
+                    reader.Close();
+            }
         }
 
         public static async Task<T> SingleOrDefaultAsync<T>(this Task<DbDataReader> task, Action<DbDataReader, T> extraAction = null)
@@ -289,7 +349,7 @@ namespace BusterWood.Mapper
             Contract.Requires(task != null);
             Contract.Ensures(Contract.Result<Task<T>>() != null);
             var reader = await task;
-            return await reader.SingleOrDefaultAsync<T>(extraAction);
+            return await reader.SingleOrDefaultAsync(extraAction);
         }
 
         public static async Task<T> SingleAsync<T>(this Task<DbDataReader> task, Action<DbDataReader, T> extraAction = null)
@@ -297,16 +357,16 @@ namespace BusterWood.Mapper
             Contract.Requires(task != null);
             Contract.Ensures(Contract.Result<Task<T>>() != null);
             var reader = await task;
-            return await reader.SingleAsync<T>(extraAction);
+            return await reader.SingleAsync(extraAction);
         }
 
         public static async Task<List<T>> ToListAsync<T>(this Task<DbDataReader> task, Action<DbDataReader, T> extraAction = null)
         {
             Contract.Requires(task != null);
             Contract.Ensures(Contract.Result<Task<List<T>>>() != null);
-            Contract.Ensures(Contract.Result<Task<List<T>>>().Result != null);
+            //Contract.Ensures(Contract.Result<Task<List<T>>>().Result != null);
             var reader = await task;
-            return await reader.ToListAsync<T>(extraAction);
+            return await reader.ToListAsync(extraAction);
         }
 
         public static async Task<HashSet<T>> ToHashSetAsync<T>(this Task<DbDataReader> task, Action<DbDataReader, T> extraAction = null)
@@ -315,7 +375,7 @@ namespace BusterWood.Mapper
             Contract.Ensures(Contract.Result<Task<HashSet<T>>>() != null);
             Contract.Ensures(Contract.Result<Task<HashSet<T>>>().Result != null);
             var reader = await task;
-            return await reader.ToHashSetAsync<T>(extraAction);
+            return await reader.ToHashSetAsync(extraAction);
         }
 
         public static async Task<Dictionary<TKey, TValue>> ToDictionaryAsync<TKey, TValue>(this Task<DbDataReader> task, Func<TValue, TKey> keyFunc, Action<DbDataReader, TValue> extraAction = null)

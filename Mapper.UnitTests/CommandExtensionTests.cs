@@ -161,7 +161,7 @@ namespace BusterWood.Mapper.UnitTests
             cmd.AddParameters(new { When = now });
             Assert.AreEqual(1, cmd.Parameters.Count);
             Assert.AreEqual("@When", cmd.Parameters[0].ParameterName);
-            Assert.AreEqual(DbType.DateTime, cmd.Parameters[0].DbType);
+            Assert.AreEqual(DbType.DateTime2, cmd.Parameters[0].DbType);
             Assert.AreEqual(now, cmd.Parameters[0].Value);
         }
 
@@ -173,7 +173,7 @@ namespace BusterWood.Mapper.UnitTests
             cmd.AddParameters(new { When = (DateTime?)now });
             Assert.AreEqual(1, cmd.Parameters.Count);
             Assert.AreEqual("@When", cmd.Parameters[0].ParameterName);
-            Assert.AreEqual(DbType.DateTime, cmd.Parameters[0].DbType);
+            Assert.AreEqual(DbType.DateTime2, cmd.Parameters[0].DbType);
             Assert.AreEqual(now, cmd.Parameters[0].Value);
         }
 
@@ -184,7 +184,7 @@ namespace BusterWood.Mapper.UnitTests
             cmd.AddParameters(new { When = (DateTime?)null });
             Assert.AreEqual(1, cmd.Parameters.Count);
             Assert.AreEqual("@When", cmd.Parameters[0].ParameterName);
-            Assert.AreEqual(DbType.DateTime, cmd.Parameters[0].DbType);
+            Assert.AreEqual(DbType.DateTime2, cmd.Parameters[0].DbType);
             Assert.AreEqual(DBNull.Value, cmd.Parameters[0].Value);
         }
 

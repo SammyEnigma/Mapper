@@ -73,7 +73,7 @@ namespace BusterWood.Mapper.UnitTests
 
         public override bool NextResult()
         {
-            throw new NotImplementedException();
+            return false;
         }
 
         public override bool Read()
