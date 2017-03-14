@@ -33,18 +33,18 @@ namespace BusterWood.Mapper
         }
 
         /// <summary>Executes a <paramref name="cmd"/> and return a sequence of dynamic data</summary>
-        public static DynamicDataSequence ToDynamic(this DbCommand cmd)
+        public static DynamicDataSequence ToDynamic(this DbDataReader reader)
         {
-            Contract.Requires(cmd != null);
-            return new DynamicDataSequence(cmd.ExecuteReader());
+            Contract.Requires(reader != null);
+            return new DynamicDataSequence(reader);
         }
 
         /// <summary>Executes a <paramref name="cmd"/> and return a sequence of dynamic data</summary>
-        public static async Task<DynamicDataSequence> ToDynamicAsync(this DbCommand cmd)
+        public static async Task<DynamicDataSequence> ToDynamicAsync(this Task<DbDataReader> reader)
         {
-            Contract.Requires(cmd != null);
+            Contract.Requires(reader != null);
             Contract.Ensures(Contract.Result<Task<DynamicDataSequence>>() != null);
-            return new DynamicDataSequence(await cmd.ExecuteReaderAsync());
+            return new DynamicDataSequence(await reader);
         }
 
         /// <summary>Reads exactly one item from the reader</summary>

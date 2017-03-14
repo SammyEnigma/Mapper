@@ -112,7 +112,7 @@ namespace BusterWood.Mapper
         readonly DbDataReader reader;
         readonly Dictionary<string, int> metadata;
 
-        internal DynamicDataSequence(DbDataReader reader)
+        public DynamicDataSequence(DbDataReader reader)
         {
             Contract.Requires(reader != null);
             this.reader = reader;
