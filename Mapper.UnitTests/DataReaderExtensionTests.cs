@@ -170,6 +170,127 @@ namespace BusterWood.Mapper.UnitTests
             Assert.AreEqual(1L, val.Value);
         }
 
+        [Test]
+        public void can_convert_to_dictionary()
+        {
+            var stubDataReader = new StubDataReader
+            {
+                Names = new[] { "ID", "Name" },
+                Types = new[] { typeof(int), typeof(string) },
+                Values = new object[] { 1, "hello" },
+            };
+            var val = stubDataReader.ToDictionary<int, Order>(ord => ord.Id);
+            Assert.AreEqual(true, val.ContainsKey(1));
+            Assert.AreEqual(1, val[1].Id);
+            Assert.AreEqual("hello", val[1].Name);
+            Assert.AreEqual(1, val.Count, "count");
+        }
+
+        [Test]
+        public void can_convert_to_dictionary_and_change_type()
+        {
+            var stubDataReader = new StubDataReader
+            {
+                Names = new[] { "ID", "Name" },
+                Types = new[] { typeof(int), typeof(string) },
+                Values = new object[] { 1, "hello" },
+            };
+            var val = stubDataReader.ToDictionary<Order, int, string>(ord => ord.Id, ord => ord.Name);
+            Assert.AreEqual(true, val.ContainsKey(1));
+            Assert.AreEqual("hello", val[1]);
+            Assert.AreEqual(1, val.Count, "count");
+        }
+
+        [Test]
+        public void can_convert_to_lookup()
+        {
+            var stubDataReader = new StubDataReader
+            {
+                Names = new[] { "ID", "Name" },
+                Types = new[] { typeof(int), typeof(string) },
+                Values = new object[] { 1, "hello" },
+            };
+            var val = stubDataReader.ToLookup<int, Order>(ord => ord.Id);
+            Assert.AreEqual(1, val[1].Count);
+            Assert.AreEqual(1, val[1].First().Id);
+            Assert.AreEqual("hello", val[1].First().Name);
+        }
+
+        [Test]
+        public void can_convert_to_lookup_and_change_type()
+        {
+            var stubDataReader = new StubDataReader
+            {
+                Names = new[] { "ID", "Name" },
+                Types = new[] { typeof(int), typeof(string) },
+                Values = new object[] { 1, "hello" },
+            };
+            var val = stubDataReader.ToLookup<Order, int, string>(ord => ord.Id, ord => ord.Name);
+            Assert.AreEqual(1, val[1].Count);
+            Assert.AreEqual("hello", val[1].First());
+            Assert.AreEqual(1, val.Count, "count");
+        }
+
+        public async Task can_convert_to_dictionary_async()
+        {
+            var stubDataReader = new StubDataReader
+            {
+                Names = new[] { "ID", "Name" },
+                Types = new[] { typeof(int), typeof(string) },
+                Values = new object[] { 1, "hello" },
+            };
+            var val = await stubDataReader.ToDictionaryAsync<int, Order>(ord => ord.Id);
+            Assert.AreEqual(true, val.ContainsKey(1));
+            Assert.AreEqual(1, val[1].Id);
+            Assert.AreEqual("hello", val[1].Name);
+            Assert.AreEqual(1, val.Count, "count");
+        }
+
+        [Test]
+        public async Task can_convert_to_dictionary_and_change_type_async()
+        {
+            var stubDataReader = new StubDataReader
+            {
+                Names = new[] { "ID", "Name" },
+                Types = new[] { typeof(int), typeof(string) },
+                Values = new object[] { 1, "hello" },
+            };
+            var val = await stubDataReader.ToDictionaryAsync<Order, int, string>(ord => ord.Id, ord => ord.Name);
+            Assert.AreEqual(true, val.ContainsKey(1));
+            Assert.AreEqual("hello", val[1]);
+            Assert.AreEqual(1, val.Count, "count");
+        }
+
+        [Test]
+        public async Task can_convert_to_lookup_async()
+        {
+            var stubDataReader = new StubDataReader
+            {
+                Names = new[] { "ID", "Name" },
+                Types = new[] { typeof(int), typeof(string) },
+                Values = new object[] { 1, "hello" },
+            };
+            var val = await stubDataReader.ToLookupAsync<int, Order>(ord => ord.Id);
+            Assert.AreEqual(1, val[1].Count);
+            Assert.AreEqual(1, val[1].First().Id);
+            Assert.AreEqual("hello", val[1].First().Name);
+        }
+
+        [Test]
+        public async Task can_convert_to_lookup_and_change_type_async()
+        {
+            var stubDataReader = new StubDataReader
+            {
+                Names = new[] { "ID", "Name" },
+                Types = new[] { typeof(int), typeof(string) },
+                Values = new object[] { 1, "hello" },
+            };
+            var val = await stubDataReader.ToLookupAsync<Order, int, string>(ord => ord.Id, ord => ord.Name);
+            Assert.AreEqual(1, val[1].Count);
+            Assert.AreEqual("hello", val[1].First());
+            Assert.AreEqual(1, val.Count, "count");
+        }
+
     }
 
     struct TestStruct<T>
@@ -205,5 +326,11 @@ namespace BusterWood.Mapper.UnitTests
     class NullableLong
     {
         public long? Id { get; set; }
+    }
+
+    class Order
+    {
+        public int Id { get; set; }
+        public string Name { get; set; }
     }
 }

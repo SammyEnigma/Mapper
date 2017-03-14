@@ -261,6 +261,35 @@ namespace BusterWood.Mapper
                 if (!reader.NextResult())
                     reader.Close();
             }
+        }        
+        
+        /// <summary>Reads all the records in the reader into a dictionary, using the supplied <paramref name="keyFunc"/> to generate the key</summary>
+        /// <remarks>The underlying <see cref="DbDataReader"/> is disposed after this method has been called</remarks>
+        public static Dictionary<TKey, TValue> ToDictionary<T, TKey, TValue>(this DbDataReader reader, Func<T, TKey> keyFunc, Func<T, TValue> valueFunc, Action<DbDataReader, T> extraAction = null)
+        {
+            Contract.Requires(reader != null);
+            Contract.Requires(keyFunc != null);
+            Contract.Requires(valueFunc != null);
+            Contract.Ensures(Contract.Result<Dictionary<TKey, TValue>>() != null);
+            var map = GetMappingFunc<T>(reader);
+            try
+            {
+                var dict = new Dictionary<TKey, TValue>();
+                while (reader.Read())
+                {
+                    T temp = map(reader);
+                    extraAction?.Invoke(reader, temp);
+                    TKey key = keyFunc(temp);
+                    TValue value = valueFunc(temp);
+                    dict.Add(key, value);
+                }
+                return dict;
+            }
+            finally
+            {
+                if (!reader.NextResult())
+                    reader.Close();
+            }
         }
 
         /// <summary>Reads all the records in the reader into a dictionary, using the supplied <paramref name="keyFunc"/> to generate the key</summary>
@@ -280,6 +309,37 @@ namespace BusterWood.Mapper
                     T value = map(reader);
                     extraAction?.Invoke(reader, value);
                     TKey key = keyFunc(value);
+                    dict.Add(key, value);
+                }
+                return dict;
+            }
+            finally
+            {
+                if (!await reader.NextResultAsync())
+                    reader.Close();
+            }
+        }
+
+
+        /// <summary>Reads all the records in the reader into a dictionary, using the supplied <paramref name="keyFunc"/> to generate the key</summary>
+        /// <remarks>The underlying <see cref="DbDataReader"/> is disposed after this method has been called</remarks>
+        public static async Task<Dictionary<TKey, TValue>> ToDictionaryAsync<T, TKey, TValue>(this DbDataReader reader, Func<T, TKey> keyFunc, Func<T, TValue> valueFunc, Action<DbDataReader, T> extraAction = null)
+        {
+            Contract.Requires(reader != null);
+            Contract.Requires(keyFunc != null);
+            Contract.Requires(valueFunc != null);
+            Contract.Ensures(Contract.Result<Task<Dictionary<TKey, TValue>>>() != null);
+            Contract.Ensures(Contract.Result<Task<Dictionary<TKey, TValue>>>().Result != null);
+            var map = GetMappingFunc<T>(reader);
+            try
+            {
+                var dict = new Dictionary<TKey, TValue>();
+                while (await reader.ReadAsync())
+                {
+                    T temp = map(reader);
+                    extraAction?.Invoke(reader, temp);
+                    TKey key = keyFunc(temp);
+                    TValue value = valueFunc(temp);
                     dict.Add(key, value);
                 }
                 return dict;
@@ -319,6 +379,35 @@ namespace BusterWood.Mapper
 
         /// <summary>Reads all the records in the lookup, group by key, using the supplied <paramref name="keyFunc"/> to generate the key</summary>
         /// <remarks>The underlying <see cref="DbDataReader"/> is disposed after this method has been called</remarks>
+        public static HashLookup<TKey, TValue> ToLookup<T, TKey, TValue>(this DbDataReader reader, Func<T, TKey> keyFunc, Func<T, TValue> valueFunc, Action<DbDataReader, T> extraAction = null)
+        {
+            Contract.Requires(reader != null);
+            Contract.Requires(keyFunc != null);
+            Contract.Requires(valueFunc != null);
+            Contract.Ensures(Contract.Result<HashLookup<TKey, TValue>>() != null);
+            var map = GetMappingFunc<T>(reader);
+            try
+            {
+                var lookup = new HashLookup<TKey, TValue>();
+                while (reader.Read())
+                {
+                    T temp = map(reader);
+                    extraAction?.Invoke(reader, temp);
+                    TKey key = keyFunc(temp);
+                    TValue value = valueFunc(temp);
+                    lookup.Add(key, value);
+                }
+                return lookup;
+            }
+            finally
+            {
+                if (!reader.NextResult())
+                    reader.Close();
+            }
+        }
+
+        /// <summary>Reads all the records in the lookup, group by key, using the supplied <paramref name="keyFunc"/> to generate the key</summary>
+        /// <remarks>The underlying <see cref="DbDataReader"/> is disposed after this method has been called</remarks>
         public static async Task<HashLookup<TKey, T>> ToLookupAsync<TKey, T>(this DbDataReader reader, Func<T, TKey> keyFunc, Action<DbDataReader, T> extraAction = null)
         {
             Contract.Requires(reader != null);
@@ -333,6 +422,36 @@ namespace BusterWood.Mapper
                     T value = map(reader);
                     extraAction?.Invoke(reader, value);
                     TKey key = keyFunc(value);
+                    lookup.Add(key, value);
+                }
+                return lookup;
+            }
+            finally
+            {
+                if (!await reader.NextResultAsync())
+                    reader.Close();
+            }
+        }
+
+        /// <summary>Reads all the records in the lookup, group by key, using the supplied <paramref name="keyFunc"/> to generate the key</summary>
+        /// <remarks>The underlying <see cref="DbDataReader"/> is disposed after this method has been called</remarks>
+        public static async Task<HashLookup<TKey, TValue>> ToLookupAsync<T, TKey, TValue>(this DbDataReader reader, Func<T, TKey> keyFunc, Func<T, TValue> valueFunc, Action<DbDataReader, T> extraAction = null)
+        {
+            Contract.Requires(reader != null);
+            Contract.Requires(keyFunc != null);
+            Contract.Requires(valueFunc != null);
+            Contract.Ensures(Contract.Result<Task<HashLookup<TKey, TValue>>>() != null);
+            Contract.Ensures(Contract.Result<Task<HashLookup<TKey, TValue>>>().Result != null);
+            var map = GetMappingFunc<T>(reader);
+            try
+            {
+                var lookup = new HashLookup<TKey, TValue>();
+                while (await reader.ReadAsync())
+                {
+                    T temp = map(reader);
+                    extraAction?.Invoke(reader, temp);
+                    TKey key = keyFunc(temp);
+                    TValue value = valueFunc(temp);
                     lookup.Add(key, value);
                 }
                 return lookup;
