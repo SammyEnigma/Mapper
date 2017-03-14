@@ -53,9 +53,9 @@ namespace BusterWood.Mapper
         public static T Single<T>(this DbDataReader reader, Action<DbDataReader, T> extraAction = null)
         {
             Contract.Requires(reader != null);
-            var map = GetMappingFunc<T>(reader);
             try
             {
+                var map = GetMappingFunc<T>(reader);
                 if (!reader.Read()) throw new InvalidOperationException("Expected one value to be read but reader is empty");
                 var item = map(reader);
                 extraAction?.Invoke(reader, item);
@@ -76,9 +76,9 @@ namespace BusterWood.Mapper
         {
             Contract.Requires(reader != null);
             Contract.Ensures(Contract.Result<T>() != null);
-            var map = GetMappingFunc<T>(reader);
             try
             {
+                var map = GetMappingFunc<T>(reader);
                 if (!await reader.ReadAsync()) throw new InvalidOperationException("Expected one value to be read but reader is empty");
                 var single = map(reader);
                 extraAction?.Invoke(reader, single);
@@ -99,9 +99,9 @@ namespace BusterWood.Mapper
         public static T SingleOrDefault<T>(this DbDataReader reader, Action<DbDataReader, T> extraAction = null)
         {
             Contract.Requires(reader != null);
-            var map = GetMappingFunc<T>(reader);
             try
             {
+                var map = GetMappingFunc<T>(reader);
                 if (!reader.Read()) return default(T);
                 var item = map(reader);
                 extraAction?.Invoke(reader, item);
@@ -120,9 +120,9 @@ namespace BusterWood.Mapper
         public static async Task<T> SingleOrDefaultAsync<T>(this DbDataReader reader, Action<DbDataReader, T> extraAction = null)
         {
             Contract.Requires(reader != null);
-            var map = GetMappingFunc<T>(reader);
             try
             {
+                var map = GetMappingFunc<T>(reader);
                 if (!await reader.ReadAsync()) return default(T);
                 var item = map(reader);
                 extraAction?.Invoke(reader, item);
@@ -141,9 +141,9 @@ namespace BusterWood.Mapper
         {
             Contract.Requires(reader != null);
             Contract.Ensures(Contract.Result<List<T>>() != null);
-            var map = GetMappingFunc<T>(reader);
             try
             {
+                var map = GetMappingFunc<T>(reader);
                 var list = new List<T>();
                 while (reader.Read())
                 {
@@ -167,9 +167,9 @@ namespace BusterWood.Mapper
             Contract.Requires(reader != null);
             Contract.Ensures(Contract.Result<Task<List<T>>>() != null);
             //Contract.Ensures(Contract.Result<Task<List<T>>>().Result != null);
-            var map = GetMappingFunc<T>(reader);
             try
             {
+                var map = GetMappingFunc<T>(reader);
                 var list = new List<T>();
                 while (await reader.ReadAsync())
                 {
@@ -192,9 +192,9 @@ namespace BusterWood.Mapper
         {
             Contract.Requires(reader != null);
             Contract.Ensures(Contract.Result<HashSet<T>>() != null);
-            var map = GetMappingFunc<T>(reader);
             try
             {
+                var map = GetMappingFunc<T>(reader);
                 var set = new HashSet<T>();
                 while (reader.Read())
                 {
@@ -218,9 +218,9 @@ namespace BusterWood.Mapper
             Contract.Requires(reader != null);
             Contract.Ensures(Contract.Result<Task<HashSet<T>>>() != null);
             Contract.Ensures(Contract.Result<Task<HashSet<T>>>().Result != null);
-            var map = GetMappingFunc<T>(reader);
             try
             {
+                var map = GetMappingFunc<T>(reader);
                 var set = new HashSet<T>();
                 while (await reader.ReadAsync())
                 {
@@ -243,9 +243,9 @@ namespace BusterWood.Mapper
         {
             Contract.Requires(reader != null);
             Contract.Ensures(Contract.Result<Dictionary<TKey, T>>() != null);
-            var map = GetMappingFunc<T>(reader);
             try
             {
+                var map = GetMappingFunc<T>(reader);
                 var dict = new Dictionary<TKey, T>();
                 while (reader.Read())
                 {
@@ -271,9 +271,9 @@ namespace BusterWood.Mapper
             Contract.Requires(keyFunc != null);
             Contract.Requires(valueFunc != null);
             Contract.Ensures(Contract.Result<Dictionary<TKey, TValue>>() != null);
-            var map = GetMappingFunc<T>(reader);
             try
             {
+                var map = GetMappingFunc<T>(reader);
                 var dict = new Dictionary<TKey, TValue>();
                 while (reader.Read())
                 {
@@ -300,9 +300,9 @@ namespace BusterWood.Mapper
             Contract.Requires(keyFunc != null);
             Contract.Ensures(Contract.Result<Task<Dictionary<TKey, T>>>() != null);
             Contract.Ensures(Contract.Result<Task<Dictionary<TKey, T>>>().Result != null);
-            var map = GetMappingFunc<T>(reader);
             try
             {
+                var map = GetMappingFunc<T>(reader);
                 var dict = new Dictionary<TKey, T>();
                 while (await reader.ReadAsync())
                 {
@@ -330,9 +330,9 @@ namespace BusterWood.Mapper
             Contract.Requires(valueFunc != null);
             Contract.Ensures(Contract.Result<Task<Dictionary<TKey, TValue>>>() != null);
             Contract.Ensures(Contract.Result<Task<Dictionary<TKey, TValue>>>().Result != null);
-            var map = GetMappingFunc<T>(reader);
             try
             {
+                var map = GetMappingFunc<T>(reader);
                 var dict = new Dictionary<TKey, TValue>();
                 while (await reader.ReadAsync())
                 {
@@ -357,9 +357,9 @@ namespace BusterWood.Mapper
         {
             Contract.Requires(reader != null);
             Contract.Ensures(Contract.Result<HashLookup<TKey, T>>() != null);
-            var map = GetMappingFunc<T>(reader);
             try
             {
+                var map = GetMappingFunc<T>(reader);
                 var lookup = new HashLookup<TKey, T>();
                 while (reader.Read())
                 {
@@ -385,9 +385,9 @@ namespace BusterWood.Mapper
             Contract.Requires(keyFunc != null);
             Contract.Requires(valueFunc != null);
             Contract.Ensures(Contract.Result<HashLookup<TKey, TValue>>() != null);
-            var map = GetMappingFunc<T>(reader);
             try
             {
+                var map = GetMappingFunc<T>(reader);
                 var lookup = new HashLookup<TKey, TValue>();
                 while (reader.Read())
                 {
@@ -413,9 +413,9 @@ namespace BusterWood.Mapper
             Contract.Requires(reader != null);
             Contract.Ensures(Contract.Result<Task<HashLookup<TKey, T>>>() != null);
             Contract.Ensures(Contract.Result<Task<HashLookup<TKey, T>>>().Result != null);
-            var map = GetMappingFunc<T>(reader);
             try
             {
+                var map = GetMappingFunc<T>(reader);
                 var lookup = new HashLookup<TKey, T>();
                 while (await reader.ReadAsync())
                 {
@@ -442,9 +442,9 @@ namespace BusterWood.Mapper
             Contract.Requires(valueFunc != null);
             Contract.Ensures(Contract.Result<Task<HashLookup<TKey, TValue>>>() != null);
             Contract.Ensures(Contract.Result<Task<HashLookup<TKey, TValue>>>().Result != null);
-            var map = GetMappingFunc<T>(reader);
             try
             {
+                var map = GetMappingFunc<T>(reader);
                 var lookup = new HashLookup<TKey, TValue>();
                 while (await reader.ReadAsync())
                 {
@@ -515,6 +515,28 @@ namespace BusterWood.Mapper
             Contract.Ensures(Contract.Result<Task<HashLookup<TKey, TValue>>>().Result != null);
             var reader = await task;
             return await reader.ToLookupAsync(keyFunc, extraAction);
+        }
+
+        public static async Task<Dictionary<TKey, TValue>> ToDictionaryAsync<T, TKey, TValue>(this Task<DbDataReader> task, Func<T, TKey> keyFunc, Func<T, TValue> valueFunc, Action<DbDataReader, T> extraAction = null)
+        {
+            Contract.Requires(task != null);
+            Contract.Requires(keyFunc != null);
+            Contract.Requires(valueFunc != null);
+            Contract.Ensures(Contract.Result<Task<Dictionary<TKey, TValue>>>() != null);
+            Contract.Ensures(Contract.Result<Task<Dictionary<TKey, TValue>>>().Result != null);
+            var reader = await task;
+            return await reader.ToDictionaryAsync(keyFunc, valueFunc, extraAction);
+        }
+
+        public static async Task<HashLookup<TKey, TValue>> ToLookupAsync<T, TKey, TValue>(this Task<DbDataReader> task, Func<T, TKey> keyFunc, Func<T, TValue> valueFunc, Action<DbDataReader, T> extraAction = null)
+        {
+            Contract.Requires(task != null);
+            Contract.Requires(keyFunc != null);
+            Contract.Requires(valueFunc != null);
+            Contract.Ensures(Contract.Result<Task<HashLookup<TKey, TValue>>>() != null);
+            Contract.Ensures(Contract.Result<Task<HashLookup<TKey, TValue>>>().Result != null);
+            var reader = await task;
+            return await reader.ToLookupAsync(keyFunc, valueFunc, extraAction);
         }
 
     }
