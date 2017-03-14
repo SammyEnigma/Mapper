@@ -4,7 +4,7 @@ using static System.StringComparison;
 
 namespace BusterWood.Mapper
 {
-    static class Mapping
+    public static class Mapping
     {
         internal static readonly Subject<string> _trace = new Subject<string>();
         public static IObservable<string> Trace => _trace;
@@ -21,7 +21,7 @@ namespace BusterWood.Mapper
         internal static MappingResult<Thing, Thing> CreateFromSource(IReadOnlyCollection<Thing> sourceMappings, Type destination, string removablePrefix = null)
             => CreateFromSource(sourceMappings, Types.WriteablePublicThings(destination), removablePrefix);
 
-        public static MappingResult<TFrom, TTo> CreateFromSource<TFrom, TTo>(IReadOnlyCollection<TFrom> sources, IReadOnlyCollection<TTo> destinations, string removablePrefix = null)
+        internal static MappingResult<TFrom, TTo> CreateFromSource<TFrom, TTo>(IReadOnlyCollection<TFrom> sources, IReadOnlyCollection<TTo> destinations, string removablePrefix = null)
             where TFrom : Thing
             where TTo: Thing
         {
@@ -67,7 +67,7 @@ namespace BusterWood.Mapper
         internal static MappingResult<Thing, Thing> CreateFromDestination(IReadOnlyCollection<Thing> sourceMappings, Type destination, string removablePrefix = null)
             => CreateFromDestination(sourceMappings, Types.WriteablePublicThings(destination), removablePrefix);
 
-        public static MappingResult<TFrom, TTo> CreateFromDestination<TFrom, TTo>(IReadOnlyCollection<TFrom> sources, IReadOnlyCollection<TTo> destinations, string removablePrefix = null)
+        internal static MappingResult<TFrom, TTo> CreateFromDestination<TFrom, TTo>(IReadOnlyCollection<TFrom> sources, IReadOnlyCollection<TTo> destinations, string removablePrefix = null)
             where TFrom : Thing
             where TTo : Thing
         {

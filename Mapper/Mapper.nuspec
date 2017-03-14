@@ -2,7 +2,7 @@
 <package >
   <metadata>
     <id>BusterWood.Mapper</id>
-    <version>6.2.0</version>
+    <version>6.2.1</version>
     <authors>BusterWood</authors>
     <description>A convention-based object cloner, object-object mapper (like AutoMapper), DbDataReader to object mapper, object to command data parameter mapper, etc.</description>
     <projectUrl>https://github.com/busterwood/mapper</projectUrl>
