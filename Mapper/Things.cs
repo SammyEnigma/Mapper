@@ -6,7 +6,7 @@ namespace BusterWood.Mapper
 {
     /// <summary>The thing being mapped, i.e. a <see cref="Field"/> or <see cref="Property"/> or <see cref="Parameter"/> or <see cref="Column"/></summary>
     /// <remarks>Not a great name but I can't think of a better one!</remarks>
-    interface Thing
+    public interface Thing
     {
         /// <summary>name with underscores removed</summary>
         string ComparisonName { get; }
@@ -14,7 +14,7 @@ namespace BusterWood.Mapper
         Type Type { get; }
     }
 
-    struct Field : Thing
+    public struct Field : Thing
     {
         public FieldInfo Wrapped { get; }
         public string ComparisonName => Wrapped.Name.Replace("_", "");
@@ -28,7 +28,7 @@ namespace BusterWood.Mapper
         }
     }
 
-    struct Property : Thing
+    public struct Property : Thing
     {
         public PropertyInfo Wrapped { get; }
         public string ComparisonName => Wrapped.Name.Replace("_", "");
@@ -42,7 +42,7 @@ namespace BusterWood.Mapper
         }
     }
 
-    struct Parameter : Thing
+    public struct Parameter : Thing
     {
         public ParameterInfo Wrapped { get; }
         public string ComparisonName => Wrapped.Name.Replace("_", "");
@@ -59,7 +59,7 @@ namespace BusterWood.Mapper
     /// <remarks>
     /// This needs to override equality as it is used by <see cref="DataReaderMapper.MetaData.Equals(DataReaderMapper.MetaData)"/>
     /// </remarks>
-    struct Column : Thing, IEquatable<Column>
+    public struct Column : Thing, IEquatable<Column>
     {
         readonly string name;
         readonly Type type;
@@ -86,6 +86,19 @@ namespace BusterWood.Mapper
         public override int GetHashCode()
         {
             unchecked { return name.GetHashCode() * type.GetHashCode(); }
+        }
+    }
+
+    public struct ObjectThing : Thing
+    {
+        public string ComparisonName => Name.Replace("_", "");
+        public string Name { get; }
+        public Type Type => typeof(object);
+
+        public ObjectThing(string name)
+        {
+            Contract.Requires(name != null);
+            Name = name;
         }
     }
 }

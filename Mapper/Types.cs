@@ -8,7 +8,7 @@ using Microsoft.SqlServer.Server;
 
 namespace BusterWood.Mapper
 {
-    static class Types
+    public static class Types
     {
         internal static readonly Dictionary<Type, DbType> TypeToDbType;
         internal static readonly Dictionary<DbType, Type> DBTypeToType;
@@ -102,10 +102,10 @@ namespace BusterWood.Mapper
         }
 
         [Pure]
-        internal static bool AreCompatible(Type inType, Type outType) => inType == outType || CanBeCast(inType, outType);
+        public static bool AreCompatible(Type inType, Type outType) => inType == outType || CanBeCast(inType, outType);
 
         [Pure]
-        internal static bool CanBeCast(Type inType, Type outType)
+        public static bool CanBeCast(Type inType, Type outType)
         {
             return outType.IsAssignableFrom(inType)
                 || (inType.IsPrimitiveOrEnum() && IsNullable(outType) && outType.GetGenericArguments()[0].IsPrimitiveOrEnum())
@@ -116,13 +116,13 @@ namespace BusterWood.Mapper
         }
 
         [Pure]
-        internal static bool AreInSomeSenseCompatible(Type inType, Type outType)
+        public static bool AreInSomeSenseCompatible(Type inType, Type outType)
         {
             return AreCompatible(inType, outType) || (IsNullable(inType) && AreCompatible(inType.GetGenericArguments()[0], outType));
         }
 
         [Pure]
-        internal static Type PropertyOrFieldType(this MemberInfo member)
+        public static Type PropertyOrFieldType(this MemberInfo member)
         {
             Contract.Requires(member != null);
             var prop = member as PropertyInfo;
@@ -131,7 +131,7 @@ namespace BusterWood.Mapper
         }
 
         [Pure]
-        internal static bool CanBeNull(Type type)
+        public static bool CanBeNull(Type type)
         {
             if (type.IsPrimitive) return false;
             if (IsNullable(type)) return true;
@@ -141,14 +141,14 @@ namespace BusterWood.Mapper
         }
 
         [Pure]
-        internal static bool IsNullable(this Type type)
+        public static bool IsNullable(this Type type)
         {
             Contract.Requires(type != null);
             return type.IsConstructedGenericType && type.GetGenericTypeDefinition() == typeof(Nullable<>);
         }
 
         [Pure]
-        internal static bool IsNullablePrimitiveOrEnum(this Type type)
+        public static bool IsNullablePrimitiveOrEnum(this Type type)
         {
             Contract.Requires(type != null);
             if (IsPrimitiveOrEnum(type)) return true;
@@ -156,21 +156,21 @@ namespace BusterWood.Mapper
         }
 
         [Pure]
-        internal static bool IsPrimitiveOrEnum(this Type type)
+        public static bool IsPrimitiveOrEnum(this Type type)
         {
             Contract.Requires(type != null);
             return type.IsPrimitive || type.IsEnum;
         }
 
         [Pure]
-        internal static bool IsStructured(Type type)
+        public static bool IsStructured(Type type)
         {
             Contract.Requires(type != null);            
             return type == typeof(TableType) || typeof(IEnumerable<SqlDataRecord>).IsAssignableFrom(type);
         }
 
         [Pure]
-        internal static Type NullableOf(this Type type)
+        public static Type NullableOf(this Type type)
         {
             Contract.Requires(type != null);
             Contract.Requires(type.IsGenericType);
@@ -178,12 +178,12 @@ namespace BusterWood.Mapper
             return type.GetGenericArguments()[0];
         }
 
-        internal static Dictionary<string, MemberInfo> WritablePropertiesAndFields<T>()
+        public static Dictionary<string, MemberInfo> WritablePropertiesAndFields<T>()
         {
             return WriteablePublicFieldsAndProperties(typeof(T)).ToDictionary(p => p.Name, p => p, StringComparer.OrdinalIgnoreCase);
         }
 
-        internal static IReadOnlyCollection<Thing> WriteablePublicThings(Type type)
+        public static IReadOnlyCollection<Thing> WriteablePublicThings(Type type)
         {
             const BindingFlags PublicInstance = BindingFlags.Public | BindingFlags.Instance;
             var fields = type.GetFields(PublicInstance).Where(field => !field.IsInitOnly).Select(fi => (Thing)new Field(fi));
@@ -191,7 +191,7 @@ namespace BusterWood.Mapper
             return new List<Thing>(fields.Concat(props));
         }
 
-        internal static IReadOnlyCollection<Thing> ReadablePublicThings(Type type)
+        public static IReadOnlyCollection<Thing> ReadablePublicThings(Type type)
         {
             const BindingFlags PublicInstance = BindingFlags.Public | BindingFlags.Instance;
             var fields = type.GetFields(PublicInstance).Select(fi => (Thing)new Field(fi));
@@ -209,7 +209,7 @@ namespace BusterWood.Mapper
             return ctor.GetParameters().Select(pi => (Thing)new Parameter(pi)).ToList();
         }
 
-        internal static IEnumerable<MemberInfo> WriteablePublicFieldsAndProperties(Type type)
+        public static IEnumerable<MemberInfo> WriteablePublicFieldsAndProperties(Type type)
         {
             Contract.Requires(type != null);
             const BindingFlags PublicInstance = BindingFlags.Public | BindingFlags.Instance;
@@ -217,14 +217,14 @@ namespace BusterWood.Mapper
                    .Concat(type.GetProperties(PublicInstance).Where(prop => prop.CanWrite));
         }
 
-        internal static Dictionary<string, MemberInfo> ReadablePropertiesAndFields<T>() => ReadablePropertiesAndFieldsDictionary(typeof(T));
+        public static Dictionary<string, MemberInfo> ReadablePropertiesAndFields<T>() => ReadablePropertiesAndFieldsDictionary(typeof(T));
 
-        internal static Dictionary<string, MemberInfo> ReadablePropertiesAndFieldsDictionary(Type typeT)
+        public static Dictionary<string, MemberInfo> ReadablePropertiesAndFieldsDictionary(Type typeT)
         {
             return ReadablePublicFieldsAndProperties(typeT).ToDictionary(p => p.Name, p => p, StringComparer.OrdinalIgnoreCase);
         }
 
-        internal static IEnumerable<MemberInfo> ReadablePublicFieldsAndProperties(Type type)
+        public static IEnumerable<MemberInfo> ReadablePublicFieldsAndProperties(Type type)
         {
             Contract.Requires(type != null);
             const BindingFlags PublicInstance = BindingFlags.Public | BindingFlags.Instance;

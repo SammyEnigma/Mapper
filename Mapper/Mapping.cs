@@ -12,13 +12,13 @@ namespace BusterWood.Mapper
         /// <summary>
         /// Creates the mapping between <paramref name="source"/> and <paramref name="destination"/> using the SOURCE to generate candidate names for the mapping
         /// </summary>
-        internal static MappingResult<Thing, Thing> CreateFromSource(Type source, Type destination, string removablePrefix = null)
+        public static MappingResult<Thing, Thing> CreateFromSource(Type source, Type destination, string removablePrefix = null)
             => CreateFromSource(Types.ReadablePublicThings(source), Types.WriteablePublicThings(destination), removablePrefix);
 
         /// <summary>
         /// Creates the mapping between <paramref name="sourceMappings"/> and <paramref name="destination"/> using the SOURCE to generate candidate names for the mapping
         /// </summary>
-        internal static MappingResult<Thing, Thing> CreateFromSource(IReadOnlyCollection<Thing> sourceMappings, Type destination, string removablePrefix = null)
+        public static MappingResult<Thing, Thing> CreateFromSource(IReadOnlyCollection<Thing> sourceMappings, Type destination, string removablePrefix = null)
             => CreateFromSource(sourceMappings, Types.WriteablePublicThings(destination), removablePrefix);
 
         internal static MappingResult<TFrom, TTo> CreateFromSource<TFrom, TTo>(IReadOnlyCollection<TFrom> sources, IReadOnlyCollection<TTo> destinations, string removablePrefix = null)
@@ -52,19 +52,19 @@ namespace BusterWood.Mapper
         /// <summary>
         /// Creates the mapping between <paramref name="source"/> and <paramref name="destination"/> using the DESTINATION to generate candidate names for the mapping
         /// </summary>
-        internal static MappingResult<Thing, Thing> CreateFromDestination(Type source, Type destination, string removablePrefix = null)
+        public static MappingResult<Thing, Thing> CreateFromDestination(Type source, Type destination, string removablePrefix = null)
             => CreateFromDestination(Types.WriteablePublicThings(source), Types.WriteablePublicThings(destination), removablePrefix);
 
         /// <summary>
         /// Creates the mapping between <paramref name="source"/> and <paramref name="destination"/> using the DESTINATION to generate candidate names for the mapping
         /// </summary>
-        internal static MappingResult<Thing, Thing> CreateFromDestination(Type source, IReadOnlyCollection<Thing> destination, string removablePrefix = null)
+        public static MappingResult<Thing, Thing> CreateFromDestination(Type source, IReadOnlyCollection<Thing> destination, string removablePrefix = null)
             => CreateFromDestination(Types.WriteablePublicThings(source), destination, removablePrefix);
 
         /// <summary>
         /// Creates the mapping between <paramref name="sourceMappings"/> and <paramref name="destination"/> using the DESTINATION to generate candidate names for the mapping
         /// </summary>
-        internal static MappingResult<Thing, Thing> CreateFromDestination(IReadOnlyCollection<Thing> sourceMappings, Type destination, string removablePrefix = null)
+        public static MappingResult<Thing, Thing> CreateFromDestination(IReadOnlyCollection<Thing> sourceMappings, Type destination, string removablePrefix = null)
             => CreateFromDestination(sourceMappings, Types.WriteablePublicThings(destination), removablePrefix);
 
         internal static MappingResult<TFrom, TTo> CreateFromDestination<TFrom, TTo>(IReadOnlyCollection<TFrom> sources, IReadOnlyCollection<TTo> destinations, string removablePrefix = null)
@@ -86,7 +86,7 @@ namespace BusterWood.Mapper
             return result;
         }
 
-        static bool NameMatches<TFrom, TTo>(TFrom from, TTo to)
+        public static bool NameMatches<TFrom, TTo>(TFrom from, TTo to)
             where TFrom : Thing
             where TTo : Thing
         {
@@ -94,7 +94,7 @@ namespace BusterWood.Mapper
                 && Types.AreInSomeSenseCompatible(from.Type, to.Type);
         }
 
-        static bool WithId<TFrom, TTo>(TFrom from, TTo to)
+        public static bool WithId<TFrom, TTo>(TFrom from, TTo to)
             where TFrom: Thing
             where TTo : Thing
         {
@@ -105,7 +105,7 @@ namespace BusterWood.Mapper
                 && Types.AreInSomeSenseCompatible(from.Type, to.Type);
         }
 
-        static bool WithoutId<TFrom, TTo>(TFrom from, TTo to)
+        public static bool WithoutId<TFrom, TTo>(TFrom from, TTo to)
             where TFrom: Thing
             where TTo : Thing
         {
@@ -116,7 +116,7 @@ namespace BusterWood.Mapper
                 && Types.AreInSomeSenseCompatible(from.Type, to.Type);
         }
 
-        static bool WithoutPrefix<TFrom, TTo>(TFrom from, TTo to, string removablePrefix)
+        public static bool WithoutPrefix<TFrom, TTo>(TFrom from, TTo to, string removablePrefix)
             where TFrom: Thing
             where TTo : Thing
         {
