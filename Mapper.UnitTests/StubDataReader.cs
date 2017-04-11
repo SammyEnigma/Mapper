@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections;
+using System.Data;
 using System.Data.Common;
 
 namespace BusterWood.Mapper.UnitTests
@@ -84,6 +85,15 @@ namespace BusterWood.Mapper.UnitTests
                 return true;
             }
             return false;
+        }
+
+        public override void Close()
+        {
+        }
+
+        public override DataTable GetSchemaTable()
+        {
+            throw new NotImplementedException();
         }
 
         public override int FieldCount => Names.Length;

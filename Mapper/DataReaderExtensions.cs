@@ -329,7 +329,7 @@ namespace BusterWood.Mapper
             Contract.Requires(keyFunc != null);
             Contract.Requires(valueFunc != null);
             Contract.Ensures(Contract.Result<Task<Dictionary<TKey, TValue>>>() != null);
-            Contract.Ensures(Contract.Result<Task<Dictionary<TKey, TValue>>>().Result != null);
+            //Contract.Ensures(Contract.Result<Task<Dictionary<TKey, TValue>>>().Result != null);
             try
             {
                 var map = GetMappingFunc<T>(reader);
@@ -412,7 +412,7 @@ namespace BusterWood.Mapper
         {
             Contract.Requires(reader != null);
             Contract.Ensures(Contract.Result<Task<HashLookup<TKey, T>>>() != null);
-            Contract.Ensures(Contract.Result<Task<HashLookup<TKey, T>>>().Result != null);
+            //Contract.Ensures(Contract.Result<Task<HashLookup<TKey, T>>>().Result != null);
             try
             {
                 var map = GetMappingFunc<T>(reader);
@@ -441,7 +441,7 @@ namespace BusterWood.Mapper
             Contract.Requires(keyFunc != null);
             Contract.Requires(valueFunc != null);
             Contract.Ensures(Contract.Result<Task<HashLookup<TKey, TValue>>>() != null);
-            Contract.Ensures(Contract.Result<Task<HashLookup<TKey, TValue>>>().Result != null);
+            //Contract.Ensures(Contract.Result<Task<HashLookup<TKey, TValue>>>().Result != null);
             try
             {
                 var map = GetMappingFunc<T>(reader);
