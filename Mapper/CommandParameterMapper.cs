@@ -54,7 +54,7 @@ namespace BusterWood.Mapper
                     lines.Add(Expression.Assign(Expression.Property(Expression.Convert(dataParam, typeof(SqlParameter)), "SqlDbType"), Expression.Constant(SqlDbType.Structured)));
                     lines.Add(Expression.Assign(Expression.Property(Expression.Convert(dataParam, typeof(SqlParameter)), "TypeName"), Expression.Property(Expression.Property(parameters, prop.Name), "TypeName")));
                 }
-                else if (fieldOrProperty.IsEnum)
+                else if (fieldOrProperty.IsEnum || Types.IsNullableEnum(fieldOrProperty))
                 {
                     lines.Add(Expression.Assign(Expression.Property(dataParam, "DbType"), Expression.Constant(DbType.Int32)));
                 }
@@ -89,13 +89,14 @@ namespace BusterWood.Mapper
 
         static bool IsSupportedType(Type propertyType)
         {
-            return Types.IsStructured(propertyType) || Types.TypeToDbType.ContainsKey(propertyType) || propertyType.IsEnum;
+            return Types.IsStructured(propertyType) || Types.TypeToDbType.ContainsKey(propertyType) || propertyType.IsEnum || Types.IsNullableEnum(propertyType);
         }
 
         static UnaryExpression PropertyValueCastToObject(ParameterExpression obj, MemberInfo propOrField)
         {
             Expression value = Expression.PropertyOrField(obj, propOrField.Name);
-            if (Types.PropertyOrFieldType(propOrField).IsEnum)
+            var type = Types.PropertyOrFieldType(propOrField);
+            if (type.IsEnum || Types.IsNullableEnum(type))
             {
                 value = Expression.Convert(value, typeof(int));
             }

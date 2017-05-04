@@ -148,6 +148,13 @@ namespace BusterWood.Mapper
         }
 
         [Pure]
+        public static bool IsNullableEnum(this Type type)
+        {
+            Contract.Requires(type != null);
+            return type.IsConstructedGenericType && type.GetGenericTypeDefinition() == typeof(Nullable<>) && type.GetGenericArguments()[0].IsEnum;
+        }
+
+        [Pure]
         public static bool IsNullablePrimitiveOrEnum(this Type type)
         {
             Contract.Requires(type != null);

@@ -200,6 +200,17 @@ namespace BusterWood.Mapper.UnitTests
         }
 
         [Test]
+        public void can_add_nulllable_enum_as_int()
+        {
+            SqlCommand cmd = new SqlCommand();
+            cmd.AddParameters(new { SomeId = (TestEnum?)TestEnum.Something });
+            Assert.AreEqual(1, cmd.Parameters.Count);
+            Assert.AreEqual("@SomeId", cmd.Parameters[0].ParameterName);
+            Assert.AreEqual(DbType.Int32, cmd.Parameters[0].DbType);
+            Assert.AreEqual(1, cmd.Parameters[0].Value);
+        }
+
+        [Test]
         public void can_add_null_TableType()
         {
             var input = new[] {new {First = 1m},};
