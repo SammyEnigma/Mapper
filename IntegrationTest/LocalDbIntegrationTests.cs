@@ -8,6 +8,7 @@ using System.Threading.Tasks;
 
 namespace IntegrationTest
 {
+    [TestFixture]
     public class LocalDbIntegrationTests
     {
         readonly string mapperTest;
@@ -16,6 +17,28 @@ namespace IntegrationTest
         {
             var master = CreateDb.GetMasterConnectionString();
             mapperTest = new SqlConnectionStringBuilder(master) { InitialCatalog = "MapperTest" }.ToString();
+        }
+
+        [Test]
+        public void can_call_stored_proc_with_param()
+        {
+            using (var cnn = new SqlConnection(mapperTest))
+            {
+                cnn.Open();
+                var curr = cnn.QueryProc("dbo.GetCurrencyById", new { Id = 1 }).Single<Currency>();
+                Assert.AreEqual("EUR", curr.IsoCode);
+            }
+        }
+
+        [Test]
+        public async Task can_call_stored_proc_with_param_async()
+        {
+            using (var cnn = new SqlConnection(mapperTest))
+            {
+                await cnn.OpenAsync();
+                var curr = await cnn.QueryProcAsync("dbo.GetCurrencyById", new { Id = 1 }).SingleAsync<Currency>();
+                Assert.AreEqual("EUR", curr.IsoCode);
+            }
         }
 
         [Test]

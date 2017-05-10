@@ -17,7 +17,23 @@ namespace BusterWood.Mapper
         {
             Contract.Requires(cnn != null);
             Contract.Requires(!string.IsNullOrWhiteSpace(sql));
+            return QueryInternal(cnn, sql, parameters, CommandType.Text);
+        }
 
+        /// <summary>
+        /// Executes a stored procedure using the optional <paramref name="parameters"/> and return a sequence of data
+        /// </summary>
+        public static DbDataReader QueryProc(this DbConnection cnn, string procName, object parameters = null)
+        {
+            Contract.Requires(cnn != null);
+            Contract.Requires(!string.IsNullOrWhiteSpace(procName));
+            return QueryInternal(cnn, procName, parameters, CommandType.StoredProcedure);
+        }
+
+        private static DbDataReader QueryInternal(DbConnection cnn, string sql, object parameters, CommandType cmdType)
+        {
+            Contract.Requires(cnn != null);
+            Contract.Requires(!string.IsNullOrWhiteSpace(sql));
             var openConnection = cnn.State != ConnectionState.Open;
             var cb = CommandBehavior.Default;
             if (openConnection)
@@ -29,7 +45,11 @@ namespace BusterWood.Mapper
             {
                 using (var cmd = cnn.CreateCommand())
                 {
-                    SetupCommand(cmd, cnn, sql, parameters);
+                    cmd.CommandType = cmdType;
+                    cmd.Connection = cnn;
+                    cmd.CommandText = sql;
+                    if (parameters != null)
+                        cmd.AddParameters(parameters);
                     return cmd.ExecuteReader(cb);
                 }
             }
@@ -44,11 +64,27 @@ namespace BusterWood.Mapper
         /// <summary>
         /// Asynchronously executes some <paramref name="sql"/> using the optional <paramref name="parameters"/> and return a sequence of data
         /// </summary>
-        public static async Task<DbDataReader> QueryAsync(this DbConnection cnn, string sql, object parameters = null)
+        public static Task<DbDataReader> QueryAsync(this DbConnection cnn, string sql, object parameters = null)
         {
             Contract.Requires(cnn != null);
             Contract.Requires(!string.IsNullOrWhiteSpace(sql));
+            return QueryAsyncInternal(cnn, sql, parameters, CommandType.Text);
+        }
 
+        /// <summary>
+        /// Asynchronously executes a stored procedure using the optional <paramref name="parameters"/> and return a sequence of data
+        /// </summary>
+        public static Task<DbDataReader> QueryProcAsync(this DbConnection cnn, string procName, object parameters = null)
+        {
+            Contract.Requires(cnn != null);
+            Contract.Requires(!string.IsNullOrWhiteSpace(procName));
+            return QueryAsyncInternal(cnn, procName, parameters, CommandType.StoredProcedure);
+        }
+
+        private static async Task<DbDataReader> QueryAsyncInternal(DbConnection cnn, string sql, object parameters, CommandType cmdType)
+        {
+            Contract.Requires(cnn != null);
+            Contract.Requires(!string.IsNullOrWhiteSpace(sql));
             var openConnection = cnn.State != ConnectionState.Open;
             var cb = CommandBehavior.Default;
             if (openConnection)
@@ -60,7 +96,11 @@ namespace BusterWood.Mapper
             {
                 using (var cmd = cnn.CreateCommand())
                 {
-                    SetupCommand(cmd, cnn, sql, parameters);
+                    cmd.CommandType = cmdType;
+                    cmd.Connection = cnn;
+                    cmd.CommandText = sql;
+                    if (parameters != null)
+                        cmd.AddParameters(parameters);
                     return await cmd.ExecuteReaderAsync(cb);
                 }
             }
@@ -79,7 +119,23 @@ namespace BusterWood.Mapper
         {
             Contract.Requires(cnn != null);
             Contract.Requires(!string.IsNullOrWhiteSpace(sql));
+            return ExecuteCore(cnn, sql, parameters, CommandType.Text);
+        }
 
+        /// <summary>
+        /// Executes the <paramref name="procName"/> using the optional <paramref name="parameters"/> and return the number of rows affected
+        /// </summary>
+        public static int ExecuteProc(this DbConnection cnn, string procName, object parameters = null)
+        {
+            Contract.Requires(cnn != null);
+            Contract.Requires(!string.IsNullOrWhiteSpace(procName));
+            return ExecuteCore(cnn, procName, parameters, CommandType.StoredProcedure);
+        }
+
+        private static int ExecuteCore(DbConnection cnn, string sql, object parameters, CommandType cmdType)
+        {
+            Contract.Requires(cnn != null);
+            Contract.Requires(!string.IsNullOrWhiteSpace(sql));
             var openConnection = cnn.State != ConnectionState.Open;
             if (openConnection)
             {
@@ -89,25 +145,46 @@ namespace BusterWood.Mapper
             {
                 using (var cmd = cnn.CreateCommand())
                 {
-                    SetupCommand(cmd, cnn, sql, parameters);
+                    cmd.CommandType = cmdType;
+                    cmd.Connection = cnn;
+                    cmd.CommandText = sql;
+                    if (parameters != null)
+                        cmd.AddParameters(parameters);
                     return cmd.ExecuteNonQuery();
                 }
             }
-            finally
+            catch
             {
                 if (openConnection)
                     cnn.Close();
+                throw;
             }
         }
 
         /// <summary>
         /// Asynchronously executes some <paramref name="sql"/> using the optional <paramref name="parameters"/> and return the number of rows affected
         /// </summary>
-        public static async Task<int> ExecuteAsync(this DbConnection cnn, string sql, object parameters = null)
+        public static Task<int> ExecuteAsync(this DbConnection cnn, string sql, object parameters = null)
         {
             Contract.Requires(cnn != null);
             Contract.Requires(!string.IsNullOrWhiteSpace(sql));
+            return ExecuteAsyncInternal(cnn, sql, parameters, CommandType.Text);
+        }
 
+        /// <summary>
+        /// Asynchronously executes the <paramref name="procName"/> using the optional <paramref name="parameters"/> and return the number of rows affected
+        /// </summary>
+        public static Task<int> ExecuteProcAsync(this DbConnection cnn, string procName, object parameters = null)
+        {
+            Contract.Requires(cnn != null);
+            Contract.Requires(!string.IsNullOrWhiteSpace(procName));
+            return ExecuteAsyncInternal(cnn, procName, parameters, CommandType.StoredProcedure);
+        }
+
+        private static async Task<int> ExecuteAsyncInternal(DbConnection cnn, string sql, object parameters, CommandType cmdType)
+        {
+            Contract.Requires(cnn != null);
+            Contract.Requires(!string.IsNullOrWhiteSpace(sql));
             var openConnection = cnn.State != ConnectionState.Open;
             if (openConnection)
             {
@@ -117,23 +194,20 @@ namespace BusterWood.Mapper
             {
                 using (var cmd = cnn.CreateCommand())
                 {
-                    SetupCommand(cmd, cnn, sql, parameters);
+                    cmd.CommandType = cmdType;
+                    cmd.Connection = cnn;
+                    cmd.CommandText = sql;
+                    if (parameters != null)
+                        cmd.AddParameters(parameters);
                     return await cmd.ExecuteNonQueryAsync();
                 }
             }
-            finally
+            catch
             {
                 if (openConnection)
                     cnn.Close();
+                throw;
             }
-        }
-
-        static void SetupCommand(DbCommand cmd, DbConnection cnn, string sql, object parameters)
-        {
-            cmd.Connection = cnn;
-            cmd.CommandText = sql;
-            if (parameters != null)
-                cmd.AddParameters(parameters);
         }
         
     }
