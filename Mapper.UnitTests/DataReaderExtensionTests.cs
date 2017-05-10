@@ -291,6 +291,21 @@ namespace BusterWood.Mapper.UnitTests
             Assert.AreEqual(1, val.Count, "count");
         }
 
+        [Test]
+        public void can_read_int_into_enum()
+        {
+            var stubDataReader = new StubDataReader
+            {
+                Names = new[] { "ID", "BOOKING_STATE" },
+                Types = new[] { typeof(int), typeof(int) },
+                Values = new object[] { 1, 2 },
+            };
+            var func = Extensions.GetMappingFunc<Booking>(stubDataReader);
+            var result = func(stubDataReader);
+            Assert.IsNotNull(result);
+            Assert.AreEqual(State.Second, result.State);
+        }
+
     }
 
     struct TestStruct<T>
@@ -332,5 +347,17 @@ namespace BusterWood.Mapper.UnitTests
     {
         public int Id { get; set; }
         public string Name { get; set; }
+    }
+
+    class Booking
+    {
+        public int Id { get; set; }
+        public State State { get; set; }
+    }
+
+    enum State
+    {
+        First = 1,
+        Second,
     }
 }

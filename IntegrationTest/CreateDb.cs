@@ -41,8 +41,7 @@ IF EXISTS (SELECT name FROM sys.databases WHERE name = N'MapperTest')
 IF EXISTS (SELECT name FROM sys.databases WHERE name = N'MapperTest')
     DROP DATABASE [MapperTest]; 
 
-CREATE DATABASE [MapperTest];
-";
+CREATE DATABASE [MapperTest];";
 
             using (var cnn = new SqlConnection(master))
             {
@@ -82,11 +81,22 @@ CREATE TABLE [dbo].[time_test] (
 	[when2] [datetime2],
 	[whenOffset] [datetimeoffset]
  CONSTRAINT [PK_time_test] PRIMARY KEY CLUSTERED ( [ID] ASC )
-);
+);";
+
+            const string sql2 =
+@"IF OBJECT_ID('dbo.GetCurrencyById', 'P') IS NULL
+    EXEC ('CREATE PROC dbo.GetCurrencyById as return 0')
 ";
+            const string sql3 =
+@"ALTER PROC dbo.GetCurrencyById
+    @id int
+as
+select * from dbo.Currency where ID = @id";
             using (var cnn = new SqlConnection(master))
             {
                 cnn.Execute(sql);
+                cnn.Execute(sql2);
+                cnn.Execute(sql3);
             }
         }
     }
