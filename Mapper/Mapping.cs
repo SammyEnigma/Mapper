@@ -53,13 +53,13 @@ namespace BusterWood.Mapper
         /// Creates the mapping between <paramref name="source"/> and <paramref name="destination"/> using the DESTINATION to generate candidate names for the mapping
         /// </summary>
         public static MappingResult<Thing, Thing> CreateFromDestination(Type source, Type destination, string removablePrefix = null)
-            => CreateFromDestination(Types.WriteablePublicThings(source), Types.WriteablePublicThings(destination), removablePrefix);
+            => CreateFromDestination(Types.ReadablePublicThings(source), Types.WriteablePublicThings(destination), removablePrefix);
 
         /// <summary>
         /// Creates the mapping between <paramref name="source"/> and <paramref name="destination"/> using the DESTINATION to generate candidate names for the mapping
         /// </summary>
         public static MappingResult<Thing, Thing> CreateFromDestination(Type source, IReadOnlyCollection<Thing> destination, string removablePrefix = null)
-            => CreateFromDestination(Types.WriteablePublicThings(source), destination, removablePrefix);
+            => CreateFromDestination(Types.ReadablePublicThings(source), destination, removablePrefix);
 
         /// <summary>
         /// Creates the mapping between <paramref name="sourceMappings"/> and <paramref name="destination"/> using the DESTINATION to generate candidate names for the mapping

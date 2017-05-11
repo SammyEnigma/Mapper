@@ -110,6 +110,60 @@ namespace BusterWood.Mapper
 
         static Delegate CreateMappingFunc(Type typeT, SqlMetaData[] metaData)
         {
+            if (Types.IsPrimitiveOrEnum(typeT) && metaData.Length == 1)
+                return CreatePrimativeMapping(typeT, metaData[0]);
+            if (typeT == typeof(string) && metaData.Length == 1)
+                return CreatePrimativeMapping(typeT, metaData[0]);
+            else
+                return CreateTypeMapping(typeT, metaData);
+        }
+
+        private static Delegate CreatePrimativeMapping(Type typeT, SqlMetaData sqlMetaData)
+        {
+            var dest = new Column(0, sqlMetaData.Name, Types.DBTypeToType[sqlMetaData.DbType]);
+            LambdaExpression lambdaExpression = CreatePrimativeLambda(typeT, dest);
+            return lambdaExpression.Compile();
+        }
+
+        static LambdaExpression CreatePrimativeLambda(Type typeT, Column col)
+        {
+            var result = Expression.Parameter(typeof(SqlDataRecord), "rec");
+            var metaDataParam = Expression.Parameter(typeof(SqlMetaData[]), "metaData");
+            var item = Expression.Parameter(typeT, "item");
+            var constructorInfo = typeof(SqlDataRecord).GetConstructor(new[] { typeof(SqlMetaData[]) });
+            var lines = new List<Expression>
+            {
+                Expression.Assign(result, Expression.New(constructorInfo, metaDataParam))
+            };
+
+            var setNullMethod = typeof(SqlDataRecord).GetMethod("SetDBNull", new[] { typeof(int) });
+            Contract.Assert(setNullMethod != null);
+
+            var setValueExp = SetValue(result, col.Type, col, item);
+            if (setValueExp == null)
+                throw new InvalidOperationException($"Cannot map from {typeT} to {col.Type}");
+
+            if (Types.CanBeNull(typeT))
+            {
+                lines.Add(Expression.IfThenElse(
+                            Expression.Equal(item, Expression.Constant(null)),
+                            Expression.Call(result, setNullMethod, Expression.Constant(col.Ordinal)),
+                            setValueExp
+                        ));
+            }
+            else
+            {
+                lines.Add(setValueExp);
+            }
+            lines.Add(result);
+            var block = Expression.Block(new[] { result }, lines);
+            var func = typeof(Func<,,>).MakeGenericType(typeof(SqlMetaData[]), typeT, typeof(SqlDataRecord));
+            var lambdaExpression = Expression.Lambda(func, block, metaDataParam, item);
+            return lambdaExpression;
+        }
+
+        private static Delegate CreateTypeMapping(Type typeT, SqlMetaData[] metaData)
+        {
             var columns = metaData.Select((md, i) => (Thing)new Column(i, md.Name, Types.DBTypeToType[md.DbType])).ToList();
             var result = Mapping.CreateFromDestination(Types.ReadablePublicThings(typeT), columns, typeT.Name);
             LambdaExpression lambdaExpression = CreateMappingLambda(typeT, result.Mapped);
@@ -161,14 +215,19 @@ namespace BusterWood.Mapper
         static MethodCallExpression SetValue(ParameterExpression result, ParameterExpression item, Thing from, Column to)
         {
             Expression value = Expression.PropertyOrField(item, from.Name);
-            if (to.Type != from.Type)
+            return SetValue(result, from.Type, to, value);
+        }
+
+        private static MethodCallExpression SetValue(ParameterExpression result, Type fromType, Column to, Expression value)
+        {
+            if (to.Type != fromType)
             {
                 // type if not the same, can it be assigned?
-                if (Types.CanBeCast(from.Type, to.Type))
+                if (Types.CanBeCast(fromType, to.Type))
                     value = Expression.Convert(value, to.Type);
-                else if (Types.IsNullable(from.Type) && from.Type.GetGenericArguments()[0] == to.Type)
+                else if (Types.IsNullable(fromType) && fromType.GetGenericArguments()[0] == to.Type)
                     value = Expression.Convert(value, to.Type);
-                else if (Types.IsNullable(from.Type) && Types.CanBeCast(from.Type.GetGenericArguments()[0], to.Type))
+                else if (Types.IsNullable(fromType) && Types.CanBeCast(fromType.GetGenericArguments()[0], to.Type))
                     value = Expression.Convert(value, to.Type);
                 else
                     return null;

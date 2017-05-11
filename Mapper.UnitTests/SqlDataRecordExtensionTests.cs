@@ -371,6 +371,46 @@ namespace BusterWood.Mapper.UnitTests
             Assert.AreEqual(20L, recs[1].GetValue(1));
         }
 
+        [Test]
+        public void can_map_int_array_to_single_column()
+        {
+            var input = new int[] { 1 };
+            var meta = new[] { new SqlMetaData("ID", SqlDbType.Int) };
+            var recs = input.ToDataRecords(meta).ToList();
+            Assert.AreEqual(1, recs.Count, "Count");
+            var rec = recs[0];
+            Assert.NotNull(rec);
+            Assert.AreEqual(1, rec.FieldCount);
+            Assert.AreEqual(1, rec.GetValue(0));
+        }
+
+        [Test]
+        public void can_map_longarray__to_single_column()
+        {
+            var input = new long[] { 1 };
+            var meta = new[] { new SqlMetaData("ID", SqlDbType.BigInt) };
+            var recs = input.ToDataRecords(meta).ToList();
+            Assert.AreEqual(1, recs.Count, "Count");
+            var rec = recs[0];
+            Assert.NotNull(rec);
+            Assert.AreEqual(1, rec.FieldCount);
+            Assert.AreEqual(1L, rec.GetValue(0));
+        }
+
+
+        [Test]
+        public void can_string_array_to_single_column()
+        {
+            var input = new string[] { "hello" };
+            var meta = new[] { new SqlMetaData("ID", SqlDbType.VarChar, 10) };
+            var recs = input.ToDataRecords(meta).ToList();
+            Assert.AreEqual(1, recs.Count, "Count");
+            var rec = recs[0];
+            Assert.NotNull(rec);
+            Assert.AreEqual(1, rec.FieldCount);
+            Assert.AreEqual("hello", rec.GetValue(0));
+        }
+
         class MultipleProperties
         {
             public int Int { get; set; }
