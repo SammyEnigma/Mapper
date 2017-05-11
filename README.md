@@ -67,6 +67,24 @@ The `Query(string sql, object parameters = null)` extension executes the supplie
 
 The `Execute(string sql, object parameters = null)` extension executes the supplied SQL (with optional parameters) but *just returns the number of rows affected*.
 
+### Calling stored procedures
+
+The `QueryProc(string procName, object parameters = null)` extension calls the named stored procedure (with optional parameters) and returns a `DbDataReader`.
+
+The `ExecuteProc(string procName, object parameters = null)` extension calls the named stored procedure (with optional parameters) but *just returns the number of rows affected*.
+
+How are these methods different from `Query` and `Execute`?  You don't need to specify the full command syntax, for example:
+
+```
+var order = connection.Query("EXEC dbo.GetOrderById @id=@id", new { id=1 }).SingleOrDefault<Order>();
+```
+
+```
+var order = connection.QueryProc("dbo.GetOrderById", new { id=1 }).SingleOrDefault<Order>();
+```
+
+### Automatic connection open and close
+
 As a conveniance, if `Query()` and `Execute()` are called on a closed connection then `Mapper` will open the connection, use it, and close/dispose the connection afterwards.
 
 ## ADO.NET DbCommand methods
