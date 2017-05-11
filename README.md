@@ -209,10 +209,10 @@ OrderType? orderType = connection.Query("select order_type_id from dbo.[Order] w
 
 Call a stored procedure that does not return results set(s)
 ```csharp
-int rowsChanged = connection.Execute("EXEC update_user_name @user_id=@id, @name=@name", new { id=123, name="fred" });
+int rowsChanged = connection.ExecuteProc("update_user_name", new { id=123, name="fred" });
 ```
 
 Asynchronously call a stored procedure that does not return results set(s)
 ```csharp
-int rowsChanged = await connection.ExecuteAsync("EXEC update_user_name @user_id=@id, @name=@name", new { id=123, name="fred" });
+int rowsChanged = await connection.ExecuteProcAsync("update_user_name", new { id=123, name="fred" });
 ```
