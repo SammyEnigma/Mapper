@@ -20,7 +20,6 @@ namespace BusterWood.Mapper
             Contract.Requires(items != null);
             Contract.Requires(metaData != null);
             Contract.Requires(metaData.Length > 0);
-            Contract.Ensures(Contract.Result<IEnumerable<SqlDataRecord>>() != null);
             var key = new TypeAndMetaData(typeof(T), metaData);
             var map = (Func<SqlMetaData[], T, SqlDataRecord>)GetOrAddFunc(key, typeof(T));
             return items.Select(item => map(metaData, item));
@@ -38,7 +37,10 @@ namespace BusterWood.Mapper
             Contract.Ensures(Contract.Result<IEnumerable<SqlDataRecord>>() != null);
             var key = new TypeAndMetaData(typeof(T), metaData);
             var map = (Func<SqlMetaData[], T, SqlDataRecord>)GetOrAddFunc(key, typeof(T));
-            return new TableType(tableTypeName, items.Select(item => map(metaData, item)));
+            if (items.Any())
+                return new TableType(tableTypeName, items.Select(item => map(metaData, item)));
+            else
+                return new TableType(tableTypeName, null); // SQL will throw and exception if you try to pass an empty enumeration
         }
 
         /// <summary>
@@ -54,7 +56,10 @@ namespace BusterWood.Mapper
             Contract.Ensures(Contract.Result<IEnumerable<SqlDataRecord>>() != null);
             var key = new TypeAndMetaData(typeof(T), metaData);
             var map = (Func<SqlMetaData[], T, SqlDataRecord>)GetOrAddFunc(key, typeof(T));
-            return new TableType(tableTypeName, ConvertItemsToRecords(items, metaData, map, extraAction));
+            if (items.Any())
+                return new TableType(tableTypeName, ConvertItemsToRecords(items, metaData, map, extraAction));
+            else
+                return new TableType(tableTypeName, null); // SQL will throw and exception if you try to pass an empty enumeration
         }
 
         static IEnumerable<SqlDataRecord> ConvertItemsToRecords<T>(IEnumerable<T> items, SqlMetaData[] metaData, Func<SqlMetaData[], T, SqlDataRecord> map, Action<SqlDataRecord, T> extraAction)
@@ -82,7 +87,10 @@ namespace BusterWood.Mapper
             var key = new TypeAndMetaData(typeof(T), metaData);
             var typeT = typeof(T);
             var map = (Func<SqlMetaData[], T, SqlDataRecord>)GetOrAddFunc(key, typeT);
-            return new TableType(tableTypeName, Records(items, metaData, map, extraAction));
+            if (items.Any())
+                return new TableType(tableTypeName, Records(items, metaData, map, extraAction));
+            else
+                return new TableType(tableTypeName, null); // SQL will throw and exception if you try to pass an empty enumeration
         }
 
         static IEnumerable<SqlDataRecord> Records<T>(IEnumerable<T> items, SqlMetaData[] metaData, Func<SqlMetaData[], T, SqlDataRecord> map, Action<SqlDataRecord, T, int> extraAction)
@@ -100,7 +108,6 @@ namespace BusterWood.Mapper
         /// <summary>Used to add the SQL Server Table Type name to a parameter</summary>
         public static TableType WithTypeName(this IEnumerable<SqlDataRecord> records, string tableTypeName)
         {
-            Contract.Requires(records != null);
             Contract.Requires(!string.IsNullOrWhiteSpace(tableTypeName));
             Contract.Ensures(Contract.Result<IEnumerable<SqlDataRecord>>() != null);
             return new TableType(tableTypeName, records);
@@ -295,12 +302,13 @@ namespace BusterWood.Mapper
         /// <summary>The name of the SQL Server table type</summary>
         public string TypeName { get; }
 
+        /// <summary>The encoded <see cref="SqlDataRecord"/></summary>
         public IEnumerable<SqlDataRecord> Records { get; }
 
         public TableType(string typeName, IEnumerable<SqlDataRecord> records)
         {
             Contract.Requires(typeName != null);
-            Contract.Requires(records != null);
+            // note: records must be null, an empty enumeration will cause a SQL exception
             TypeName = typeName;
             Records = records;
         }

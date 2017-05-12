@@ -411,6 +411,17 @@ namespace BusterWood.Mapper.UnitTests
             Assert.AreEqual("hello", rec.GetValue(0));
         }
 
+        [Test]
+        public void convert_empty_sequence_to_null()
+        {
+            var input = new string[0];
+            var meta = new[] { new SqlMetaData("ID", SqlDbType.VarChar, 10) };
+            TableType tt = input.ToTableType(meta, "typeName");
+            Assert.IsNotNull(tt, "");
+            Assert.AreEqual("typeName", tt.TypeName, "TypeName");
+            Assert.AreEqual(null, tt.Records, "records");
+        }
+
         class MultipleProperties
         {
             public int Int { get; set; }
