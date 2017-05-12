@@ -81,7 +81,10 @@ CREATE TABLE [dbo].[time_test] (
 	[when2] [datetime2],
 	[whenOffset] [datetimeoffset]
  CONSTRAINT [PK_time_test] PRIMARY KEY CLUSTERED ( [ID] ASC )
-);";
+);
+
+CREATE TYPE dbo.IntType as table (Id int not null);
+";
 
             const string sql2 =
 @"IF OBJECT_ID('dbo.GetCurrencyById', 'P') IS NULL

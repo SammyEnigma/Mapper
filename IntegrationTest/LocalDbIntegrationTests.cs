@@ -153,6 +153,18 @@ VALUES (3, @when)";
         }
 
         [Test]
+        public void can_pass_empty_table_type()
+        {
+            const string sql = @"select c.* from dbo.Currency c join @ids i on i.id = c.id";
+            using (var cnn = new SqlConnection(mapperTest))
+            {
+                var ids = new int[0].ToTableType(new Microsoft.SqlServer.Server.SqlMetaData[] { new Microsoft.SqlServer.Server.SqlMetaData("ID", System.Data.SqlDbType.Int) }, "dbo.IntType");
+                var result = cnn.Query(sql, new { ids }).ToList<Currency>();
+                Assert.IsNotNull(result);
+                Assert.AreEqual(0, result.Count);
+            }
+        }
+        [Test]
         public void can_read_mutliple_results()
         {
             using (var cnn = new SqlConnection(mapperTest))

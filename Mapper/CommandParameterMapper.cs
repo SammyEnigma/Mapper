@@ -63,7 +63,22 @@ namespace BusterWood.Mapper
                     lines.Add(Expression.Assign(Expression.Property(dataParam, "DbType"), Expression.Constant(Types.TypeToDbType[fieldOrProperty])));
                 }
 
-                if (Types.CanBeNull(fieldOrProperty))
+                if (fieldOrProperty == typeof(TableType))
+                {
+                    // check if records is null
+                    var tt = Expression.PropertyOrField(parameters, prop.Name);
+                    var records = Expression.Property(Expression.Convert(tt, typeof(TableType)), "Records");
+                    lines.Add(
+                        Expression.Assign(Expression.Property(dataParam, "Value"), Expression.Convert(records, typeof(object))
+                        //Expression.Condition(
+                        //    Expression.Equal(records, Expression.Constant(null)),
+                        //    Expression.Convert(Expression.Field(null, typeof(DBNull), "Value"), typeof(object)),
+                        //    Expression.Convert(records, typeof(object))
+                        //)
+                        )
+                    );
+                }
+                else if (Types.CanBeNull(fieldOrProperty))
                 {
                     lines.Add(
                         Expression.Assign(
