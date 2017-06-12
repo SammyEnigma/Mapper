@@ -5,10 +5,10 @@ using System.Reflection;
 
 namespace BusterWood.Mapper
 {
-    public static class ObjectEnumerator
+    public static class Seq
     {
         public static bool Contains<T>(this IEnumerable<T> items, Func<T, bool> predicate)
-        {            
+        {
             if (predicate == null)
                 throw new ArgumentNullException(nameof(predicate));
             if (items == null)
@@ -21,6 +21,19 @@ namespace BusterWood.Mapper
             return false;
         }
 
+        public static IEnumerable<T> Lazy<T>(Func<T[]> itemFunc)
+        {
+            if (itemFunc == null)
+                throw new ArgumentNullException(nameof(itemFunc));
+            foreach (var item in itemFunc())
+            {
+                yield return item;
+            }
+        }
+    }
+
+    public static class ObjectEnumerator
+    {       
         /// <summary>Turns an object into a sequence of key value pairs</summary>
         /// <remarks>Uses reflection, TODO: a version that uses LINQ expressions</remarks>
         public static IEnumerable<KeyValuePair<string, object>> AsSeq(this object item)
@@ -28,12 +41,12 @@ namespace BusterWood.Mapper
             if (item == null)
                 return Enumerable.Empty<KeyValuePair<string, object>>();
 
-            var fields = item.GetType()
-                .GetFields()
+            var type = item.GetType();
+
+            var fields = Seq.Lazy(() => type.GetFields())
                 .Select(f => new KeyValuePair<string, object>(f.Name, f.GetValue(item)));
 
-            var properties = item.GetType()
-                .GetProperties()
+            var properties = Seq.Lazy(() => type.GetProperties())
                 .Where(p => p.CanRead)
                 .Select(p => new KeyValuePair<string, object>(p.Name, p.GetValue(item)));
             
@@ -66,13 +79,19 @@ namespace BusterWood.Mapper
                 MemberInfo member;
                 if (writeable.TryGetValue(pair.Key, out member))
                 {
-                    if (member is PropertyInfo)
-                        ((PropertyInfo)member).SetValue(item, pair.Value);
-                    else
-                        ((FieldInfo)member).SetValue(item, pair.Value);
+                    member.SetValue(item, pair.Value);
                 }
             }
             return (T)item; // unbox struct
+        }
+
+        private static void SetValue(this MemberInfo member, object obj, object value)
+        {
+            if (member is PropertyInfo)
+                ((PropertyInfo)member).SetValue(obj, value);
+            else
+                ((FieldInfo)member).SetValue(obj, value);
+
         }
 
         private static T NewCtor<T>(ConstructorInfo ctor, IEnumerable<KeyValuePair<string, object>> values)
