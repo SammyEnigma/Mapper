@@ -244,6 +244,7 @@
     <Compile Include="HashLookup.cs" />
     <Compile Include="Mapping.cs" />
     <Compile Include="Names.cs" />
+    <Compile Include="ObjectEnumerator.cs" />
     <Compile Include="ObjectMapper.cs" />
     <Compile Include="DataSequence.cs" />
     <Compile Include="SqlDataRecordExtensions.cs" />

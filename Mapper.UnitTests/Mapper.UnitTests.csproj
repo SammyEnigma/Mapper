@@ -71,7 +71,9 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="ApiTests.cs" />
+    <Compile Include="AsSeqTests.cs" />
     <Compile Include="Benchmark.cs" />
+    <Compile Include="NewExtensionTests.cs" />
     <Compile Include="CommandExtensionTests.cs" />
     <Compile Include="ConsoleObserver.cs" />
     <Compile Include="DataReaderDictionaryBenchmark.cs" />
