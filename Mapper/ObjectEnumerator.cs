@@ -38,15 +38,17 @@ namespace BusterWood.Mapper
         /// <remarks>Uses reflection, TODO: a version that uses LINQ expressions</remarks>
         public static IEnumerable<KeyValuePair<string, object>> AsSeq(this object item)
         {
+            const BindingFlags PublicInstance = BindingFlags.Public | BindingFlags.Instance;
+
             if (item == null)
                 return Enumerable.Empty<KeyValuePair<string, object>>();
 
             var type = item.GetType();
 
-            var fields = Seq.Lazy(() => type.GetFields())
+            var fields = Seq.Lazy(() => type.GetFields(PublicInstance))
                 .Select(f => new KeyValuePair<string, object>(f.Name, f.GetValue(item)));
 
-            var properties = Seq.Lazy(() => type.GetProperties())
+            var properties = Seq.Lazy(() => type.GetProperties(PublicInstance))
                 .Where(p => p.CanRead)
                 .Select(p => new KeyValuePair<string, object>(p.Name, p.GetValue(item)));
             

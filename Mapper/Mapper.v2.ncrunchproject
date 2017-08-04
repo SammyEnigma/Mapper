@@ -18,7 +18,7 @@
   <DetectStackOverflow>true</DetectStackOverflow>
   <IncludeStaticReferencesInWorkspace>true</IncludeStaticReferencesInWorkspace>
   <DefaultTestTimeout>60000</DefaultTestTimeout>
-  <UseBuildConfiguration></UseBuildConfiguration>
+  <UseBuildConfiguration>Debug</UseBuildConfiguration>
   <UseBuildPlatform>AnyCPU</UseBuildPlatform>
   <ProxyProcessPath></ProxyProcessPath>
   <UseCPUArchitecture>x64</UseCPUArchitecture>

@@ -88,6 +88,7 @@
     <Compile Include="SqlDataRecordExtensionTests.cs" />
     <Compile Include="StubDataReader.cs" />
     <Compile Include="TypeAndMetaDataTests.cs" />
+    <Compile Include="TypeExtensionTests.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Mapper\Mapper.csproj">
