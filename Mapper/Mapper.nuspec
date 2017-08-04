@@ -2,12 +2,12 @@
 <package >
   <metadata>
     <id>BusterWood.Mapper</id>
-    <version>6.8.2</version>
+    <version>6.9.0</version>
     <authors>BusterWood</authors>
     <description>A convention-based object cloner, object-object mapper (like AutoMapper), DbDataReader to object mapper, object to command data parameter mapper, etc.</description>
     <projectUrl>https://github.com/busterwood/mapper</projectUrl>
     <licenseUrl>https://github.com/busterwood/mapper/blob/master/LICENSE.txt</licenseUrl>
-    <releaseNotes>Added support for passing empty enumerable sequences to Table Value Parameters</releaseNotes>
+    <releaseNotes>Add reflection-based conversion to and from a sequence of key value pairs</releaseNotes>
     <references>
       <reference file="BusterWood.Mapper.dll" />
     </references>
