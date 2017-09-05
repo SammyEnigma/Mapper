@@ -89,6 +89,8 @@ namespace BusterWood.Mapper
 
         private static void SetValue(this MemberInfo member, object obj, object value)
         {
+            var targetType = Types.PropertyOrFieldType(member);
+            value = ConvertValue(value, targetType);
             if (member is PropertyInfo)
                 ((PropertyInfo)member).SetValue(obj, value);
             else
@@ -96,12 +98,21 @@ namespace BusterWood.Mapper
 
         }
 
+        private static object ConvertValue(object value, Type targetType)
+        {
+            if (Types.IsNullable(targetType) && value != null && value.GetType() != targetType)
+            {
+                value = Convert.ChangeType(value, targetType.GenericTypeArguments[0]);
+            }
+            return value;
+        }
+
         private static T NewCtor<T>(ConstructorInfo ctor, IEnumerable<KeyValuePair<string, object>> values)
         {
             var map = values.ToDictionary(p => p.Key, p => p.Value, StringComparer.OrdinalIgnoreCase); // case insensitive
 
             var args = ctor.GetParameters()
-                .Select(p => map.ContainsKey(p.Name) ? map[p.Name] : Default(p.ParameterType))
+                .Select(p => map.ContainsKey(p.Name) ? ConvertValue(map[p.Name], p.ParameterType) : Default(p.ParameterType))
                 .ToArray();
 
             return (T)ctor.Invoke(args);

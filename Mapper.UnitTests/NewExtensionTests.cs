@@ -23,6 +23,14 @@ namespace BusterWood.Mapper.UnitTests
         }
 
         [Test]
+        public void new_converts_nullable_properties_between_types()
+        {
+            var data = new[] { new KeyValuePair<string, object>(nameof(ClassWithProps.OptField), 1) };
+            var item = data.New<ClassWithProps>();
+            Assert.AreEqual(1, item.OptField);
+        }
+
+        [Test]
         public void new_sets_field_on_class()
         {
             var data = new[] { new KeyValuePair<string, object>(nameof(ClassWithProps.OptField), 1L) };
