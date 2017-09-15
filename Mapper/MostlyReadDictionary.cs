@@ -35,7 +35,7 @@ namespace BusterWood.Mapper
                 // some other thread may have just added it
                 if (_map.TryGetValue(key, out value)) return value;
 
-                // the function may take "some time" so evalutate it outside of the write lock so other threads can still read the dictionary
+                // the function may take "some time" so evaluate it outside of the write lock so other threads can still read the dictionary
                 value = addFunc(key);
 
                 _rwLock.EnterWriteLock();

@@ -44,7 +44,7 @@ namespace BusterWood.Mapper
 
                 if (Types.IsStructured(fieldOrProperty))
                 {
-                    if (fieldOrProperty != typeof(TableType))
+                    if (fieldOrProperty != typeof(SqlTable))
                         throw new NotSupportedException($"Parameter {dataParam.Name} implements {nameof(IEnumerable<SqlDataRecord>)} but type name is unknown.  Please wrap parameter by calling {nameof(Extensions.WithTypeName)}");
 
                     lines.Add(Expression.IfThen(
@@ -63,11 +63,11 @@ namespace BusterWood.Mapper
                     lines.Add(Expression.Assign(Expression.Property(dataParam, "DbType"), Expression.Constant(Types.TypeToDbType[fieldOrProperty])));
                 }
 
-                if (fieldOrProperty == typeof(TableType))
+                if (fieldOrProperty == typeof(SqlTable))
                 {
                     // check if records is null
                     var tt = Expression.PropertyOrField(parameters, prop.Name);
-                    var records = Expression.Property(Expression.Convert(tt, typeof(TableType)), "Records");
+                    var records = Expression.Property(Expression.Convert(tt, typeof(SqlTable)), "Records");
                     lines.Add(
                         Expression.Assign(Expression.Property(dataParam, "Value"), Expression.Convert(records, typeof(object))
                         //Expression.Condition(

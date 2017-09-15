@@ -173,7 +173,7 @@ namespace BusterWood.Mapper
         public static bool IsStructured(Type type)
         {
             Contract.Requires(type != null);            
-            return type == typeof(TableType) || typeof(IEnumerable<SqlDataRecord>).IsAssignableFrom(type);
+            return type == typeof(SqlTable) || typeof(IEnumerable<SqlDataRecord>).IsAssignableFrom(type);
         }
 
         [Pure]

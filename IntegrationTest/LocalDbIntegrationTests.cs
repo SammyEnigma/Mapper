@@ -156,9 +156,10 @@ VALUES (3, @when)";
         public void can_pass_empty_table_type()
         {
             const string sql = @"select c.* from dbo.Currency c join @ids i on i.id = c.id";
+            var tt = new SqlTableType("dbo.IntType", new Microsoft.SqlServer.Server.SqlMetaData("ID", System.Data.SqlDbType.Int) );
             using (var cnn = new SqlConnection(mapperTest))
             {
-                var ids = new int[0].ToTableType(new Microsoft.SqlServer.Server.SqlMetaData[] { new Microsoft.SqlServer.Server.SqlMetaData("ID", System.Data.SqlDbType.Int) }, "dbo.IntType");
+                var ids = new int[0].ToSqlTable(tt);
                 var result = cnn.Query(sql, new { ids }).ToList<Currency>();
                 Assert.IsNotNull(result);
                 Assert.AreEqual(0, result.Count);
@@ -169,9 +170,10 @@ VALUES (3, @when)";
         public void can_pass_table_type()
         {
             const string sql = @"select c.* from dbo.Currency c join @ids i on i.id = c.id";
+            var tt = new SqlTableType("dbo.IntType", new Microsoft.SqlServer.Server.SqlMetaData("ID", System.Data.SqlDbType.Int));
             using (var cnn = new SqlConnection(mapperTest))
             {
-                var ids = new int[] { 1 }.ToTableType(new Microsoft.SqlServer.Server.SqlMetaData[] { new Microsoft.SqlServer.Server.SqlMetaData("ID", System.Data.SqlDbType.Int) }, "dbo.IntType");
+                var ids = new int[] { 1 }.ToSqlTable(tt);
                 var result = cnn.Query(sql, new { ids }).ToList<Currency>();
                 Assert.IsNotNull(result);
                 Assert.AreEqual(1, result.Count);

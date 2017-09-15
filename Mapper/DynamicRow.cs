@@ -11,7 +11,7 @@ namespace BusterWood.Mapper
 {
     /// <summary>
     /// A row un-typed returned from the database, which can be accessed via <see cref="IReadOnlyDictionary{T1,T2}"/> methods
-    /// or dymanically by casting this object as 'dynamic'.
+    /// or dynamically by casting this object as 'dynamic'.
     /// </summary>
     public class DynamicRow : IDynamicMetaObjectProvider, IReadOnlyDictionary<string, object>
     {

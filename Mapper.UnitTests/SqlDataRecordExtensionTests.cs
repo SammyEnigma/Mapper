@@ -336,11 +336,8 @@ namespace BusterWood.Mapper.UnitTests
                 new MultipleProperties { Int = 1, Long = 10L },
                 new MultipleProperties { Int = 2, Long = 20L },
             };
-            var meta = new[] {
-                new SqlMetaData("Seq", SqlDbType.Int),
-                new SqlMetaData("Long", SqlDbType.BigInt),
-            };
-            var recs = input.ToTableType(meta, "SomeType", (record, properties) => record.SetInt32(0, properties.Int)).ToList();
+            var tt =  new SqlTableType("SomeType", new SqlMetaData("Seq", SqlDbType.Int), new SqlMetaData("Long", SqlDbType.BigInt));
+            var recs = input.ToSqlTable(tt, (record, properties) => record.SetInt32(0, properties.Int)).ToList();
             Assert.AreEqual(2, recs.Count, "Count");
 
             Assert.AreEqual(1, recs[0].GetValue(0));
@@ -357,11 +354,8 @@ namespace BusterWood.Mapper.UnitTests
                 new MultipleProperties { Long = 10L },
                 new MultipleProperties { Long = 20L },
             };
-            var meta = new[] {
-                new SqlMetaData("Seq", SqlDbType.Int),
-                new SqlMetaData("Long", SqlDbType.BigInt),
-            };
-            var recs = input.ToTableType(meta, "SomeType", (record, properties, i) => record.SetInt32(0, i)).ToList();
+            var tt = new SqlTableType("SomeType", new SqlMetaData("Seq", SqlDbType.Int), new SqlMetaData("Long", SqlDbType.BigInt));
+            var recs = input.ToSqlTable(tt, (record, properties, i) => record.SetInt32(0, i)).ToList();
             Assert.AreEqual(2, recs.Count, "Count");
 
             Assert.AreEqual(0, recs[0].GetValue(0));
@@ -415,11 +409,12 @@ namespace BusterWood.Mapper.UnitTests
         public void convert_empty_sequence_to_null()
         {
             var input = new string[0];
+            var tt = new SqlTableType("typeName", new SqlMetaData("ID", SqlDbType.VarChar, 10));
             var meta = new[] { new SqlMetaData("ID", SqlDbType.VarChar, 10) };
-            TableType tt = input.ToTableType(meta, "typeName");
-            Assert.IsNotNull(tt, "");
-            Assert.AreEqual("typeName", tt.TypeName, "TypeName");
-            Assert.AreEqual(null, tt.Records, "records");
+            SqlTable tab = input.ToSqlTable(tt);
+            Assert.IsNotNull(tab, "");
+            Assert.AreEqual("typeName", tab.TypeName, "TypeName");
+            Assert.AreEqual(null, tab.Records, "records");
         }
 
         class MultipleProperties

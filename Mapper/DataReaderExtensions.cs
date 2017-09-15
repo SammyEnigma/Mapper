@@ -94,7 +94,7 @@ namespace BusterWood.Mapper
         }
 
         /// <summary>Reads zero or one items from the reader</summary>
-        /// <remarks>Returns the default vaue of T if no values be read, i.e may return null</remarks>
+        /// <remarks>Returns the default value of T if no values be read, i.e may return null</remarks>
         /// <remarks>The underlying <see cref="DbDataReader"/> is disposed after this method has been called</remarks>
         public static T SingleOrDefault<T>(this DbDataReader reader, Action<DbDataReader, T> extraAction = null)
         {
@@ -115,7 +115,7 @@ namespace BusterWood.Mapper
         }
 
         /// <summary>Reads zero or one items from the reader</summary>
-        /// <remarks>Returns the default vaue of T if no values be read, i.e may return null</remarks>
+        /// <remarks>Returns the default value of T if no values be read, i.e may return null</remarks>
         /// <remarks>The underlying <see cref="DbDataReader"/> is disposed after this method has been called</remarks>
         public static async Task<T> SingleOrDefaultAsync<T>(this DbDataReader reader, Action<DbDataReader, T> extraAction = null)
         {

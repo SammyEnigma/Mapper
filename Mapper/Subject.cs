@@ -6,7 +6,7 @@ namespace BusterWood.Mapper
 {
     /// <summary>
     /// Represents an object that is both an observable sequence as well as an observer.
-    /// Each notification is broadcasted to all subscribed observers.
+    /// Each notification is broadcast to all subscribed observers.
     /// </summary>
     /// <remarks>Defined here so that Mapper has no external (third party) dependencies </remarks>
     sealed class Subject<T> : IObservable<T>, IObserver<T>

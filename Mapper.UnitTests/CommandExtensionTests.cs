@@ -214,9 +214,9 @@ namespace BusterWood.Mapper.UnitTests
         public void can_add_null_TableType()
         {
             var input = new[] {new {First = 1m},};
-            var md = new [] {new SqlMetaData("first", SqlDbType.Decimal)};
+            var tt = new SqlTableType("SOME_TYPE", new SqlMetaData("first", SqlDbType.Decimal));
             SqlCommand cmd = new SqlCommand();
-            cmd.AddParameters(new { Res = input.ToTableType(md, "SOME_TYPE") });
+            cmd.AddParameters(new { Res = input.ToSqlTable(tt) });
             Assert.AreEqual(1, cmd.Parameters.Count);
             Assert.AreEqual("@Res", cmd.Parameters[0].ParameterName);
             Assert.AreEqual(SqlDbType.Structured, cmd.Parameters[0].SqlDbType);

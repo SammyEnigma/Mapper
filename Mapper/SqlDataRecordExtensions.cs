@@ -26,40 +26,40 @@ namespace BusterWood.Mapper
         }
 
         /// <summary>
-        /// Converts a sequence of <paramref name="items"/> into a <see cref="TableType"/> containing a sequence of <see cref="SqlDataRecord"/> using the supplied <paramref name="metaData"/>
+        /// Converts a sequence of <paramref name="items"/> into a <see cref="SqlTable"/> containing a sequence of <see cref="SqlDataRecord"/> using the supplied <paramref name="metaData"/>
         /// </summary>
-        public static TableType ToTableType<T>(this IEnumerable<T> items, SqlMetaData[] metaData, string tableTypeName)
+        public static SqlTable ToSqlTable<T>(this IEnumerable<T> items, SqlTableType type)
         {
             Contract.Requires(items != null);
-            Contract.Requires(metaData != null);
-            Contract.Requires(metaData.Length > 0);
-            Contract.Requires(!string.IsNullOrWhiteSpace(tableTypeName));
+            Contract.Requires(type.Columns != null);
+            Contract.Requires(!string.IsNullOrWhiteSpace(type.Name));
             Contract.Ensures(Contract.Result<IEnumerable<SqlDataRecord>>() != null);
-            var key = new TypeAndMetaData(typeof(T), metaData);
+
+            var key = new TypeAndMetaData(typeof(T), type.Columns);
             var map = (Func<SqlMetaData[], T, SqlDataRecord>)GetOrAddFunc(key, typeof(T));
             if (items.Any())
-                return new TableType(tableTypeName, items.Select(item => map(metaData, item)));
+                return new SqlTable(type.Name, items.Select(item => map(type.Columns, item)));
             else
-                return new TableType(tableTypeName, null); // SQL will throw and exception if you try to pass an empty enumeration
+                return new SqlTable(type.Name, null); // SQL will throw and exception if you try to pass an empty enumeration
         }
 
         /// <summary>
-        /// Converts a sequence of <paramref name="items"/> into a <see cref="TableType"/> containing a sequence of <see cref="SqlDataRecord"/> using the supplied <paramref name="metaData"/>
+        /// Converts a sequence of <paramref name="items"/> into a <see cref="SqlTable"/> containing a sequence of <see cref="SqlDataRecord"/> using the supplied <paramref name="metaData"/>
         /// </summary>
         /// <remarks><paramref name="extraAction"/> can be used to set additional values on each <see cref="SqlDataRecord"/></remarks>
-        public static TableType ToTableType<T>(this IEnumerable<T> items, SqlMetaData[] metaData, string tableTypeName, Action<SqlDataRecord, T> extraAction)
+        public static SqlTable ToSqlTable<T>(this IEnumerable<T> items, SqlTableType type, Action<SqlDataRecord, T> extraAction)
         {
             Contract.Requires(items != null);
-            Contract.Requires(metaData != null);
-            Contract.Requires(metaData.Length > 0);
-            Contract.Requires(!string.IsNullOrWhiteSpace(tableTypeName));
+            Contract.Requires(type.Columns != null);
+            Contract.Requires(!string.IsNullOrWhiteSpace(type.Name));
             Contract.Ensures(Contract.Result<IEnumerable<SqlDataRecord>>() != null);
-            var key = new TypeAndMetaData(typeof(T), metaData);
+
+            var key = new TypeAndMetaData(typeof(T), type.Columns);
             var map = (Func<SqlMetaData[], T, SqlDataRecord>)GetOrAddFunc(key, typeof(T));
             if (items.Any())
-                return new TableType(tableTypeName, ConvertItemsToRecords(items, metaData, map, extraAction));
+                return new SqlTable(type.Name, ConvertItemsToRecords(items, type.Columns, map, extraAction));
             else
-                return new TableType(tableTypeName, null); // SQL will throw and exception if you try to pass an empty enumeration
+                return new SqlTable(type.Name, null); // SQL will throw and exception if you try to pass an empty enumeration
         }
 
         static IEnumerable<SqlDataRecord> ConvertItemsToRecords<T>(IEnumerable<T> items, SqlMetaData[] metaData, Func<SqlMetaData[], T, SqlDataRecord> map, Action<SqlDataRecord, T> extraAction)
@@ -73,24 +73,24 @@ namespace BusterWood.Mapper
         }
 
         /// <summary>
-        /// Converts a sequence of <paramref name="items"/> into a <see cref="TableType"/> containing a sequence of <see cref="SqlDataRecord"/> using the supplied <paramref name="metaData"/>
+        /// Converts a sequence of <paramref name="items"/> into a <see cref="SqlTable"/> containing a sequence of <see cref="SqlDataRecord"/> using the supplied <paramref name="metaData"/>
         /// </summary>
         /// <remarks><paramref name="extraAction"/> can be used to set additional values on each <see cref="SqlDataRecord"/> and gets passed the index of the record</remarks>
-        public static TableType ToTableType<T>(this IEnumerable<T> items, SqlMetaData[] metaData, string tableTypeName, Action<SqlDataRecord, T, int> extraAction)
+        public static SqlTable ToSqlTable<T>(this IEnumerable<T> items, SqlTableType type, Action<SqlDataRecord, T, int> extraAction)
         {
             Contract.Requires(items != null);
-            Contract.Requires(metaData != null);
-            Contract.Requires(metaData.Length > 0);
-            Contract.Requires(!string.IsNullOrWhiteSpace(tableTypeName));
+            Contract.Requires(type.Columns != null);
+            Contract.Requires(!string.IsNullOrWhiteSpace(type.Name));
             Contract.Requires(extraAction != null);
             Contract.Ensures(Contract.Result<IEnumerable<SqlDataRecord>>() != null);
-            var key = new TypeAndMetaData(typeof(T), metaData);
+
+            var key = new TypeAndMetaData(typeof(T), type.Columns);
             var typeT = typeof(T);
             var map = (Func<SqlMetaData[], T, SqlDataRecord>)GetOrAddFunc(key, typeT);
             if (items.Any())
-                return new TableType(tableTypeName, Records(items, metaData, map, extraAction));
+                return new SqlTable(type.Name, Records(items, type.Columns, map, extraAction));
             else
-                return new TableType(tableTypeName, null); // SQL will throw and exception if you try to pass an empty enumeration
+                return new SqlTable(type.Name, null); // SQL will throw and exception if you try to pass an empty enumeration
         }
 
         static IEnumerable<SqlDataRecord> Records<T>(IEnumerable<T> items, SqlMetaData[] metaData, Func<SqlMetaData[], T, SqlDataRecord> map, Action<SqlDataRecord, T, int> extraAction)
@@ -106,11 +106,11 @@ namespace BusterWood.Mapper
         }
 
         /// <summary>Used to add the SQL Server Table Type name to a parameter</summary>
-        public static TableType WithTypeName(this IEnumerable<SqlDataRecord> records, string tableTypeName)
+        public static SqlTable WithTypeName(this IEnumerable<SqlDataRecord> records, string tableTypeName)
         {
             Contract.Requires(!string.IsNullOrWhiteSpace(tableTypeName));
             Contract.Ensures(Contract.Result<IEnumerable<SqlDataRecord>>() != null);
-            return new TableType(tableTypeName, records);
+            return new SqlTable(tableTypeName, records);
         }
 
         static Delegate GetOrAddFunc(TypeAndMetaData key, Type typeT) => Methods.GetOrAdd(key, data => CreateMappingFunc(typeT, data.MetaData));
@@ -295,28 +295,6 @@ namespace BusterWood.Mapper
                 return (Type.GetHashCode() *397) ^ MetaData.Length;
             }
         }
-    }
-
-    public class TableType : IEnumerable<SqlDataRecord>
-    {
-        /// <summary>The name of the SQL Server table type</summary>
-        public string TypeName { get; }
-
-        /// <summary>The encoded <see cref="SqlDataRecord"/></summary>
-        public IEnumerable<SqlDataRecord> Records { get; }
-
-        public TableType(string typeName, IEnumerable<SqlDataRecord> records)
-        {
-            Contract.Requires(typeName != null);
-            // note: records must be null, an empty enumeration will cause a SQL exception
-            TypeName = typeName;
-            Records = records;
-        }
-
-        /// <summary>Returns an enumerator that iterates through the collection.</summary>
-        public IEnumerator<SqlDataRecord> GetEnumerator() => Records.GetEnumerator();
-
-        IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
     }
 
 }
