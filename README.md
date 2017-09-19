@@ -131,12 +131,12 @@ public void can_read_mutliple_results()
 
 ## ADO.NET SqlDataRecord methods
 
-`Mapper` adds a `ToTableType<T>()` extension method to `IEnumerable<T>` that convert it into a `IEnumerable<SqlDataRecord>` such that it can be passed as a [table valued parameter](https://msdn.microsoft.com/en-us/library/bb675163(v=vs.110).aspx) to SQL Server.
+`Mapper` adds a `ToSqlTable<T>()` extension method to `IEnumerable<T>` that convert it into a `IEnumerable<SqlDataRecord>` such that it can be passed as a [table valued parameter](https://msdn.microsoft.com/en-us/library/bb675163(v=vs.110).aspx) to SQL Server.
 
 ```
 Currency[] currencies = ....;
-SqlMetaData[] meta = { new SqlMetaData("ID", SqlDbType.Int),  new SqlMetaData("NAME", SqlDbType.VarChar, 50) };
-var table = orders.ToTableType(meta, "dbo.CurrencyType");
+var type = new SqlTableType("dbo.CurrencyType", new SqlMetaData("ID", SqlDbType.Int),  new SqlMetaData("NAME", SqlDbType.VarChar, 50));
+var table = orders.ToSqlTable(type);
 connection.ExecuteProc("dbo.UpdateCurrencies", new { rows = table }); // stored proc that takes a @rows parameter
 ```
 
@@ -144,8 +144,8 @@ Primative type, enums and strings can be converted directly, for example:
 
 ```
 int[] orderIds = { 1, 2, 3}
-SqlMetaData[] meta = { new SqlMetaData("ID", SqlDbType.Int) };
-var ids = orderIds.ToTableType(meta, "dbo.IdType");
+var type = new SqlTableType("dbo.IdType", new SqlMetaData("ID", SqlDbType.Int));
+var ids = orderIds.ToSqlTable(type);
 var loaed = connection.QueryProc("dbo.GetCurrencies", new { ids }).ToList<Currency>(); // stored proc that takes a @ids parameter
 ```
 
