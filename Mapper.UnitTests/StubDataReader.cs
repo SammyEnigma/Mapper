@@ -11,6 +11,7 @@ namespace BusterWood.Mapper.UnitTests
         public Type[] Types;
         public object[] Values;
         internal bool read;
+        public string[] DataTypeNames;
 
         public override string GetName(int i) => Names[i];
         public override Type GetFieldType(int i) => Types[i];
@@ -25,11 +26,7 @@ namespace BusterWood.Mapper.UnitTests
         public override Guid GetGuid(int i) => (Guid)Values[i];
         public override DateTime GetDateTime(int i) => (DateTime)Values[i];
         public override bool IsDBNull(int i) => Values[i] is DBNull;
-
-        public override string GetDataTypeName(int ordinal)
-        {
-            throw new NotImplementedException();
-        }
+        public override string GetDataTypeName(int i) => DataTypeNames == null ? "" : DataTypeNames[i];
 
         public override IEnumerator GetEnumerator()
         {
