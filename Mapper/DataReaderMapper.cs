@@ -29,7 +29,7 @@ namespace BusterWood.Mapper
             var columns = new Column[reader.FieldCount];
             for (int i = 0; i < columns.Length; i++)
             {
-                columns[i] = new Column(i, reader.GetName(i), reader.GetFieldType(i));
+                columns[i] = new Column(i, reader.GetName(i), reader.GetFieldType(i), reader.GetDataTypeName(i));
             }
             return columns;
         }
@@ -114,7 +114,9 @@ namespace BusterWood.Mapper
         {
             if (from.Type == typeof(byte[]))
             {
-                return AssignRowVersionTimestampValue(from, to, result, reader);
+                if (string.Equals("timestamp", from.DataTypeName, StringComparison.OrdinalIgnoreCase) || string.Equals("rowversion", from.DataTypeName, StringComparison.OrdinalIgnoreCase))
+                    return AssignRowVersionTimestampValue(from, to, result, reader);
+                return AssignByteArray(from, to, result, reader);
             }
 
             bool readAsObject;
@@ -138,9 +140,27 @@ namespace BusterWood.Mapper
             var getBytes = typeof(DbDataReader).GetMethod("GetBytes", new[] { typeof(int), typeof(long), typeof(byte[]), typeof(int), typeof(int) });
             return Expression.Block(
                 new[] { buffer },
-                Expression.Assign(buffer, Expression.NewArrayBounds(typeof(byte), Expression.Constant(4))),
-                Expression.Call(reader, getBytes, Expression.Constant(from.Ordinal), Expression.Constant(0L), buffer, Expression.Constant(0), Expression.Constant(4)),
+                Expression.Assign(buffer, Expression.NewArrayBounds(typeof(byte), Expression.Constant(8))),
+                Expression.Call(reader, getBytes, Expression.Constant(from.Ordinal), Expression.Constant(0L), buffer, Expression.Constant(0), Expression.Constant(8)),
                 Expression.Assign(Expression.PropertyOrField(result, to.Name), buffer)
+            );
+        }
+        static Expression AssignByteArray(Column from, Thing to, ParameterExpression result, ParameterExpression reader)
+        {
+            var stream = Expression.Parameter(typeof(System.IO.Stream), "stream");
+            var ms = Expression.Parameter(typeof(System.IO.MemoryStream), "ms");
+            var getStream = typeof(DbDataReader).GetMethod("GetStream", new[] { typeof(int) });
+            var copyTo = typeof(System.IO.Stream).GetMethod("CopyTo", new[] { typeof(System.IO.Stream) });
+            var toArray = typeof(System.IO.MemoryStream).GetMethod("ToArray");
+            var dispose = typeof(System.IO.Stream).GetMethod("Dispose");
+            return Expression.Block(
+                new[] { stream, ms },
+                Expression.Assign(ms, Expression.New(typeof(System.IO.MemoryStream))),
+                Expression.Assign(stream, Expression.Call(reader, getStream, Expression.Constant(from.Ordinal))),
+                Expression.Call(stream, copyTo, ms),
+                Expression.Assign(Expression.PropertyOrField(result, to.Name), Expression.Call(ms, toArray)),
+                Expression.Call(ms, dispose),
+                Expression.Call(stream, dispose)
             );
         }
 

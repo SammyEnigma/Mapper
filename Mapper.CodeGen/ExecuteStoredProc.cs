@@ -52,7 +52,7 @@ order by p.parameter_id";
             return sb.ToString();
         }
 
-        static Column ProcColToColumn(ProcColumn pc, int ordinal) => new Column(ordinal, pc.Name.TrimStart('@'), Types.TypeFromSqlTypeName(pc.Type));
+        static Column ProcColToColumn(ProcColumn pc, int ordinal) => new Column(ordinal, pc.Name.TrimStart('@'), Types.TypeFromSqlTypeName(pc.Type), "");
     }
 
     class ProcColumn

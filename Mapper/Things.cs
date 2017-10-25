@@ -68,12 +68,14 @@ namespace BusterWood.Mapper
         public string Name => name;
         public Type Type => type;
         public int Ordinal { get; }
+        public string DataTypeName { get; }
 
-        public Column(int ordinal, string name, Type type)
+        public Column(int ordinal, string name, Type type, string dataTypeName = "")
         {
             Ordinal = ordinal;
             this.type = type;
             this.name = name;
+            DataTypeName = dataTypeName;
         }
 
         public override bool Equals(object obj) => obj is Column && Equals((Column)obj);

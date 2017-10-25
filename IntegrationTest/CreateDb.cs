@@ -83,6 +83,13 @@ CREATE TABLE [dbo].[time_test] (
  CONSTRAINT [PK_time_test] PRIMARY KEY CLUSTERED ( [ID] ASC )
 );
 
+CREATE TABLE [dbo].[binary_test] (
+	[ID] [int] NOT NULL,
+	[version] timestamp,
+	[data] varbinary(max)
+ CONSTRAINT [PK_binary_test] PRIMARY KEY CLUSTERED ( [ID] ASC )
+);
+
 CREATE TYPE dbo.IntType as table (Id int not null);
 ";
 

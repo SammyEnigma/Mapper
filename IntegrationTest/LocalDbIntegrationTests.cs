@@ -207,6 +207,43 @@ VALUES (3, @when)";
                 Assert.AreEqual(6, big.Count);
             }
         }
+
+        [Test]
+        public void can_read_timestamp()
+        {
+            using (var cnn = new SqlConnection(mapperTest))
+            {
+                var input = new byte[] { 1, 2, 3 };
+                cnn.Execute("delete from [binary_test]");
+                cnn.Execute("insert into [binary_test] (ID, data) values (@id, @data)", new { id=1, data=input });
+                var bt = cnn.Query("select * from [binary_test] where ID = @id", new { id = 1 }).Single<BinaryTest>();
+                Assert.IsNotNull(bt.Version);
+                Assert.AreEqual(8, bt.Version.Length);
+                Assert.IsFalse(Enumerable.SequenceEqual(new byte[] { 0, 0, 0, 0, 0, 0, 0, 0 }, bt.Version), "version is empty");
+            }
+        }
+
+        [Test]
+        public void can_read_varbinary()
+        {
+            using (var cnn = new SqlConnection(mapperTest))
+            {
+                var input = new byte[] { 1, 2, 3 };
+                cnn.Execute("delete from [binary_test]");
+                cnn.Execute("insert into [binary_test] (ID, data) values (@id, @data)", new { id = 1, data = input });
+                var bt = cnn.Query("select * from [binary_test] where ID = @id", new { id = 1 }).Single<BinaryTest>();
+                Assert.IsNotNull(bt.Data);
+                Assert.AreEqual(3, bt.Data.Length);
+                Assert.IsTrue(Enumerable.SequenceEqual(input, bt.Data), "wrong data read");
+            }
+        }
+    }
+
+    internal class BinaryTest
+    {
+        public int Id { get; set; }
+        public byte[] Version { get; set; }
+        public byte[] Data { get; set; }
     }
 
     class TimeTest
