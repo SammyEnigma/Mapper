@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Data;
 using System.Data.Common;
 using System.Diagnostics.Contracts;
 using System.Threading.Tasks;
@@ -15,6 +16,13 @@ namespace BusterWood.Mapper
             Contract.Requires(reader != null);
             Delegate func = _readerMapper.GetOrCreateMappingFunc(typeof(T), reader);
             return (Func<DbDataReader, T>)func;
+        }
+
+        /// <summary>Filters a source <param name="reader"/> using a <param name="predicate"/></summary>
+        public static FilteredDbDataReader Where(this DbDataReader reader, Func<IDataRecord, bool> predicate)
+        {
+            Contract.Requires(reader != null);
+            return new FilteredDbDataReader(reader, predicate);
         }
 
         /// <summary>Converts the <paramref name="reader"/> into a <see cref="DataSequence{T}"/></summary>

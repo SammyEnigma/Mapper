@@ -239,6 +239,7 @@
     <Compile Include="CommandParameterMapper.cs" />
     <Compile Include="DataReaderMapper.cs" />
     <Compile Include="DynamicRow.cs" />
+    <Compile Include="FilteredDbDataReader.cs" />
     <Compile Include="GenericMapping.cs" />
     <Compile Include="Grouping.cs" />
     <Compile Include="HashLookup.cs" />

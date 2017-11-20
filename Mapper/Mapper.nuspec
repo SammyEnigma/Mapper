@@ -2,12 +2,15 @@
 <package >
   <metadata>
     <id>BusterWood.Mapper</id>
-    <version>7.1.0</version>
+    <version>7.2.0</version>
     <authors>BusterWood</authors>
     <description>A convention-based object cloner, object-object mapper (like AutoMapper), DbDataReader to object mapper, object to command data parameter mapper, etc.</description>
     <projectUrl>https://github.com/busterwood/mapper</projectUrl>
     <licenseUrl>https://github.com/busterwood/mapper/blob/master/LICENSE.txt</licenseUrl>
-    <releaseNotes>The breaking change is the extension method 'ToTableType()' has been changed to 'ToSqlTable()' which now takes a 'SqlTableType' parameter containing the name and column metadata.</releaseNotes>
+  <releaseNotes>
+  The breaking change is the extension method 'ToTableType()' has been changed to 'ToSqlTable()' which now takes a 'SqlTableType' parameter containing the name and column metadata.
+  Add Where extension method to DbDataReader.
+  </releaseNotes>
     <references>
       <reference file="BusterWood.Mapper.dll" />
     </references>
