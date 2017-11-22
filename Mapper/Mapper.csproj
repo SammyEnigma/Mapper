@@ -237,9 +237,12 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="CommandParameterMapper.cs" />
+    <Compile Include="DataReaderLinq\DelegatingDbDataReader.cs" />
+    <Compile Include="DataReaderLinq\Extensions.cs" />
+    <Compile Include="DataReaderLinq\RenamingDbDataReader.cs" />
     <Compile Include="DataReaderMapper.cs" />
     <Compile Include="DynamicRow.cs" />
-    <Compile Include="FilteredDbDataReader.cs" />
+    <Compile Include="DataReaderLinq\FilteredDbDataReader.cs" />
     <Compile Include="GenericMapping.cs" />
     <Compile Include="Grouping.cs" />
     <Compile Include="HashLookup.cs" />

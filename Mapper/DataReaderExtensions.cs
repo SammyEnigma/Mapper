@@ -18,13 +18,6 @@ namespace BusterWood.Mapper
             return (Func<DbDataReader, T>)func;
         }
 
-        /// <summary>Filters a source <param name="reader"/> using a <param name="predicate"/></summary>
-        public static FilteredDbDataReader Where(this DbDataReader reader, Func<IDataRecord, bool> predicate)
-        {
-            Contract.Requires(reader != null);
-            return new FilteredDbDataReader(reader, predicate);
-        }
-
         /// <summary>Converts the <paramref name="reader"/> into a <see cref="DataSequence{T}"/></summary>
         public static DataSequence<T> Read<T>(this DbDataReader reader, Action<DbDataReader, T> extraAction = null)
         {

@@ -10,17 +10,16 @@ using System.Threading.Tasks;
 namespace BusterWood.Mapper
 {
     /// <summary>Used to filter data before it is mapped to an object</summary>
-    public class FilteredDbDataReader : DbDataReader
+    public abstract class DelegatingDbDataReader : DbDataReader
     {
-        private Func<IDataRecord, bool> predicate;
-        private DbDataReader reader;
+        readonly protected DbDataReader reader;
+        readonly CommandBehavior commandBehavior;
 
-        public FilteredDbDataReader(DbDataReader reader, Func<IDataRecord, bool> predicate)
+        public DelegatingDbDataReader(DbDataReader reader, CommandBehavior commandBehavior)
         {
             Contract.Requires(reader != null);
-            Contract.Requires(predicate != null);
             this.reader = reader;
-            this.predicate = predicate;
+            this.commandBehavior = commandBehavior;
         }
 
         public override object this[string name] => reader[name];
@@ -94,29 +93,9 @@ namespace BusterWood.Mapper
 
         public override Task<bool> NextResultAsync(CancellationToken cancellationToken) => reader.NextResultAsync(cancellationToken);
 
-        public override bool Read()
-        {
-            for(;;)
-            {
-                bool got = reader.Read();
-                if (!got)
-                    return false;
-                if (predicate(this))
-                    return true;
-            }
-        }
+        public override bool Read() => reader.Read();
 
-        public async override Task<bool> ReadAsync(CancellationToken cancellationToken)
-        {
-            for (;;)
-            {
-                bool got = await reader.ReadAsync(cancellationToken);
-                if (!got)
-                    return false;
-                if (predicate(this))
-                    return true;
-            }
-        }
+        public override Task<bool> ReadAsync(CancellationToken cancellationToken) => reader.ReadAsync(cancellationToken);
 
         public override Type GetProviderSpecificFieldType(int ordinal) => reader.GetProviderSpecificFieldType(ordinal);
 
@@ -124,8 +103,11 @@ namespace BusterWood.Mapper
 
         public override int GetProviderSpecificValues(object[] values) => reader.GetProviderSpecificValues(values);
 
-        public override TextReader GetTextReader(int ordinal)=>  reader.GetTextReader(ordinal);
+        public override TextReader GetTextReader(int ordinal) => reader.GetTextReader(ordinal);
 
-        public override IEnumerator GetEnumerator() => reader.GetEnumerator();
+        public override IEnumerator GetEnumerator() => new DbEnumerator(this, CloseConnection);
+
+        protected bool CloseConnection => (commandBehavior & CommandBehavior.CloseConnection) == CommandBehavior.CloseConnection;
+
     }
 }
