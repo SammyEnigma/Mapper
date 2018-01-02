@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using System.Data;
 using System.Data.Common;
 using System.Diagnostics.Contracts;
 using System.Threading.Tasks;
@@ -106,6 +105,7 @@ namespace BusterWood.Mapper
                 if (!reader.Read()) return default(T);
                 var item = map(reader);
                 extraAction?.Invoke(reader, item);
+                if (reader.Read()) throw new InvalidOperationException("Expected one value to be read but more than one value can be read");
                 return item;
             }
             finally
@@ -127,6 +127,7 @@ namespace BusterWood.Mapper
                 if (!await reader.ReadAsync()) return default(T);
                 var item = map(reader);
                 extraAction?.Invoke(reader, item);
+                if (await reader.ReadAsync()) throw new InvalidOperationException("Expected one value to be read but more than one value can be read");
                 return item;
             }
             finally

@@ -13,7 +13,7 @@ namespace BusterWood.Mapper.UnitTests
                 Names = new[] { "ID" },
                 Types = new[] { typeof(int) },
                 Values = new object[] { 1 },
-                read = true // zero rows
+                RecordCount = 0,
             };
             var seq = new DynamicDataSequence(stubDataReader);
             var enm = seq.GetEnumerator();

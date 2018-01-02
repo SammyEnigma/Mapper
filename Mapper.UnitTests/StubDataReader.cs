@@ -10,7 +10,8 @@ namespace BusterWood.Mapper.UnitTests
         public string[] Names;
         public Type[] Types;
         public object[] Values;
-        internal bool read;
+        internal int ReadCalled;
+        internal int RecordCount = 1;
         public string[] DataTypeNames;
 
         public override string GetName(int i) => Names[i];
@@ -76,12 +77,8 @@ namespace BusterWood.Mapper.UnitTests
 
         public override bool Read()
         {
-            if (!read)
-            {
-                read = true;
-                return true;
-            }
-            return false;
+            ReadCalled++;
+            return ReadCalled <= RecordCount;
         }
 
         public override void Close()

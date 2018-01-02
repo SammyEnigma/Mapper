@@ -14,14 +14,80 @@ namespace BusterWood.Mapper.UnitTests
         {
             var stubDataReader = new StubDataReader
             {
-                Names = new []{ "ORDER_ID"},
-                Types = new []{ typeof(int)},
-                Values = new object[] {1},
+                Names = new[] { "ORDER_ID" },
+                Types = new[] { typeof(int) },
+                Values = new object[] { 1 },
             };
             var func = Extensions.GetMappingFunc<TestPropertyId>(stubDataReader);
             var result = func(stubDataReader);
             Assert.IsNotNull(result);
             Assert.AreEqual(1, result.OrderId);
+        }
+
+        [Test]
+        public void can_read_single_or_default()
+        {
+            var stubDataReader = new StubDataReader
+            {
+                Names = new []{ "ORDER_ID"},
+                Types = new []{ typeof(int)},
+                Values = new object[] {1},
+            };
+            var val = stubDataReader.SingleOrDefault<int>();
+            Assert.AreEqual(1, val);
+        }
+
+        [Test]
+        public void can_read_default_value_for_single_or_default()
+        {
+            var stubDataReader = new StubDataReader
+            {
+                Names = new []{ "ORDER_ID"},
+                Types = new []{ typeof(int)},
+                Values = new object[] {1},
+                RecordCount = 0,
+            };
+            var val = stubDataReader.SingleOrDefault<int>();
+            Assert.AreEqual(default(int), val);
+        }
+
+        [Test]
+        public void cannot_read_single_or_default_when_more_than_one_row()
+        {
+            var stubDataReader = new StubDataReader
+            {
+                Names = new []{ "ORDER_ID"},
+                Types = new []{ typeof(int)},
+                Values = new object[] {1},
+                RecordCount = 2,
+            };
+            Assert.Throws<InvalidOperationException>(() => { stubDataReader.SingleOrDefault<int>(); });
+        }
+
+        [Test]
+        public void cannot_read_default_value_for_single()
+        {
+            var stubDataReader = new StubDataReader
+            {
+                Names = new[] { "ORDER_ID" },
+                Types = new[] { typeof(int) },
+                Values = new object[] { 1 },
+                RecordCount = 0,
+            };
+            Assert.Throws<InvalidOperationException>(() => { stubDataReader.Single<int>(); });
+        }
+
+        [Test]
+        public void cannot_read_single_when_more_than_one_row()
+        {
+            var stubDataReader = new StubDataReader
+            {
+                Names = new []{ "ORDER_ID"},
+                Types = new []{ typeof(int)},
+                Values = new object[] {1},
+                RecordCount = 2,
+            };
+            Assert.Throws<InvalidOperationException>(() => { stubDataReader.Single<int>(); });
         }
 
         [Test]
