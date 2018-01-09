@@ -35,7 +35,7 @@ When copying data types must be compatible in *some sense*, the following lists 
 | Any numeric type or enum                          | Any numeric type or any enum                                                                                             |
 | `Nullable<T>` where T is any numeric type or enum | any numeric type or any enum. `default(T)` is used as the value if value is null                                         |
 | `Nullable<T>` where T is any numeric type or enum | `Nullable<T>` where T is any numeric type or enum                                                                        |
-| any type other                                    | type must match, be [assignable](https://msdn.microsoft.com/en-us/library/system.type.isassignablefrom(v=vs.110).aspx)m or have an explicit cast |
+| any type other                                    | type must match, be [assignable](https://msdn.microsoft.com/en-us/library/system.type.isassignablefrom(v=vs.110).aspx), or have an explicit static cast |
 
 ## Name compatibility
 
