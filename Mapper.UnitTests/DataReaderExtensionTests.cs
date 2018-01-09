@@ -1,8 +1,6 @@
 ﻿using NUnit.Framework;
 using System;
-using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 
 namespace BusterWood.Mapper.UnitTests
@@ -168,6 +166,33 @@ namespace BusterWood.Mapper.UnitTests
             };
             var val = stubDataReader.Single<TestStruct<long>>();
             Assert.AreEqual(1L, val.Value);
+        }
+
+
+        [Test]
+        public void can_read_single_via_explicit_operator()
+        {
+            var stubDataReader = new StubDataReader
+            {
+                Names = new[] { "VALUE" },
+                Types = new[] { typeof(int) },
+                Values = new object[] { 1 },
+            };
+            var val = stubDataReader.Single<Id<Order>>();
+            Assert.AreEqual((Id<Order>)1, val);
+        }
+
+        [Test]
+        public void can_read_single_nullable_via_explicit_operator()
+        {
+            var stubDataReader = new StubDataReader
+            {
+                Names = new[] { "VALUE" },
+                Types = new[] { typeof(int) },
+                Values = new object[] { 1 },
+            };
+            var val = stubDataReader.Single<Id<Order>?>();
+            Assert.AreEqual((Id<Order>)1, val.Value);
         }
 
         [Test]
@@ -360,4 +385,18 @@ namespace BusterWood.Mapper.UnitTests
         First = 1,
         Second,
     }
+
+    /// for testing explicit conversions
+    struct Id<T>
+    {
+        public Id(int id)
+        {
+            Value = id;
+        }
+        public int Value { get; }
+        public static explicit operator int(Id<T> id) => id.Value;
+        public static explicit operator Id<T>(int id) => new Id<T>(id);
+    }
+
+
 }

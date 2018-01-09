@@ -40,12 +40,16 @@ namespace BusterWood.Mapper
             Contract.Requires(typeT != null);
             Contract.Ensures(Contract.Result<Delegate>() != null);
 
-            if (typeT.IsPrimitiveOrEnum() || typeT.IsNullable() || typeT == typeof(Guid) || typeT == typeof(DateTime) || typeT == typeof(DateTimeOffset))
+            if (typeT.IsPrimitiveOrEnum() || typeT.IsNullable() 
+                || typeT == typeof(Guid) || typeT == typeof(DateTime) || typeT == typeof(DateTimeOffset)
+                || (typeT.IsClass == false && typeT.Name.Contains("Id")) && typeT.Namespace.Contains("BusterWood")) // special case for Id, IntId, LongId and GuidId structs
             {
                 return CreatePrimativeMapFunc(typeT, columns);
             }
 
             MappingResult<Thing, Thing> result = Mapping.CreateFromSource(columns.Cast<Thing>().ToList(), Types.WriteablePublicThings(typeT), typeT.Name);
+            if (result.Mapped.Count == 0)
+                throw new InvalidOperationException("No columns were mapped to type " + typeT);
             var readerParam = Expression.Parameter(typeof(DbDataReader), "reader");
             var resultParam = Expression.Parameter(typeT, "result");
             var block = CreateMapBlock(typeT, result.Mapped, readerParam, resultParam);
@@ -74,7 +78,7 @@ namespace BusterWood.Mapper
                 value = Expression.Convert(value, col0.Type);
 
             if (col0.Type != typeT)
-                value = Expression.Convert(value, typeT);
+                value = ConvertOrCastValue(value, col0.Type, typeT);
 
             var body = Expression.Condition(
                 Expression.IsTrue(Expression.Call(readerParam, typeof(DbDataReader).GetMethod("IsDBNull", new[] { typeof(int) }), Expression.Constant(0))),
@@ -90,7 +94,6 @@ namespace BusterWood.Mapper
             Contract.Requires(type != null);
             Contract.Requires(mappping != null);
             Contract.Ensures(Contract.Result<BlockExpression>() != null);
-
             var ctor = type.IsClass ? (Expression)Expression.New(type.GetConstructor(Type.EmptyTypes)) : Expression.Default(type);
             Contract.Assert(ctor != null);
             var lines = new List<Expression> { Expression.Assign(result, ctor) };
@@ -125,17 +128,36 @@ namespace BusterWood.Mapper
             if (readAsObject)
                 value = Expression.Convert(value, from.Type);
 
-            var outType = to.Type;
-            if (from.Type != outType)
+            if (from.Type != to.Type)
             {
-                value = Expression.Convert(value, outType);
+                value = ConvertOrCastValue(value, from.Type, to.Type);
             }
             return Expression.Assign(Expression.PropertyOrField(result, to.Name), value);
         }
 
+        private static Expression ConvertOrCastValue(Expression value, Type fromType, Type outType)
+        {
+            var castMethod = Types.GetExplicitCastOperator(fromType, outType);
+            if (castMethod != null)
+            {
+                return Expression.Call(castMethod, value);
+            }
+
+            if (outType.IsNullable())
+            {
+                var outArgType = outType.GetGenericArguments()[0];
+                castMethod = Types.GetExplicitCastOperator(fromType, outArgType);
+                if (castMethod != null)
+                {
+                    return Expression.Convert(Expression.Call(castMethod, value), outType);
+                }
+            }
+
+            return Expression.Convert(value, outType);
+        }
+
         static Expression AssignRowVersionTimestampValue(Column from, Thing to, ParameterExpression result, ParameterExpression reader)
         {
-            //BIG assumption here is all byte[] fields are SQL Server Timestamp (RowVersion) fields
             var buffer = Expression.Parameter(typeof(byte[]), "buffer");
             var getBytes = typeof(DbDataReader).GetMethod("GetBytes", new[] { typeof(int), typeof(long), typeof(byte[]), typeof(int), typeof(int) });
             return Expression.Block(

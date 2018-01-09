@@ -311,6 +311,45 @@ namespace BusterWood.Mapper.UnitTests
             Assert.AreEqual(1, output.Count());
             Assert.AreEqual(1, output.First().Value);
         }
+
+        [Test]
+        public void can_copy_from_via_static_cast_operator ()
+        {
+            var input = new OrderWithId { OrderId = new Id<Order>(1) };
+            var output = input.Copy<OrderWithId, OrderWithoutId>();
+            Assert.AreEqual(1, output.OrderId);
+        }
+
+        [Test]
+        public void can_copy_from_via_static_cast_operator_to_nullable ()
+        {
+            var input = new OrderWithId { OrderId = new Id<Order>(1) };
+            var output = input.Copy<OrderWithId, OrderWithoutNullableId>();
+            Assert.AreEqual(1, output.OrderId);
+        }
+
+        [Test]
+        public void can_copy_to_via_static_cast_operator ()
+        {
+            var input = new OrderWithoutId { OrderId = 1 };
+            var output = input.Copy<OrderWithoutId, OrderWithId>();
+            Assert.AreEqual(1, output.OrderId.Value);
+        }
+    }
+
+    class OrderWithId
+    {
+        public Id<Order> OrderId { get; set; }
+    }
+
+    class OrderWithoutId
+    {
+        public int OrderId { get; set; }
+    }
+
+    class OrderWithoutNullableId
+    {
+        public int? OrderId { get; set; }
     }
 
     public class WithUnderscore

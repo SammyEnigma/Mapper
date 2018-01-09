@@ -102,7 +102,10 @@ namespace BusterWood.Mapper
         }
 
         [Pure]
-        public static bool AreCompatible(Type inType, Type outType) => inType == outType || CanBeCast(inType, outType);
+        public static bool AreCompatible(Type inType, Type outType)
+        {
+            return inType == outType || CanBeCast(inType, outType) || CanBeCastViaExplicitOperator(inType, outType);
+        }
 
         [Pure]
         public static bool CanBeCast(Type inType, Type outType)
@@ -115,10 +118,31 @@ namespace BusterWood.Mapper
                    || (outType.IsPrimitive && inType.IsEnum);
         }
 
+        public static bool CanBeCastViaExplicitOperator(Type inType, Type outType)
+        {
+            return GetExplicitCastOperator(inType, outType) != null;
+        }
+
+        public static MethodInfo GetExplicitCastOperator(Type inType, Type outType)
+        {
+            // try the output type first
+            var method = outType.GetMethod("op_Explicit", BindingFlags.Static | BindingFlags.Public, null, new Type[] { inType }, null);
+            if (method != null && method.ReturnType == outType)
+                return method;
+
+            // try the input type
+            method = inType.GetMethod("op_Explicit", BindingFlags.Static | BindingFlags.Public, null, new Type[] { inType }, null);
+            if (method != null && method.ReturnType == outType)
+                return method;
+            return null;
+        }
+
         [Pure]
         public static bool AreInSomeSenseCompatible(Type inType, Type outType)
         {
-            return AreCompatible(inType, outType) || (IsNullable(inType) && AreCompatible(inType.GetGenericArguments()[0], outType));
+            return AreCompatible(inType, outType) 
+                || (IsNullable(inType) && AreCompatible(inType.GetGenericArguments()[0], outType))
+                || (IsNullable(outType) && AreCompatible(inType, outType.GetGenericArguments()[0]));
         }
 
         [Pure]

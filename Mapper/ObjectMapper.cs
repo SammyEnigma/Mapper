@@ -22,6 +22,8 @@ namespace BusterWood.Mapper
             Contract.Ensures(Contract.Result<Delegate>() != null);
 
             var result = Mapping.CreateFromSource(inType, outType, inType.Name);
+            if (result.Mapped.Count == 0)
+                throw new InvalidOperationException("No fields or properties were mapped");
             LambdaExpression lambdaExpression = CreateMappingLambda(inType, outType, result.Mapped);
             return lambdaExpression.Compile();
         }
@@ -69,29 +71,57 @@ namespace BusterWood.Mapper
             {
                 return value;
             }
-            if (Types.CanBeCast(fromType, toType))
+            if (Types.CanBeCast(fromType, toType)) // e.g. int to long
             {
                 return Expression.Convert(value, toType);
             }
             if (Types.IsNullable(fromType))
             {
-                var nullableArgType = Types.NullableOf(fromType);
-                if (nullableArgType == toType)
+                Expression fromValueOrDefault = Expression.Call(value, fromType.GetMethod("GetValueOrDefault", Type.EmptyTypes));
+                var fromArgType = Types.NullableOf(fromType);
+                if (fromArgType == toType) // e.g. int? to int
                 {
-                    return Expression.Call(value, fromType.GetMethod("GetValueOrDefault", Type.EmptyTypes));
+                    return fromValueOrDefault;
                 }
-                if (Types.IsNullable(toType) && Types.CanBeCast(nullableArgType, toType))
+                var cast = Types.GetExplicitCastOperator(fromArgType, toType); 
+                if (cast != null) // e.g. IntId<>? to int
+                {
+                    return Expression.Call(cast, fromValueOrDefault);
+                }
+                if (Types.IsNullable(toType))
                 {
                     // nullable<> to nullable<> conversion must handle null to null as a special case
-                    return Expression.Condition(
-                        Expression.PropertyOrField(value, "HasValue"),
-                        Expression.Convert(Expression.Call(value, fromType.GetMethod("GetValueOrDefault", Type.EmptyTypes)), toType),
-                        Expression.Default(toType));
+
+                    var toArgType = toType.GetGenericArguments()[0];
+                    if (Types.CanBeCast(fromArgType, toType)) // e.g. int? to long?
+                    {
+                        return Expression.Condition(Expression.PropertyOrField(value, "HasValue"), Expression.Convert(fromValueOrDefault, toType), Expression.Default(toType));
+                    }
+
+                    cast = Types.GetExplicitCastOperator(fromArgType, toArgType);  // e.g. IntId<>? to int?
+                    if (cast != null)
+                        fromValueOrDefault = Expression.Call(cast, fromValueOrDefault);
+
+                    return Expression.Condition(Expression.PropertyOrField(value, "HasValue"), Expression.Convert(fromValueOrDefault, toType), Expression.Default(toType));
                 }
-                if (Types.CanBeCast(nullableArgType, toType))
+                if (Types.CanBeCast(fromArgType, toType)) // e.g. int? to long
                 {
-                    return Expression.Convert(Expression.Call(value, fromType.GetMethod("GetValueOrDefault", Type.EmptyTypes)), toType);
+                    return Expression.Convert(fromValueOrDefault, toType);
                 }
+            }
+            if (Types.IsNullable(toType))
+            {
+                var toArgType = toType.GetGenericArguments()[0];
+                var cast2 = Types.GetExplicitCastOperator(fromType, toArgType); // e.g. IntId<> to int?
+                if (cast2 != null)
+                {
+                    return Expression.Convert(Expression.Call(cast2, value), toType);
+                }
+            }
+            var cast3 = Types.GetExplicitCastOperator(fromType, toType); // e.g. IntId<> to int
+            if (cast3 != null)
+            {
+                return Expression.Call(cast3, value);
             }
             throw new InvalidOperationException("Should never get here has types compatibility has been checked");
         }

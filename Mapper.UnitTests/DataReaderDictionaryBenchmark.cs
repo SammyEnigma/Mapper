@@ -11,6 +11,7 @@ namespace BusterWood.Mapper.UnitTests
     [TestFixture, Category("Performance")]
     public class DataReaderDictionaryBenchmark
     {
+        [Ignore]
         [TestCase(10)]
         [TestCase(100)]
         public void BenchmarkMostlyReadDictionary(int readsPerWrite)
