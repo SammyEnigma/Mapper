@@ -2,13 +2,13 @@
 <package >
   <metadata>
     <id>BusterWood.Mapper</id>
-    <version>7.4.0</version>
+    <version>7.5.0</version>
     <authors>BusterWood</authors>
     <description>A convention-based object cloner, object-object mapper (like AutoMapper), DbDataReader to object mapper, object to command data parameter mapper, etc.</description>
     <projectUrl>https://github.com/busterwood/mapper</projectUrl>
     <licenseUrl>https://github.com/busterwood/mapper/blob/master/LICENSE.txt</licenseUrl>
   <releaseNotes>
-  Add support for command timeout on Query and Execution extension methods
+  Add support for reading a simple List&lt;string&gt;
   </releaseNotes>
     <references>
       <reference file="BusterWood.Mapper.dll" />

@@ -40,8 +40,8 @@ namespace BusterWood.Mapper
             Contract.Requires(typeT != null);
             Contract.Ensures(Contract.Result<Delegate>() != null);
 
-            if (typeT.IsPrimitiveOrEnum() || typeT.IsNullable() 
-                || typeT == typeof(Guid) || typeT == typeof(DateTime) || typeT == typeof(DateTimeOffset)
+            if (typeT.IsPrimitiveOrEnum() || typeT.IsNullable()
+                 || typeT == typeof(string) || typeT == typeof(Guid) || typeT == typeof(DateTime) || typeT == typeof(DateTimeOffset)
                 || (typeT.IsClass == false && typeT.Name.Contains("Id")) && typeT.Namespace.Contains("BusterWood")) // special case for Id, IntId, LongId and GuidId structs
             {
                 return CreatePrimativeMapFunc(typeT, columns);

@@ -237,6 +237,18 @@ VALUES (3, @when)";
                 Assert.IsTrue(Enumerable.SequenceEqual(input, bt.Data), "wrong data read");
             }
         }
+
+        [Test]
+        public void can_list_of_strings()
+        {
+            using (var cnn = new SqlConnection(mapperTest))
+            {
+                var input = new byte[] { 1, 2, 3 };
+                var currencyNames = cnn.Query("select CURRENCY_NAME from dbo.Currency").ToList<string>();
+                Assert.IsNotNull(currencyNames.Count);
+                Assert.AreEqual(10, currencyNames.Count);
+            }
+        }
     }
 
     internal class BinaryTest
