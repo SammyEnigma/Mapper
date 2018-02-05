@@ -13,24 +13,24 @@ namespace BusterWood.Mapper
         /// <summary>
         /// Executes some <paramref name="sql"/> using the optional <paramref name="parameters"/> and return a sequence of data
         /// </summary>
-        public static DbDataReader Query(this DbConnection cnn, string sql, object parameters = null)
+        public static DbDataReader Query(this DbConnection cnn, string sql, object parameters = null, int? timeoutSecs = null)
         {
             Contract.Requires(cnn != null);
             Contract.Requires(!string.IsNullOrWhiteSpace(sql));
-            return QueryInternal(cnn, sql, parameters, CommandType.Text);
+            return QueryInternal(cnn, sql, parameters, CommandType.Text, timeoutSecs);
         }
 
         /// <summary>
         /// Executes a stored procedure using the optional <paramref name="parameters"/> and return a sequence of data
         /// </summary>
-        public static DbDataReader QueryProc(this DbConnection cnn, string procName, object parameters = null)
+        public static DbDataReader QueryProc(this DbConnection cnn, string procName, object parameters = null, int? timeoutSecs = null)
         {
             Contract.Requires(cnn != null);
             Contract.Requires(!string.IsNullOrWhiteSpace(procName));
-            return QueryInternal(cnn, procName, parameters, CommandType.StoredProcedure);
+            return QueryInternal(cnn, procName, parameters, CommandType.StoredProcedure, timeoutSecs);
         }
 
-        private static DbDataReader QueryInternal(DbConnection cnn, string sql, object parameters, CommandType cmdType)
+        private static DbDataReader QueryInternal(DbConnection cnn, string sql, object parameters, CommandType cmdType, int? timeoutSecs)
         {
             Contract.Requires(cnn != null);
             Contract.Requires(!string.IsNullOrWhiteSpace(sql));
@@ -43,13 +43,8 @@ namespace BusterWood.Mapper
             }
             try
             {
-                using (var cmd = cnn.CreateCommand())
+                using (var cmd = CreateCommand(cnn, cmdType, sql, timeoutSecs, parameters))
                 {
-                    cmd.CommandType = cmdType;
-                    cmd.Connection = cnn;
-                    cmd.CommandText = sql;
-                    if (parameters != null)
-                        cmd.AddParameters(parameters);
                     return cmd.ExecuteReader(cb);
                 }
             }
@@ -64,24 +59,24 @@ namespace BusterWood.Mapper
         /// <summary>
         /// Asynchronously executes some <paramref name="sql"/> using the optional <paramref name="parameters"/> and return a sequence of data
         /// </summary>
-        public static Task<DbDataReader> QueryAsync(this DbConnection cnn, string sql, object parameters = null)
+        public static Task<DbDataReader> QueryAsync(this DbConnection cnn, string sql, object parameters = null, int? timeoutSecs = null)
         {
             Contract.Requires(cnn != null);
             Contract.Requires(!string.IsNullOrWhiteSpace(sql));
-            return QueryAsyncInternal(cnn, sql, parameters, CommandType.Text);
+            return QueryAsyncInternal(cnn, sql, parameters, CommandType.Text, timeoutSecs);
         }
 
         /// <summary>
         /// Asynchronously executes a stored procedure using the optional <paramref name="parameters"/> and return a sequence of data
         /// </summary>
-        public static Task<DbDataReader> QueryProcAsync(this DbConnection cnn, string procName, object parameters = null)
+        public static Task<DbDataReader> QueryProcAsync(this DbConnection cnn, string procName, object parameters = null, int? timeoutSecs = null)
         {
             Contract.Requires(cnn != null);
             Contract.Requires(!string.IsNullOrWhiteSpace(procName));
-            return QueryAsyncInternal(cnn, procName, parameters, CommandType.StoredProcedure);
+            return QueryAsyncInternal(cnn, procName, parameters, CommandType.StoredProcedure, timeoutSecs);
         }
 
-        private static async Task<DbDataReader> QueryAsyncInternal(DbConnection cnn, string sql, object parameters, CommandType cmdType)
+        private static async Task<DbDataReader> QueryAsyncInternal(DbConnection cnn, string sql, object parameters, CommandType cmdType, int? timeoutSecs)
         {
             Contract.Requires(cnn != null);
             Contract.Requires(!string.IsNullOrWhiteSpace(sql));
@@ -94,13 +89,8 @@ namespace BusterWood.Mapper
             }
             try
             {
-                using (var cmd = cnn.CreateCommand())
+                using (var cmd = CreateCommand(cnn, cmdType, sql, timeoutSecs, parameters))
                 {
-                    cmd.CommandType = cmdType;
-                    cmd.Connection = cnn;
-                    cmd.CommandText = sql;
-                    if (parameters != null)
-                        cmd.AddParameters(parameters);
                     return await cmd.ExecuteReaderAsync(cb);
                 }
             }
@@ -115,24 +105,24 @@ namespace BusterWood.Mapper
         /// <summary>
         /// Executes some <paramref name="sql"/> using the optional <paramref name="parameters"/> and return the number of rows affected
         /// </summary>
-        public static int Execute(this DbConnection cnn, string sql, object parameters = null)
+        public static int Execute(this DbConnection cnn, string sql, object parameters = null, int? timeoutSecs = null)
         {
             Contract.Requires(cnn != null);
             Contract.Requires(!string.IsNullOrWhiteSpace(sql));
-            return ExecuteCore(cnn, sql, parameters, CommandType.Text);
+            return ExecuteCore(cnn, sql, parameters, CommandType.Text, timeoutSecs);
         }
 
         /// <summary>
         /// Executes the <paramref name="procName"/> using the optional <paramref name="parameters"/> and return the number of rows affected
         /// </summary>
-        public static int ExecuteProc(this DbConnection cnn, string procName, object parameters = null)
+        public static int ExecuteProc(this DbConnection cnn, string procName, object parameters = null, int? timeoutSecs = null)
         {
             Contract.Requires(cnn != null);
             Contract.Requires(!string.IsNullOrWhiteSpace(procName));
-            return ExecuteCore(cnn, procName, parameters, CommandType.StoredProcedure);
+            return ExecuteCore(cnn, procName, parameters, CommandType.StoredProcedure, timeoutSecs);
         }
 
-        private static int ExecuteCore(DbConnection cnn, string sql, object parameters, CommandType cmdType)
+        private static int ExecuteCore(DbConnection cnn, string sql, object parameters, CommandType cmdType, int? timeoutSecs)
         {
             Contract.Requires(cnn != null);
             Contract.Requires(!string.IsNullOrWhiteSpace(sql));
@@ -143,13 +133,8 @@ namespace BusterWood.Mapper
             }
             try
             {
-                using (var cmd = cnn.CreateCommand())
+                using (var cmd = CreateCommand(cnn, cmdType, sql, timeoutSecs, parameters))
                 {
-                    cmd.CommandType = cmdType;
-                    cmd.Connection = cnn;
-                    cmd.CommandText = sql;
-                    if (parameters != null)
-                        cmd.AddParameters(parameters);
                     return cmd.ExecuteNonQuery();
                 }
             }
@@ -164,24 +149,24 @@ namespace BusterWood.Mapper
         /// <summary>
         /// Asynchronously executes some <paramref name="sql"/> using the optional <paramref name="parameters"/> and return the number of rows affected
         /// </summary>
-        public static Task<int> ExecuteAsync(this DbConnection cnn, string sql, object parameters = null)
+        public static Task<int> ExecuteAsync(this DbConnection cnn, string sql, object parameters = null, int? timeoutSecs = null)
         {
             Contract.Requires(cnn != null);
             Contract.Requires(!string.IsNullOrWhiteSpace(sql));
-            return ExecuteAsyncInternal(cnn, sql, parameters, CommandType.Text);
+            return ExecuteAsyncInternal(cnn, sql, parameters, CommandType.Text, timeoutSecs);
         }
 
         /// <summary>
         /// Asynchronously executes the <paramref name="procName"/> using the optional <paramref name="parameters"/> and return the number of rows affected
         /// </summary>
-        public static Task<int> ExecuteProcAsync(this DbConnection cnn, string procName, object parameters = null)
+        public static Task<int> ExecuteProcAsync(this DbConnection cnn, string procName, object parameters = null, int? timeoutSecs = null)
         {
             Contract.Requires(cnn != null);
             Contract.Requires(!string.IsNullOrWhiteSpace(procName));
-            return ExecuteAsyncInternal(cnn, procName, parameters, CommandType.StoredProcedure);
+            return ExecuteAsyncInternal(cnn, procName, parameters, CommandType.StoredProcedure, timeoutSecs);
         }
 
-        private static async Task<int> ExecuteAsyncInternal(DbConnection cnn, string sql, object parameters, CommandType cmdType)
+        private static async Task<int> ExecuteAsyncInternal(DbConnection cnn, string sql, object parameters, CommandType cmdType, int? timeoutSecs)
         {
             Contract.Requires(cnn != null);
             Contract.Requires(!string.IsNullOrWhiteSpace(sql));
@@ -192,13 +177,8 @@ namespace BusterWood.Mapper
             }
             try
             {
-                using (var cmd = cnn.CreateCommand())
+                using (var cmd = CreateCommand(cnn, cmdType, sql, timeoutSecs, parameters))
                 {
-                    cmd.CommandType = cmdType;
-                    cmd.Connection = cnn;
-                    cmd.CommandText = sql;
-                    if (parameters != null)
-                        cmd.AddParameters(parameters);
                     return await cmd.ExecuteNonQueryAsync();
                 }
             }
@@ -209,6 +189,26 @@ namespace BusterWood.Mapper
                 throw;
             }
         }
-        
+
+        private static DbCommand CreateCommand(DbConnection cnn, CommandType cmdType, string sql, int? timeoutSecs, object parameters)
+        {
+            var cmd = cnn.CreateCommand();
+            try
+            {
+                cmd.CommandType = cmdType;
+                cmd.Connection = cnn;
+                cmd.CommandText = sql;
+                if (timeoutSecs.HasValue)
+                    cmd.CommandTimeout = timeoutSecs.Value;
+                if (parameters != null)
+                    cmd.AddParameters(parameters);
+                return cmd;
+            }
+            catch
+            {
+                cmd.Dispose();
+                throw;
+            }
+        }
     }
 }
