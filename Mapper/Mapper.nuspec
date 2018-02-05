@@ -21,6 +21,6 @@
     <file src="Bin\Release\BusterWood.Mapper.dll" target="lib\net45"/>
     <file src="..\Mapper.CodeGen\Bin\Release\BusterWood.Mapper.CodeGen.dll" target="lib\net45"/>
     <file src="Bin\Release\BusterWood.Mapper.xml" target="lib\net45"/>
-    <file src="Bin\Release\CodeContracts\BusterWood.Mapper.Contracts.dll" target="lib\net45\CodeContracts" />
+    <!--<file src="Bin\Release\CodeContracts\BusterWood.Mapper.Contracts.dll" target="lib\net45\CodeContracts" />-->
   </files>
 </package>
