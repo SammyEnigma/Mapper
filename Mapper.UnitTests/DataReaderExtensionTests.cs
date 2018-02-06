@@ -397,6 +397,21 @@ namespace BusterWood.Mapper.UnitTests
             Assert.AreEqual(State.Second, result.State);
         }
 
+        [Test]
+        public void can_read_decimal_into_nullable_decimal()
+        {
+            var stubDataReader = new StubDataReader
+            {
+                Names = new[] { "AMOUNT" },
+                Types = new[] { typeof(decimal) },
+                Values = new object[] { 1m },
+            };
+            var func = Extensions.GetMappingFunc<NullableDecimal>(stubDataReader);
+            var result = func(stubDataReader);
+            Assert.IsNotNull(result);
+            Assert.AreEqual(1m, result.Amount);
+        }
+
     }
 
     struct TestStruct<T>
@@ -432,6 +447,11 @@ namespace BusterWood.Mapper.UnitTests
     class NullableLong
     {
         public long? Id { get; set; }
+    }
+
+    class NullableDecimal
+    {
+        public decimal? Amount { get; set; }
     }
 
     class Order
