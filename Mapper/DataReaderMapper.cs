@@ -137,20 +137,23 @@ namespace BusterWood.Mapper
 
         private static Expression ConvertOrCastValue(Expression value, Type fromType, Type outType)
         {
+            if (outType.IsNullable())
+            {
+                var outArgType = outType.GetGenericArguments()[0];
+                if (fromType == outArgType)
+                    return Expression.Convert(value, outType); // e.g. int to int?
+
+                var castMethod2 = Types.GetExplicitCastOperator(fromType, outArgType);
+                if (castMethod2 != null)
+                {
+                    return Expression.Convert(Expression.Call(castMethod2, value), outType);
+                }
+            }
+
             var castMethod = Types.GetExplicitCastOperator(fromType, outType);
             if (castMethod != null)
             {
                 return Expression.Call(castMethod, value);
-            }
-
-            if (outType.IsNullable())
-            {
-                var outArgType = outType.GetGenericArguments()[0];
-                castMethod = Types.GetExplicitCastOperator(fromType, outArgType);
-                if (castMethod != null)
-                {
-                    return Expression.Convert(Expression.Call(castMethod, value), outType);
-                }
             }
 
             return Expression.Convert(value, outType);

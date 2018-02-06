@@ -125,15 +125,22 @@ namespace BusterWood.Mapper
 
         public static MethodInfo GetExplicitCastOperator(Type inType, Type outType)
         {
-            // try the output type first
-            var method = outType.GetMethod("op_Explicit", BindingFlags.Static | BindingFlags.Public, null, new Type[] { inType }, null);
-            if (method != null && method.ReturnType == outType)
-                return method;
+            try
+            {
+                // try the output type first
+                var method = outType.GetMethod("op_Explicit", BindingFlags.Static | BindingFlags.Public, null, new Type[] { inType }, null);
+                if (method != null && method.ReturnType == outType)
+                    return method;
 
-            // try the input type
-            method = inType.GetMethod("op_Explicit", BindingFlags.Static | BindingFlags.Public, null, new Type[] { inType }, null);
-            if (method != null && method.ReturnType == outType)
-                return method;
+                // try the input type
+                method = inType.GetMethod("op_Explicit", BindingFlags.Static | BindingFlags.Public, null, new Type[] { inType }, null);
+                if (method != null && method.ReturnType == outType)
+                    return method;
+            }
+            catch (AmbiguousMatchException)
+            {
+                throw new AmbiguousMatchException($"Ambiguous explicit cast from {inType} to {outType}");
+            }
             return null;
         }
 
